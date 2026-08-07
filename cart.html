@@ -1,27 +1,100 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="red">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito - RBX Systems</title>
+    <title>Carrito - YX Studios</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=Aa6KFjacVgqjs6vg9uBBD58-DAVVU1QPXJ_RIrDqUhVSXXs_n35A65NRxCcc3kN91D-pgZg6UsKBW05u&currency=USD" data-sdk-integration-source="button-factory"></script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-brand">
-            <i class="fas fa-gamepad"></i>
-            <span>RBX Systems</span>
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+        <div class="theme-toggle-btn">
+            <i class="fas fa-palette"></i>
         </div>
-        <div class="nav-menu">
-            <a href="products.html"><i class="fas fa-store"></i> Productos</a>
-            <a href="cart.html" class="active">
-                <i class="fas fa-shopping-cart"></i> Carrito
-                <span id="cartCount" class="cart-badge">0</span>
-            </a>
-            <a href="dashboard.html"><i class="fas fa-user"></i> Mi Cuenta</a>
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        <div class="theme-panel">
+            <h4><i class="fas fa-paint-brush"></i> Personalizar Tema</h4>
+            <div class="theme-options">
+                <button class="theme-option active" data-theme="red">
+                    <span class="theme-color red-theme"></span>
+                    <span>Red Passion</span>
+                </button>
+                <button class="theme-option" data-theme="dark-gray">
+                    <span class="theme-color dark-gray-theme"></span>
+                    <span>Dark Steel</span>
+                </button>
+                <button class="theme-option" data-theme="blue">
+                    <span class="theme-color blue-theme"></span>
+                    <span>Ocean Blue</span>
+                </button>
+                <button class="theme-option" data-theme="purple">
+                    <span class="theme-color purple-theme"></span>
+                    <span>Royal Purple</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOPBAR -->
+    <nav class="topbar">
+        <div class="topbar-container">
+            <div class="topbar-brand">
+                <a href="index.html">
+                    <i class="fas fa-gamepad"></i>
+                    <span>YX Studios</span>
+                </a>
+            </div>
+            
+            <div class="topbar-nav">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="index.html#products" class="nav-link">
+                    <i class="fas fa-store"></i>
+                    <span>Productos</span>
+                </a>
+                <a href="cart.html" class="nav-link cart-link active">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Carrito</span>
+                    <span id="cartCount" class="cart-badge">0</span>
+                </a>
+                
+                <div id="guestMenu" class="auth-buttons">
+                    <a href="login.html" class="btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                    </a>
+                    <a href="register.html" class="btn-register">
+                        <i class="fas fa-user-plus"></i> Registrarse
+                    </a>
+                </div>
+                
+                <div id="userMenu" class="user-menu" style="display: none;">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-btn">
+                            <img id="userAvatar" src="https://via.placeholder.com/32" alt="Avatar" class="user-avatar">
+                            <span id="userNameDisplay">Usuario</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown-content">
+                            <a href="dashboard.html">
+                                <i class="fas fa-user"></i> Mi Perfil
+                            </a>
+                            <a href="dashboard.html#purchases">
+                                <i class="fas fa-shopping-bag"></i> Mis Compras
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -34,14 +107,14 @@
         </div>
 
         <div id="cartItems" class="cart-items">
-            <!-- Items del carrito se cargan dinámicamente -->
+            <!-- Items se cargan dinámicamente -->
         </div>
 
-        <div id="emptyCart" class="empty-cart">
+        <div id="emptyCart" class="empty-cart" style="display: none;">
             <i class="fas fa-shopping-cart"></i>
             <h2>Tu carrito está vacío</h2>
-            <p>¡Agrega algunos sistemas increíbles para tu juego de Roblox!</p>
-            <a href="products.html" class="btn-primary">
+            <p>¡Agrega sistemas increíbles para tu juego de Roblox!</p>
+            <a href="index.html#products" class="btn-primary">
                 <i class="fas fa-store"></i> Ver Productos
             </a>
         </div>
@@ -49,17 +122,20 @@
         <div id="cartSummary" class="cart-summary" style="display: none;">
             <div class="summary-card">
                 <h3>Resumen de Compra</h3>
+                
+                <div id="orderItemsList" class="order-items-list"></div>
+                
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span id="subtotal">0</span>
+                    <span id="subtotal">$0.00</span>
                 </div>
                 <div class="summary-row">
                     <span>Descuento</span>
-                    <span id="discount">0</span>
+                    <span id="discount">$0.00</span>
                 </div>
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span id="total">0</span>
+                    <span id="total">$0.00</span>
                 </div>
                 
                 <div class="promo-code">
@@ -67,101 +143,39 @@
                     <button id="applyPromo" class="btn-secondary">Aplicar</button>
                 </div>
                 
-                <button id="checkoutBtn" class="btn-primary btn-checkout">
-                    <i class="fas fa-lock"></i> Proceder al Pago
-                </button>
+                <!-- Sección de PayPal -->
+                <div class="payment-section">
+                    <h4><i class="fab fa-paypal"></i> Pagar con PayPal</h4>
+                    <div id="paypal-button-container"></div>
+                </div>
                 
                 <div class="payment-methods">
-                    <p>Aceptamos:</p>
+                    <p>También aceptamos:</p>
                     <div class="payment-icons">
                         <i class="fab fa-cc-paypal"></i>
                         <i class="fas fa-coins"></i>
-                        <i class="fab fa-cc-stripe"></i>
+                        <i class="fab fa-bitcoin"></i>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Modal de Checkout -->
-        <div id="checkoutModal" class="modal">
-            <div class="modal-content checkout-modal">
-                <span class="close">&times;</span>
-                <h2>💳 Finalizar Compra</h2>
-                
-                <div class="checkout-steps">
-                    <div class="step active" data-step="1">
-                        <div class="step-number">1</div>
-                        <p>Contacto</p>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" data-step="2">
-                        <div class="step-number">2</div>
-                        <p>Pago</p>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" data-step="3">
-                        <div class="step-number">3</div>
-                        <p>Confirmación</p>
-                    </div>
-                </div>
-                
-                <form id="checkoutForm">
-                    <div class="checkout-step-content" id="step1Content">
-                        <div class="form-group">
-                            <label>Discord Username</label>
-                            <input type="text" id="discordUser" placeholder="Usuario#0000" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Roblox Username</label>
-                            <input type="text" id="robloxUser" placeholder="Tu usuario de Roblox" required>
-                        </div>
-                        <button type="button" class="btn-primary" onclick="nextStep(2)">
-                            Continuar
-                        </button>
-                    </div>
-                    
-                    <div class="checkout-step-content" id="step2Content" style="display: none;">
-                        <div class="payment-options">
-                            <label class="payment-option">
-                                <input type="radio" name="payment" value="paypal" checked>
-                                <i class="fab fa-paypal"></i>
-                                <span>PayPal</span>
-                            </label>
-                            <label class="payment-option">
-                                <input type="radio" name="payment" value="robux">
-                                <i class="fas fa-coins"></i>
-                                <span>Robux</span>
-                            </label>
-                            <label class="payment-option">
-                                <input type="radio" name="payment" value="crypto">
-                                <i class="fab fa-bitcoin"></i>
-                                <span>Crypto</span>
-                            </label>
-                        </div>
-                        <button type="button" class="btn-primary" onclick="nextStep(3)">
-                            Continuar
-                        </button>
-                    </div>
-                    
-                    <div class="checkout-step-content" id="step3Content" style="display: none;">
-                        <div class="order-summary">
-                            <h4>Resumen del Pedido</h4>
-                            <div id="orderItems"></div>
-                            <div class="summary-row total">
-                                <span>Total a Pagar</span>
-                                <span id="orderTotal">0</span>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-primary">
-                            <i class="fas fa-check"></i> Confirmar Pedido
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </main>
 
+    <!-- Modal de Pago Exitoso -->
+    <div id="successModal" class="modal-overlay" style="display: none;">
+        <div class="success-modal">
+            <i class="fas fa-check-circle"></i>
+            <h2>¡Pago Exitoso!</h2>
+            <p>Tu compra ha sido procesada correctamente.</p>
+            <p>Te contactaremos por Discord para entregarte el sistema.</p>
+            <button class="btn-primary" onclick="window.location.href='index.html'">
+                <i class="fas fa-home"></i> Volver al Inicio
+            </button>
+        </div>
+    </div>
+
     <script src="js/config.js"></script>
-    <script type="module" src="js/cart.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/cart.js"></script>
 </body>
 </html>
