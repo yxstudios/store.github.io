@@ -1,1 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda - RBX Systems</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-gamepad"></i>
+            <span>RBX Systems</span>
+        </div>
+        <div class="nav-menu">
+            <a href="products.html" class="active"><i class="fas fa-store"></i> Productos</a>
+            <a href="dashboard.html"><i class="fas fa-user"></i> Mi Cuenta</a>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Salir</a>
+        </div>
+    </nav>
 
+    <main class="shop-container">
+        <div class="shop-header">
+            <h1>🎮 Nuestros Sistemas</h1>
+            <p>Sistemas profesionales para tus juegos de Roblox</p>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Buscar sistemas...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <div class="category-filters">
+            <button class="filter-btn active" data-category="all">Todos</button>
+            <button class="filter-btn" data-category="admin">Admin Systems</button>
+            <button class="filter-btn" data-category="economy">Economía</button>
+            <button class="filter-btn" data-category="combat">Combate</button>
+            <button class="filter-btn" data-category="building">Construcción</button>
+        </div>
+
+        <div id="productsGrid" class="products-grid">
+            <!-- Productos se cargan dinámicamente -->
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Cargando sistemas...</p>
+            </div>
+        </div>
+
+        <!-- Modal de producto -->
+        <div id="productModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script type="module" src="js/products.js"></script>
+</body>
+</html>
