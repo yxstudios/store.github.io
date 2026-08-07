@@ -2,71 +2,56 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Verificar sesión al cargar
+// Verificar sesión
 async function checkSession() {
     const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session) {
-        // Si estamos en index.html, redirigir al dashboard
-        if (window.location.pathname.includes('index.html') || 
-            window.location.pathname === '/' || 
-            window.location.pathname === '') {
-            window.location.href = 'products.html';
-        }
-    } else {
-        // Si no hay sesión y estamos en página protegida
-        if (window.location.pathname.includes('dashboard.html') || 
-            window.location.pathname.includes('products.html')) {
-            window.location.href = 'index.html';
-        }
-    }
+    return session;
 }
 
-// Login con Email y Contraseña
+// Login con Email
 async function signInWithEmail(email, password) {
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
+        showLoading(true);
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         
         if (error) throw error;
         
-        showMessage('¡Inicio de sesión exitoso!', 'success');
+        showMessage('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
         setTimeout(() => {
-            window.location.href = 'products.html';
-        }, 1000);
+            window.location.href = 'index.html';
+        }, 1500);
     } catch (error) {
         showMessage(error.message, 'error');
+        showLoading(false);
     }
 }
 
-// Registro con Email y Contraseña
+// Registro con Email
 async function signUpWithEmail(name, email, password) {
     try {
+        showLoading(true);
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                data: {
-                    full_name: name
-                }
+                data: { full_name: name }
             }
         });
         
         if (error) throw error;
         
-        showMessage('¡Cuenta creada exitosamente! Revisa tu email para confirmar.', 'success');
-        
-        // Limpiar formulario
-        document.getElementById('registerName').value = '';
-        document.getElementById('registerEmail').value = '';
-        document.getElementById('registerPassword').value = '';
-        
-        // Cambiar a tab de login
-        document.querySelector('[data-tab="login"]').click();
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+            showMessage('Este email ya está registrado. Por favor inicia sesión.', 'error');
+        } else {
+            showMessage('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
     } catch (error) {
         showMessage(error.message, 'error');
+    } finally {
+        showLoading(false);
     }
 }
 
@@ -76,7 +61,7 @@ async function signInWithGoogle() {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin + '/products.html'
+                redirectTo: window.location.origin + '/index.html'
             }
         });
         
@@ -88,14 +73,8 @@ async function signInWithGoogle() {
 
 // Cerrar sesión
 async function signOut() {
-    try {
-        const { error } = await supabase.auth.signOut();
-        if (error) throw error;
-        
-        window.location.href = 'index.html';
-    } catch (error) {
-        console.error('Error al cerrar sesión:', error.message);
-    }
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
 }
 
 // Mostrar mensajes
@@ -104,34 +83,36 @@ function showMessage(message, type) {
     if (messageElement) {
         messageElement.textContent = message;
         messageElement.className = `auth-message ${type}`;
-        messageElement.style.display = 'block';
-        
         setTimeout(() => {
-            messageElement.style.display = 'none';
+            messageElement.className = 'auth-message';
         }, 5000);
     }
 }
 
-// Event Listeners cuando el DOM carga
-document.addEventListener('DOMContentLoaded', () => {
-    // Verificar sesión
-    checkSession();
-    
-    // Tabs de Login/Register
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const authForms = document.querySelectorAll('.auth-form');
-    
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tab = btn.dataset.tab;
-            
-            tabBtns.forEach(b => b.classList.remove('active'));
-            authForms.forEach(f => f.classList.remove('active'));
-            
-            btn.classList.add('active');
-            document.getElementById(`${tab}Form`).classList.add('active');
-        });
-    });
+// Mostrar/Ocultar loading
+function showLoading(show) {
+    const submitBtn = document.querySelector('.btn-primary[type="submit"]');
+    if (submitBtn) {
+        if (show) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Cargando...';
+        } else {
+            submitBtn.disabled = false;
+            const icon = submitBtn.querySelector('i');
+            const text = icon ? icon.outerHTML + ' ' + submitBtn.textContent.trim() : submitBtn.textContent;
+            submitBtn.innerHTML = text;
+        }
+    }
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', async () => {
+    // Si ya hay sesión, redirigir al index
+    const session = await checkSession();
+    if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+        window.location.href = 'index.html';
+        return;
+    }
     
     // Form de Login
     const loginForm = document.getElementById('loginForm');
@@ -154,16 +135,57 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('registerPassword').value;
             signUpWithEmail(name, email, password);
         });
+        
+        // Medidor de fortaleza de contraseña
+        const passwordInput = document.getElementById('registerPassword');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', updatePasswordStrength);
+        }
     }
     
     // Botones de Google
     const googleLogin = document.getElementById('googleLogin');
     const googleRegister = document.getElementById('googleRegister');
-    
     if (googleLogin) googleLogin.addEventListener('click', signInWithGoogle);
     if (googleRegister) googleRegister.addEventListener('click', signInWithGoogle);
     
-    // Botón de logout
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) logoutBtn.addEventListener('click', signOut);
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const target = document.getElementById(this.dataset.target);
+            if (target.type === 'password') {
+                target.type = 'text';
+                this.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                target.type = 'password';
+                this.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    });
 });
+
+// Medidor de fortaleza de contraseña
+function updatePasswordStrength(e) {
+    const password = e.target.value;
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthText = document.getElementById('strengthText');
+    const strengthBar = document.getElementById('passwordStrength');
+    
+    if (!strengthFill || !strengthText) return;
+    
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    
+    const percentages = ['0%', '25%', '50%', '75%', '100%'];
+    const colors = ['#ff1744', '#ff9100', '#ffd600', '#76ff03', '#00e676'];
+    const texts = ['Muy débil', 'Débil', 'Media', 'Fuerte', 'Muy fuerte'];
+    
+    strengthFill.style.width = percentages[strength] || '0%';
+    strengthFill.style.background = colors[strength] || colors[0];
+    strengthText.textContent = texts[strength] || texts[0];
+    strengthText.style.color = colors[strength] || colors[0];
+}
