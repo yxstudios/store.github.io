@@ -2,18 +2,21 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Productos de ejemplo
+// ============================================
+// PRODUCTOS
+// ============================================
 const products = [
     {
         id: 1,
         name: 'Admin System Pro',
-        description: 'Sistema de administración completo con comandos avanzados, panel de control y sistema de rangos.',
+        description: 'Sistema de administración completo con comandos avanzados, panel de control y sistema de rangos. Incluye más de 50 comandos diferentes y un panel intuitivo.',
         price: 2500,
         category: 'admin',
         icon: 'fa-shield-halved',
-        features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'],
+        features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit', 'Logs detallados'],
         rating: 4.8,
-        sales: 234
+        sales: 234,
+        longDescription: 'El sistema de administración más completo del mercado. Incluye comandos como kick, ban, teleport, god mode, y mucho más. Panel de control intuitivo con estadísticas en tiempo real.'
     },
     {
         id: 2,
@@ -22,9 +25,10 @@ const products = [
         price: 1800,
         category: 'economy',
         icon: 'fa-coins',
-        features: ['Tiendas', 'Inventario', 'Trading', 'Monedas personalizables'],
+        features: ['Tiendas', 'Inventario', 'Trading', 'Monedas personalizables', 'Bancos'],
         rating: 4.6,
-        sales: 189
+        sales: 189,
+        longDescription: 'Sistema económico completo para tu juego. Incluye tiendas funcionales, sistema de inventario, trading entre jugadores y monedas totalmente personalizables.'
     },
     {
         id: 3,
@@ -33,9 +37,10 @@ const products = [
         price: 3000,
         category: 'combat',
         icon: 'fa-hand-fist',
-        features: ['Hitboxes precisos', 'Sistema de combos', 'Habilidades', 'Efectos visuales'],
+        features: ['Hitboxes precisos', 'Sistema de combos', 'Habilidades', 'Efectos visuales', 'Sistema de bloqueo'],
         rating: 4.9,
-        sales: 312
+        sales: 312,
+        longDescription: 'Motor de combate profesional con hitboxes precisos, sistema de combos fluidos, habilidades especiales y efectos visuales impresionantes.'
     },
     {
         id: 4,
@@ -44,9 +49,10 @@ const products = [
         price: 2000,
         category: 'building',
         icon: 'fa-hammer',
-        features: ['Grid snapping', 'Rotación 3D', 'Múltiples materiales', 'Undo/Redo'],
+        features: ['Grid snapping', 'Rotación 3D', 'Múltiples materiales', 'Undo/Redo', 'Preview'],
         rating: 4.5,
-        sales: 156
+        sales: 156,
+        longDescription: 'Sistema de construcción fácil de usar con grid snapping, rotación en 3D, múltiples materiales y función de deshacer/rehacer.'
     },
     {
         id: 5,
@@ -55,9 +61,10 @@ const products = [
         price: 1500,
         category: 'admin',
         icon: 'fa-crown',
-        features: ['Perks exclusivos', 'Salas VIP', 'Comandos especiales', 'Insignias'],
+        features: ['Perks exclusivos', 'Salas VIP', 'Comandos especiales', 'Insignias', 'Boost de XP'],
         rating: 4.7,
-        sales: 278
+        sales: 278,
+        longDescription: 'Sistema VIP premium que permite a tus jugadores obtener beneficios exclusivos, acceso a salas privadas y comandos especiales.'
     },
     {
         id: 6,
@@ -66,141 +73,223 @@ const products = [
         price: 2200,
         category: 'economy',
         icon: 'fa-database',
-        features: ['Auto-save', 'Backups', 'Recuperación', 'Sincronización'],
+        features: ['Auto-save', 'Backups', 'Recuperación', 'Sincronización', 'Compresión'],
         rating: 4.4,
-        sales: 145
+        sales: 145,
+        longDescription: 'Gestor de datos avanzado con guardado automático, backups programados, recuperación de datos y sincronización entre servidores.'
+    },
+    {
+        id: 7,
+        name: 'Anti-Cheat System',
+        description: 'Protege tu juego contra hackers y exploits con nuestro sistema anti-cheat avanzado.',
+        price: 3500,
+        category: 'admin',
+        icon: 'fa-shield-virus',
+        features: ['Detección de exploits', 'Auto-ban', 'Logs detallados', 'Protección remota'],
+        rating: 4.9,
+        sales: 198,
+        longDescription: 'Sistema anti-cheat de última generación que detecta y previene exploits, hacks y trampas en tu juego.'
+    },
+    {
+        id: 8,
+        name: 'Trading System',
+        description: 'Sistema de intercambio entre jugadores con interfaz intuitiva y segura.',
+        price: 2800,
+        category: 'economy',
+        icon: 'fa-arrow-right-arrow-left',
+        features: ['Intercambio seguro', 'Historial', 'Notificaciones', 'Anti-scam'],
+        rating: 4.7,
+        sales: 167,
+        longDescription: 'Sistema de trading seguro que permite a los jugadores intercambiar items de forma segura con protección anti-estafas.'
     }
 ];
 
-// Cargar carrito desde localStorage
-let cart = JSON.parse(localStorage.getItem('rbxCart')) || [];
+// ============================================
+// CARRITO
+// ============================================
+let cart = JSON.parse(localStorage.getItem('yxCart')) || [];
 
-// Renderizar productos
+// ============================================
+// RENDERIZAR PRODUCTOS
+// ============================================
 function renderProducts(productsToShow) {
     const grid = document.getElementById('productsGrid');
+    if (!grid) return;
     
-    if (productsToShow.length === 0) {
-        grid.innerHTML = '<p class="empty-state">No se encontraron productos</p>';
+    if (!productsToShow || productsToShow.length === 0) {
+        grid.innerHTML = `
+            <div class="no-products">
+                <i class="fas fa-search"></i>
+                <h3>No se encontraron productos</h3>
+                <p>Intenta con otros filtros o términos de búsqueda</p>
+            </div>
+        `;
         return;
     }
     
     grid.innerHTML = productsToShow.map(product => `
-        <div class="product-card">
+        <div class="product-card" data-id="${product.id}">
             <div class="product-image">
                 <i class="fas ${product.icon}"></i>
-                ${product.rating ? `
-                    <div class="product-rating">
-                        <i class="fas fa-star"></i> ${product.rating}
-                    </div>
-                ` : ''}
+                <span class="product-rating">
+                    <i class="fas fa-star"></i> ${product.rating}
+                </span>
+                ${product.sales > 200 ? '<span class="product-badge">Popular</span>' : ''}
             </div>
             <div class="product-info">
-                <h3>${product.name}</h3>
                 <span class="product-category">${product.category}</span>
-                <p>${product.description.substring(0, 100)}...</p>
+                <h3>${product.name}</h3>
+                <p>${product.description.substring(0, 80)}...</p>
                 
                 <div class="product-features">
-                    ${product.features.slice(0, 2).map(f => 
+                    ${product.features.slice(0, 3).map(f => 
                         `<span class="feature-tag">✓ ${f}</span>`
                     ).join('')}
-                    ${product.features.length > 2 ? 
-                        `<span class="feature-tag">+${product.features.length - 2} más</span>` 
-                        : ''}
                 </div>
                 
-                <div class="product-stats">
-                    <span><i class="fas fa-shopping-cart"></i> ${product.sales} ventas</span>
-                </div>
-                
-                <div class="product-price">
-                    <span class="price-amount">🎮 ${product.price.toLocaleString()}</span>
-                    <span class="price-label">Robux</span>
-                </div>
-                
-                <div class="product-actions">
-                    <button class="btn-buy" onclick='addToCartHandler(${JSON.stringify(product)})'>
-                        <i class="fas fa-cart-plus"></i> Agregar al Carrito
-                    </button>
-                    <button class="btn-details" onclick="showProductDetails(${product.id})">
-                        <i class="fas fa-info-circle"></i> Detalles
-                    </button>
+                <div class="product-footer">
+                    <div class="product-price">
+                        <span class="price-value">${product.price.toLocaleString()}</span>
+                        <span class="price-currency">Robux</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-add-cart" onclick="addToCart(${product.id})" title="Agregar al carrito">
+                            <i class="fas fa-cart-plus"></i>
+                        </button>
+                        <button class="btn-view-details" onclick="viewProductDetails(${product.id})" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     `).join('');
 }
 
-// Manejador para agregar al carrito
-window.addToCartHandler = function(product) {
-    // Verificar si ya existe en el carrito
-    const existingIndex = cart.findIndex(item => item.id === product.id);
-    
-    if (existingIndex !== -1) {
-        cart[existingIndex].quantity = (cart[existingIndex].quantity || 1) + 1;
-        showToast('✅ Cantidad actualizada en el carrito');
-    } else {
-        cart.push({ ...product, quantity: 1 });
-        showToast('🎉 ¡Producto agregado al carrito!');
-    }
-    
-    localStorage.setItem('rbxCart', JSON.stringify(cart));
-    updateCartBadge();
-};
-
-// Mostrar detalles del producto
-window.showProductDetails = function(productId) {
+// ============================================
+// AGREGAR AL CARRITO
+// ============================================
+window.addToCart = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
     
-    const modal = document.getElementById('productModal');
-    const modalContent = document.getElementById('modalContent');
+    const existingIndex = cart.findIndex(item => item.id === productId);
     
-    modalContent.innerHTML = `
-        <div class="product-detail">
-            <div class="product-detail-image">
-                <i class="fas ${product.icon}"></i>
-            </div>
-            <div class="product-detail-info">
-                <h2>${product.name}</h2>
-                <span class="product-category">${product.category}</span>
-                <div class="rating">
-                    <i class="fas fa-star"></i> ${product.rating} (${product.sales} ventas)
+    if (existingIndex !== -1) {
+        cart[existingIndex].quantity += 1;
+        showToast(`✅ Cantidad actualizada (${cart[existingIndex].quantity}) - ${product.name}`);
+    } else {
+        cart.push({ ...product, quantity: 1 });
+        showToast(`🛒 ¡${product.name} agregado al carrito!`);
+    }
+    
+    localStorage.setItem('yxCart', JSON.stringify(cart));
+    updateCartCount();
+    
+    // Animación
+    const productCard = document.querySelector(`.product-card[data-id="${productId}"]`);
+    if (productCard) {
+        productCard.classList.add('added-to-cart');
+        setTimeout(() => productCard.classList.remove('added-to-cart'), 600);
+    }
+};
+
+// ============================================
+// VER DETALLES DEL PRODUCTO
+// ============================================
+window.viewProductDetails = function(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    
+    const modal = document.createElement('div');
+    modal.className = 'product-modal-overlay';
+    modal.innerHTML = `
+        <div class="product-modal">
+            <button class="modal-close" onclick="this.closest('.product-modal-overlay').remove()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-content">
+                <div class="modal-image">
+                    <i class="fas ${product.icon}"></i>
                 </div>
-                <p class="description">${product.description}</p>
-                
-                <h4>Características:</h4>
-                <ul class="features-list">
-                    ${product.features.map(f => `<li><i class="fas fa-check"></i> ${f}</li>`).join('')}
-                </ul>
-                
-                <div class="product-price-large">
-                    🎮 ${product.price.toLocaleString()} Robux
+                <div class="modal-info">
+                    <span class="product-category">${product.category}</span>
+                    <h2>${product.name}</h2>
+                    <div class="modal-rating">
+                        <i class="fas fa-star"></i> ${product.rating} 
+                        <span>(${product.sales} ventas)</span>
+                    </div>
+                    <p class="modal-description">${product.longDescription || product.description}</p>
+                    
+                    <div class="modal-features">
+                        <h4>Características:</h4>
+                        <ul>
+                            ${product.features.map(f => `<li><i class="fas fa-check"></i> ${f}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="modal-price">
+                        <span>${product.price.toLocaleString()}</span> Robux
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button class="btn-primary" onclick="addToCart(${product.id}); document.querySelector('.product-modal-overlay').remove();">
+                            <i class="fas fa-cart-plus"></i> Agregar al Carrito
+                        </button>
+                        <button class="btn-outline" onclick="addToCart(${product.id}); window.location.href='cart.html';">
+                            <i class="fas fa-bolt"></i> Comprar Ahora
+                        </button>
+                    </div>
                 </div>
-                
-                <button class="btn-buy" onclick='addToCartHandler(${JSON.stringify(product)})'>
-                    <i class="fas fa-cart-plus"></i> Agregar al Carrito
-                </button>
             </div>
         </div>
     `;
     
-    modal.style.display = 'block';
+    document.body.appendChild(modal);
+    
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) modal.remove();
+    });
+    
+    const closeOnEsc = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', closeOnEsc);
+        }
+    };
+    document.addEventListener('keydown', closeOnEsc);
 };
 
-// Filtrar productos
+// ============================================
+// ACTUALIZAR CONTADOR DEL CARRITO
+// ============================================
+function updateCartCount() {
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCountElements = document.querySelectorAll('#cartCount');
+    
+    cartCountElements.forEach(el => {
+        el.textContent = count;
+        el.style.display = count > 0 ? 'flex' : 'none';
+    });
+}
+
+// ============================================
+// FILTRAR PRODUCTOS
+// ============================================
 function filterProducts(category) {
-    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
     
-    let filtered = products;
+    let filtered = [...products];
     
-    if (category !== 'all') {
+    if (category && category !== 'all') {
         filtered = filtered.filter(p => p.category === category);
     }
     
     if (searchTerm) {
         filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(searchTerm) || 
+            p.name.toLowerCase().includes(searchTerm) ||
             p.description.toLowerCase().includes(searchTerm) ||
+            p.category.toLowerCase().includes(searchTerm) ||
             p.features.some(f => f.toLowerCase().includes(searchTerm))
         );
     }
@@ -208,24 +297,55 @@ function filterProducts(category) {
     renderProducts(filtered);
 }
 
-// Actualizar badge del carrito
-function updateCartBadge() {
-    const cartCount = document.getElementById('cartCount');
-    if (cartCount) {
-        const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-        cartCount.textContent = totalItems;
-        cartCount.style.display = totalItems > 0 ? 'inline-block' : 'none';
+// ============================================
+// ACTUALIZAR UI SEGÚN SESIÓN
+// ============================================
+async function updateUI() {
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const guestMenu = document.getElementById('guestMenu');
+        const userMenu = document.getElementById('userMenu');
+        
+        if (session?.user) {
+            if (guestMenu) guestMenu.style.display = 'none';
+            if (userMenu) {
+                userMenu.style.display = 'flex';
+                
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                if (userNameDisplay) {
+                    const fullName = session.user.user_metadata?.full_name;
+                    const email = session.user.email;
+                    userNameDisplay.textContent = fullName || email?.split('@')[0] || 'Usuario';
+                }
+                
+                const userAvatar = document.getElementById('userAvatar');
+                if (userAvatar) {
+                    const avatarUrl = session.user.user_metadata?.avatar_url;
+                    userAvatar.src = avatarUrl || 'https://via.placeholder.com/32';
+                }
+            }
+        } else {
+            if (guestMenu) guestMenu.style.display = 'flex';
+            if (userMenu) userMenu.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error al verificar sesión:', error);
     }
 }
 
-// Toast notifications
+// ============================================
+// TOAST NOTIFICATION
+// ============================================
 function showToast(message, type = 'success') {
     const existingToast = document.querySelector('.toast');
     if (existingToast) existingToast.remove();
     
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+        <span>${message}</span>
+    `;
     document.body.appendChild(toast);
     
     setTimeout(() => toast.classList.add('show'), 100);
@@ -235,13 +355,17 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Event Listeners
+// ============================================
+// INICIALIZACIÓN
+// ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Cargar productos iniciales
-    renderProducts(products);
-    updateCartBadge();
+    console.log('🚀 YX Studios - Products Page');
     
-    // Filtros por categoría
+    updateUI();
+    renderProducts(products);
+    updateCartCount();
+    
+    // Filtros
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -251,26 +375,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Búsqueda
-    document.getElementById('searchInput')?.addEventListener('input', () => {
-        const activeCategory = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
-        filterProducts(activeCategory);
-    });
-    
-    // Cerrar modal
-    document.querySelector('.close')?.addEventListener('click', () => {
-        document.getElementById('productModal').style.display = 'none';
-    });
-    
-    window.onclick = (event) => {
-        const modal = document.getElementById('productModal');
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    };
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const activeCategory = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
+            filterProducts(activeCategory);
+        });
+    }
     
     // Logout
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-        await supabase.auth.signOut();
-        window.location.href = 'index.html';
-    });
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        });
+    }
+    
+    console.log('✅ Products Page - Listo');
+});
+
+// Escuchar cambios de autenticación
+supabase.auth.onAuthStateChange((event, session) => {
+    console.log('🔄 Auth state changed:', event);
+    updateUI();
 });
