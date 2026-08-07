@@ -190,4 +190,38 @@ function showToast(message) {
     toast.textContent = message;
     document.body.appendChild(toast);
     
-    setTimeout(() => toast.classList
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    updateUI();
+    renderProducts(products);
+    updateCartCount();
+    
+    // Filtros de categoría
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterProducts(btn.dataset.category);
+        });
+    });
+    
+    // Búsqueda
+    document.getElementById('searchInput')?.addEventListener('input', () => {
+        const activeCat = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
+        filterProducts(activeCat);
+    });
+    
+    // Logout
+    document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        window.location.reload();
+    });
+});
