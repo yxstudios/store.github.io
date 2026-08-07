@@ -1,125 +1,200 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 // ============================================
-// PRODUCTOS
+// YX STUDIOS - MAIN JS (HOME PAGE)
 // ============================================
+
+// Productos disponibles
 const products = [
     {
         id: 1,
         name: 'Admin System Pro',
-        description: 'Sistema de administración completo con comandos avanzados, panel de control y sistema de rangos.',
+        description: 'Sistema de administración completo con comandos avanzados y panel de control.',
         price: 2500,
         category: 'admin',
         icon: 'fa-shield-halved',
         features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'],
         rating: 4.8,
-        sales: 234,
-        image: null
+        sales: 234
     },
     {
         id: 2,
         name: 'Economy System',
-        description: 'Sistema económico con tiendas, inventario, trading y monedas personalizables.',
+        description: 'Sistema económico con tiendas, inventario y monedas personalizables.',
         price: 1800,
         category: 'economy',
         icon: 'fa-coins',
-        features: ['Tiendas', 'Inventario', 'Trading', 'Monedas personalizables'],
+        features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'],
         rating: 4.6,
-        sales: 189,
-        image: null
+        sales: 189
     },
     {
         id: 3,
         name: 'Combat Engine',
-        description: 'Motor de combate avanzado con hitboxes, combos, habilidades y efectos especiales.',
+        description: 'Motor de combate avanzado con hitboxes y habilidades especiales.',
         price: 3000,
         category: 'combat',
         icon: 'fa-hand-fist',
-        features: ['Hitboxes precisos', 'Sistema de combos', 'Habilidades', 'Efectos visuales'],
+        features: ['Hitboxes', 'Combos', 'Habilidades', 'Efectos'],
         rating: 4.9,
-        sales: 312,
-        image: null
+        sales: 312
     },
     {
         id: 4,
         name: 'Build System',
-        description: 'Sistema de construcción intuitivo con grid snapping, rotación y materiales.',
+        description: 'Sistema de construcción intuitivo con grid snapping.',
         price: 2000,
         category: 'building',
         icon: 'fa-hammer',
-        features: ['Grid snapping', 'Rotación 3D', 'Múltiples materiales', 'Undo/Redo'],
+        features: ['Grid snapping', 'Rotación 3D', 'Materiales', 'Undo/Redo'],
         rating: 4.5,
-        sales: 156,
-        image: null
+        sales: 156
     },
     {
         id: 5,
         name: 'VIP System',
-        description: 'Sistema VIP con perks exclusivos, salas privadas y beneficios especiales.',
+        description: 'Sistema VIP con perks exclusivos y beneficios especiales.',
         price: 1500,
         category: 'admin',
         icon: 'fa-crown',
-        features: ['Perks exclusivos', 'Salas VIP', 'Comandos especiales', 'Insignias'],
+        features: ['Perks exclusivos', 'Salas VIP', 'Comandos', 'Insignias'],
         rating: 4.7,
-        sales: 278,
-        image: null
+        sales: 278
     },
     {
         id: 6,
         name: 'Data Store Manager',
-        description: 'Sistema avanzado de guardado de datos con respaldo automático y recuperación.',
+        description: 'Sistema de guardado de datos con respaldo automático.',
         price: 2200,
         category: 'economy',
         icon: 'fa-database',
         features: ['Auto-save', 'Backups', 'Recuperación', 'Sincronización'],
         rating: 4.4,
-        sales: 145,
-        image: null
-    },
-    {
-        id: 7,
-        name: 'Anti-Cheat System',
-        description: 'Protege tu juego contra hackers y exploits con nuestro sistema anti-cheat avanzado.',
-        price: 3500,
-        category: 'admin',
-        icon: 'fa-shield-virus',
-        features: ['Detección de exploits', 'Auto-ban', 'Logs detallados', 'Protección remota'],
-        rating: 4.9,
-        sales: 198,
-        image: null
-    },
-    {
-        id: 8,
-        name: 'Trading System',
-        description: 'Sistema de intercambio entre jugadores con interfaz intuitiva y segura.',
-        price: 2800,
-        category: 'economy',
-        icon: 'fa-arrow-right-arrow-left',
-        features: ['Intercambio seguro', 'Historial', 'Notificaciones', 'Anti-scam'],
-        rating: 4.7,
-        sales: 167,
-        image: null
+        sales: 145
     }
 ];
 
 // ============================================
-// CARRITO
+// INICIALIZAR CUANDO EL DOM ESTÉ LISTO
 // ============================================
-let cart = JSON.parse(localStorage.getItem('yxCart')) || [];
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('🚀 YX Studios - Home Page');
+    
+    // 1. Verificar sesión de usuario
+    await checkUserSession();
+    
+    // 2. Cargar productos
+    renderProducts(products);
+    
+    // 3. Actualizar contador del carrito
+    updateCartCount();
+    
+    // 4. Configurar búsqueda y filtros
+    setupSearchAndFilters();
+    
+    console.log('✅ Home Page lista');
+});
+
+// ============================================
+// VERIFICAR SESIÓN DE USUARIO
+// ============================================
+async function checkUserSession() {
+    const guestMenu = document.getElementById('guestMenu');
+    const userMenu = document.getElementById('userMenu');
+    
+    // Por defecto mostrar menú de invitado
+    if (guestMenu) guestMenu.style.display = 'flex';
+    if (userMenu) userMenu.style.display = 'none';
+    
+    try {
+        // Importar Supabase dinámicamente
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Obtener sesión
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session && session.user) {
+            console.log('✅ Usuario logueado:', session.user.email);
+            
+            // Ocultar menú de invitado
+            if (guestMenu) guestMenu.style.display = 'none';
+            
+            // Mostrar menú de usuario
+            if (userMenu) {
+                userMenu.style.display = 'flex';
+                
+                // Actualizar nombre de usuario
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                if (userNameDisplay) {
+                    const fullName = session.user.user_metadata?.full_name;
+                    const email = session.user.email;
+                    userNameDisplay.textContent = fullName || email.split('@')[0] || 'Usuario';
+                }
+                
+                // Actualizar avatar
+                const userAvatar = document.getElementById('userAvatar');
+                if (userAvatar) {
+                    const avatarUrl = session.user.user_metadata?.avatar_url;
+                    userAvatar.src = avatarUrl || 'https://via.placeholder.com/32';
+                }
+            }
+            
+            // Configurar logout
+            setupLogout(supabase);
+            
+        } else {
+            console.log('👤 Usuario no logueado');
+            if (guestMenu) guestMenu.style.display = 'flex';
+            if (userMenu) userMenu.style.display = 'none';
+        }
+        
+    } catch (error) {
+        console.error('Error al verificar sesión:', error);
+        if (guestMenu) guestMenu.style.display = 'flex';
+        if (userMenu) userMenu.style.display = 'none';
+    }
+}
+
+// ============================================
+// CONFIGURAR LOGOUT
+// ============================================
+function setupLogout(supabase) {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (!logoutBtn) return;
+    
+    // Remover listeners antiguos clonando el botón
+    const newBtn = logoutBtn.cloneNode(true);
+    logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
+    
+    newBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        try {
+            await supabase.auth.signOut();
+            console.log('👋 Sesión cerrada');
+        } catch (error) {
+            console.error('Error al cerrar sesión:', error);
+        }
+        
+        // Limpiar localStorage y redirigir
+        window.location.href = 'index.html';
+    });
+}
 
 // ============================================
 // RENDERIZAR PRODUCTOS
 // ============================================
 function renderProducts(productsToShow) {
     const grid = document.getElementById('productsGrid');
-    if (!grid) return;
+    if (!grid) {
+        console.error('No se encontró el elemento productsGrid');
+        return;
+    }
     
     if (!productsToShow || productsToShow.length === 0) {
         grid.innerHTML = `
             <div class="no-products">
-                <i class="fas fa-search"></i>
+                <span class="material-icons">search_off</span>
                 <h3>No se encontraron productos</h3>
                 <p>Intenta con otros filtros o términos de búsqueda</p>
             </div>
@@ -128,7 +203,7 @@ function renderProducts(productsToShow) {
     }
     
     grid.innerHTML = productsToShow.map(product => `
-        <div class="product-card" data-id="${product.id}">
+        <div class="product-card">
             <div class="product-image">
                 <i class="fas ${product.icon}"></i>
                 <span class="product-rating">
@@ -140,15 +215,9 @@ function renderProducts(productsToShow) {
                 <span class="product-category">${product.category}</span>
                 <h3>${product.name}</h3>
                 <p>${product.description.substring(0, 80)}...</p>
-                
                 <div class="product-features">
-                    ${product.features.slice(0, 3).map(f => 
-                        `<span class="feature-tag">✓ ${f}</span>`
-                    ).join('')}
-                    ${product.features.length > 3 ? 
-                        `<span class="feature-tag">+${product.features.length - 3} más</span>` : ''}
+                    ${product.features.slice(0, 3).map(f => `<span class="feature-tag">✓ ${f}</span>`).join('')}
                 </div>
-                
                 <div class="product-footer">
                     <div class="product-price">
                         <span class="price-value">${product.price.toLocaleString()}</span>
@@ -156,10 +225,10 @@ function renderProducts(productsToShow) {
                     </div>
                     <div class="product-actions">
                         <button class="btn-add-cart" onclick="addToCart(${product.id})" title="Agregar al carrito">
-                            <i class="fas fa-cart-plus"></i>
+                            <span class="material-icons">add_shopping_cart</span>
                         </button>
-                        <button class="btn-view-details" onclick="viewProductDetails(${product.id})" title="Ver detalles">
-                            <i class="fas fa-eye"></i>
+                        <button class="btn-view-details" onclick="showProductDetails(${product.id})" title="Ver detalles">
+                            <span class="material-icons">visibility</span>
                         </button>
                     </div>
                 </div>
@@ -173,33 +242,47 @@ function renderProducts(productsToShow) {
 // ============================================
 window.addToCart = function(productId) {
     const product = products.find(p => p.id === productId);
-    if (!product) return;
+    if (!product) {
+        console.error('Producto no encontrado:', productId);
+        return;
+    }
     
+    // Obtener carrito actual
+    let cart = JSON.parse(localStorage.getItem('yxCart')) || [];
+    
+    // Buscar si el producto ya está en el carrito
     const existingIndex = cart.findIndex(item => item.id === productId);
     
     if (existingIndex !== -1) {
+        // Si ya existe, aumentar cantidad
         cart[existingIndex].quantity += 1;
-        showToast(`✅ Cantidad actualizada (${cart[existingIndex].quantity}) - ${product.name}`);
+        showNotification('Cantidad actualizada - ' + product.name, 'success');
     } else {
-        cart.push({ ...product, quantity: 1 });
-        showToast(`🛒 ¡${product.name} agregado al carrito!`);
+        // Si no existe, agregarlo
+        cart.push({ 
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            category: product.category,
+            icon: product.icon,
+            features: product.features,
+            quantity: 1 
+        });
+        showNotification(product.name + ' agregado al carrito', 'success');
     }
     
+    // Guardar en localStorage
     localStorage.setItem('yxCart', JSON.stringify(cart));
-    updateCartCount();
     
-    // Animación en el botón
-    const productCard = document.querySelector(`.product-card[data-id="${productId}"]`);
-    if (productCard) {
-        productCard.classList.add('added-to-cart');
-        setTimeout(() => productCard.classList.remove('added-to-cart'), 600);
-    }
+    // Actualizar badge del carrito
+    updateCartCount();
 };
 
 // ============================================
-// VER DETALLES DEL PRODUCTO
+// MOSTRAR DETALLES DEL PRODUCTO (MODAL)
 // ============================================
-window.viewProductDetails = function(productId) {
+window.showProductDetails = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
     
@@ -208,8 +291,8 @@ window.viewProductDetails = function(productId) {
     modal.className = 'product-modal-overlay';
     modal.innerHTML = `
         <div class="product-modal">
-            <button class="modal-close" onclick="this.closest('.product-modal-overlay').remove()">
-                <i class="fas fa-times"></i>
+            <button class="modal-close">
+                <span class="material-icons">close</span>
             </button>
             <div class="modal-content">
                 <div class="modal-image">
@@ -223,24 +306,21 @@ window.viewProductDetails = function(productId) {
                         <span>(${product.sales} ventas)</span>
                     </div>
                     <p class="modal-description">${product.description}</p>
-                    
                     <div class="modal-features">
                         <h4>Características:</h4>
                         <ul>
-                            ${product.features.map(f => `<li><i class="fas fa-check"></i> ${f}</li>`).join('')}
+                            ${product.features.map(f => `<li><span class="material-icons">check</span> ${f}</li>`).join('')}
                         </ul>
                     </div>
-                    
                     <div class="modal-price">
                         <span>${product.price.toLocaleString()}</span> Robux
                     </div>
-                    
                     <div class="modal-actions">
-                        <button class="btn-primary" onclick="addToCart(${product.id}); document.querySelector('.product-modal-overlay').remove();">
-                            <i class="fas fa-cart-plus"></i> Agregar al Carrito
+                        <button class="btn-primary" id="modalAddToCart">
+                            <span class="material-icons">add_shopping_cart</span> Agregar al Carrito
                         </button>
-                        <button class="btn-outline" onclick="addToCart(${product.id}); window.location.href='cart.html';">
-                            <i class="fas fa-bolt"></i> Comprar Ahora
+                        <button class="btn-outline" id="modalBuyNow">
+                            <span class="material-icons">bolt</span> Comprar Ahora
                         </button>
                     </div>
                 </div>
@@ -250,48 +330,84 @@ window.viewProductDetails = function(productId) {
     
     document.body.appendChild(modal);
     
-    // Cerrar al hacer clic fuera
+    // Cerrar modal con el botón X
+    modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
+    
+    // Cerrar modal al hacer clic fuera
     modal.addEventListener('click', function(e) {
         if (e.target === modal) modal.remove();
     });
     
-    // Cerrar con ESC
-    const closeOnEsc = (e) => {
+    // Cerrar modal con tecla ESC
+    function escHandler(e) {
         if (e.key === 'Escape') {
             modal.remove();
-            document.removeEventListener('keydown', closeOnEsc);
+            document.removeEventListener('keydown', escHandler);
         }
-    };
-    document.addEventListener('keydown', closeOnEsc);
+    }
+    document.addEventListener('keydown', escHandler);
+    
+    // Botón Agregar al Carrito dentro del modal
+    modal.querySelector('#modalAddToCart').addEventListener('click', function() {
+        addToCart(productId);
+        modal.remove();
+    });
+    
+    // Botón Comprar Ahora dentro del modal
+    modal.querySelector('#modalBuyNow').addEventListener('click', function() {
+        addToCart(productId);
+        modal.remove();
+        window.location.href = 'cart.html';
+    });
 };
 
 // ============================================
-// ACTUALIZAR CONTADOR DEL CARRITO
+// FILTRAR PRODUCTOS POR CATEGORÍA
 // ============================================
-function updateCartCount() {
-    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartCountElements = document.querySelectorAll('#cartCount');
-    
-    cartCountElements.forEach(el => {
-        el.textContent = count;
-        el.style.display = count > 0 ? 'flex' : 'none';
+window.filterProducts = function(category) {
+    // Actualizar botones activos
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.category === category) {
+            btn.classList.add('active');
+        }
     });
-}
-
-// ============================================
-// FILTRAR PRODUCTOS
-// ============================================
-function filterProducts(category) {
-    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
     
-    let filtered = [...products];
-    
-    // Filtrar por categoría
-    if (category && category !== 'all') {
-        filtered = filtered.filter(p => p.category === category);
+    // Filtrar productos
+    let filtered;
+    if (category === 'all' || !category) {
+        filtered = products;
+    } else {
+        filtered = products.filter(p => p.category === category);
     }
     
-    // Filtrar por búsqueda
+    // También aplicar búsqueda si hay texto
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim();
+    if (searchTerm) {
+        filtered = filtered.filter(p => 
+            p.name.toLowerCase().includes(searchTerm) ||
+            p.description.toLowerCase().includes(searchTerm) ||
+            p.category.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    renderProducts(filtered);
+};
+
+// ============================================
+// BÚSQUEDA DE PRODUCTOS
+// ============================================
+window.searchProducts = function() {
+    const searchTerm = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+    const activeCategory = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
+    
+    let filtered;
+    if (activeCategory === 'all') {
+        filtered = products;
+    } else {
+        filtered = products.filter(p => p.category === activeCategory);
+    }
+    
     if (searchTerm) {
         filtered = filtered.filter(p => 
             p.name.toLowerCase().includes(searchTerm) ||
@@ -302,151 +418,83 @@ function filterProducts(category) {
     }
     
     renderProducts(filtered);
+};
+
+// ============================================
+// CONFIGURAR BÚSQUEDA Y FILTROS
+// ============================================
+function setupSearchAndFilters() {
+    // Búsqueda en tiempo real
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', searchProducts);
+    }
+    
+    // Botones de filtro
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterProducts(this.dataset.category);
+        });
+    });
 }
 
 // ============================================
-// ACTUALIZAR UI SEGÚN SESIÓN
+// ACTUALIZAR CONTADOR DEL CARRITO
 // ============================================
-async function updateUI() {
-    try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const guestMenu = document.getElementById('guestMenu');
-        const userMenu = document.getElementById('userMenu');
-        
-        if (session?.user) {
-            // Usuario logueado
-            if (guestMenu) guestMenu.style.display = 'none';
-            if (userMenu) {
-                userMenu.style.display = 'flex';
-                
-                const userNameDisplay = document.getElementById('userNameDisplay');
-                if (userNameDisplay) {
-                    const fullName = session.user.user_metadata?.full_name;
-                    const email = session.user.email;
-                    userNameDisplay.textContent = fullName || email?.split('@')[0] || 'Usuario';
-                }
-                
-                const userAvatar = document.getElementById('userAvatar');
-                if (userAvatar) {
-                    const avatarUrl = session.user.user_metadata?.avatar_url;
-                    userAvatar.src = avatarUrl || 'https://via.placeholder.com/32';
-                    userAvatar.onerror = () => {
-                        userAvatar.src = 'https://via.placeholder.com/32';
-                    };
-                }
-            }
-        } else {
-            // Usuario no logueado
-            if (guestMenu) guestMenu.style.display = 'flex';
-            if (userMenu) userMenu.style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Error al verificar sesión:', error);
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('yxCart')) || [];
+    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    
+    const badge = document.getElementById('cartCount');
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'flex' : 'none';
     }
 }
 
 // ============================================
-// TOAST NOTIFICATION
+// NOTIFICACIONES TOAST
 // ============================================
-function showToast(message, type = 'success') {
-    // Eliminar toast existente
-    const existingToast = document.querySelector('.toast');
-    if (existingToast) existingToast.remove();
+function showNotification(message, type) {
+    // Eliminar notificación existente
+    const existing = document.querySelector('.notification-toast');
+    if (existing) existing.remove();
     
-    // Crear nuevo toast
+    const icons = {
+        'success': 'check_circle',
+        'error': 'error',
+        'info': 'info'
+    };
+    
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
+    toast.className = `notification-toast notification-${type}`;
     toast.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+        <span class="material-icons">${icons[type] || 'info'}</span>
         <span>${message}</span>
     `;
     document.body.appendChild(toast);
     
     // Mostrar con animación
-    setTimeout(() => toast.classList.add('show'), 100);
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
     
     // Ocultar después de 3 segundos
     setTimeout(() => {
         toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 300);
     }, 3000);
 }
 
 // ============================================
-// SCROLL SUAVE
+// ESCUCHAR CAMBIOS EN EL CARRITO
 // ============================================
-function setupSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            const href = this.getAttribute('href');
-            if (href === '#') return;
-            
-            const target = document.querySelector(href);
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-}
-
-// ============================================
-// INICIALIZACIÓN
-// ============================================
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 YX Studios - Inicializando...');
-    
-    // Actualizar UI según sesión
-    updateUI();
-    
-    // Renderizar productos iniciales
-    renderProducts(products);
-    
-    // Actualizar contador del carrito
-    updateCartCount();
-    
-    // Configurar scroll suave
-    setupSmoothScroll();
-    
-    // Filtros de categoría
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Remover active de todos
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            // Agregar active al clickeado
-            btn.classList.add('active');
-            // Filtrar
-            filterProducts(btn.dataset.category);
-        });
-    });
-    
-    // Búsqueda en tiempo real
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const activeCategory = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
-            filterProducts(activeCategory);
-        });
+window.addEventListener('storage', function(e) {
+    if (e.key === 'yxCart') {
+        updateCartCount();
     }
-    
-    // Logout
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.reload();
-        });
-    }
-    
-    console.log('✅ YX Studios - Inicializado correctamente');
-});
-
-// Escuchar cambios de autenticación
-supabase.auth.onAuthStateChange((event, session) => {
-    console.log('🔄 Estado de autenticación cambiado:', event);
-    updateUI();
 });
