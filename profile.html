@@ -33,11 +33,12 @@
             </div>
             <div class="topbar-nav">
                 <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+                <a href="index.html#products" class="nav-link"><span class="material-icons">store</span><span>Productos</span></a>
                 <a href="cart.html" class="nav-link cart-link">
                     <span class="material-icons">shopping_cart</span><span>Carrito</span>
                     <span id="cartCount" class="cart-badge">0</span>
                 </a>
-                <div id="userMenu" class="user-menu">
+                <div class="user-menu" style="display: flex;">
                     <div class="user-dropdown">
                         <button class="user-dropdown-btn">
                             <img id="userAvatar" src="https://via.placeholder.com/32" alt="Avatar" class="user-avatar">
@@ -47,6 +48,7 @@
                         <div class="user-dropdown-content">
                             <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
                             <a href="profile.html#purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
+                            <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
                             <div class="dropdown-divider"></div>
                             <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
                         </div>
@@ -121,11 +123,17 @@
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
+        // Cargar perfil
         async function loadProfile() {
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
             
             const user = session.user;
+            
             document.getElementById('profileName').textContent = user.user_metadata?.full_name || 'Usuario';
             document.getElementById('profileEmail').textContent = user.email;
             document.getElementById('editName').value = user.user_metadata?.full_name || '';
@@ -133,41 +141,116 @@
             
             if (user.user_metadata?.avatar_url) {
                 document.getElementById('profileAvatar').src = user.user_metadata.avatar_url;
+                document.getElementById('userAvatar').src = user.user_metadata.avatar_url;
             }
+            
+            document.getElementById('userNameDisplay').textContent = 
+                user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario';
+            
+            // Cargar compras
+            loadPurchases();
         }
         
-        // Navegación de perfil
+        // Cargar historial de compras
+        function loadPurchases() {
+            const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+            const purchasesList = document.getElementById('purchasesList');
+            
+            if (orders.length === 0) {
+                purchasesList.innerHTML = '<p class="text-muted">No tienes compras realizadas</p>';
+                return;
+            }
+            
+            purchasesList.innerHTML = orders.map(order => `
+                <div class="purchase-card">
+                    <div class="purchase-header">
+                        <span class="purchase-id">Pedido: ${order.paypalOrderId?.substring(0, 10)}...</span>
+                        <span class="purchase-date">${new Date(order.date).toLocaleDateString()}</span>
+                    </div>
+                    <div class="purchase-items">
+                        ${order.items?.map(item => `
+                            <div class="purchase-item">
+                                <span>${item.name} x${item.quantity || 1}</span>
+                                <span>$${item.totalUSD?.toFixed(2) || '0.00'}</span>
+                            </div>
+                        `).join('') || ''}
+                    </div>
+                    <div class="purchase-total">
+                        <span>Total: $${order.totalUSD?.toFixed(2) || '0.00'}</span>
+                        <span class="purchase-status completed">Completado</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Navegación entre secciones
         document.querySelectorAll('.profile-nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
+                
                 document.querySelectorAll('.profile-nav-link').forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
                 
                 document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
                 document.getElementById(link.dataset.section + 'Section').classList.add('active');
+                
+                // Si hace clic en compras, cargar compras
+                if (link.dataset.section === 'purchases') {
+                    loadPurchases();
+                }
             });
         });
         
+        // Verificar hash en URL
+        if (window.location.hash === '#purchases') {
+            document.querySelector('[data-section="purchases"]')?.click();
+        } else if (window.location.hash === '#settings') {
+            document.querySelector('[data-section="settings"]')?.click();
+        }
+        
+        // Guardar cambios del perfil
         document.getElementById('saveProfile')?.addEventListener('click', async () => {
             const name = document.getElementById('editName').value;
             const { error } = await supabase.auth.updateUser({ data: { full_name: name } });
+            
             if (!error) {
                 document.getElementById('profileName').textContent = name;
-                alert('Perfil actualizado');
+                document.getElementById('userNameDisplay').textContent = name;
+                alert('Perfil actualizado correctamente');
+            } else {
+                alert('Error: ' + error.message);
             }
         });
         
+        // Cambiar contraseña
+        document.getElementById('changePasswordBtn')?.addEventListener('click', async () => {
+            const email = document.getElementById('editEmail').value;
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html'
+            });
+            
+            if (!error) {
+                alert('Se ha enviado un enlace a tu correo para cambiar la contraseña');
+            } else {
+                alert('Error: ' + error.message);
+            }
+        });
+        
+        // Cerrar sesión
         document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
             e.preventDefault();
             await supabase.auth.signOut();
             window.location.href = 'index.html';
         });
         
-        // Cargar carrito
+        // Actualizar badge del carrito
         const cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
         const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
         const badge = document.getElementById('cartCount');
-        if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+        if (badge) {
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'flex' : 'none';
+        }
         
         loadProfile();
     </script>
