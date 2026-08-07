@@ -23,7 +23,6 @@
         </div>
     </div>
 
-    <!-- TOPBAR -->
     <nav class="topbar">
         <div class="topbar-container">
             <div class="topbar-brand">
@@ -40,14 +39,12 @@
                     <span id="cartCount" class="cart-badge">0</span>
                 </a>
                 
-                <!-- SOLO se muestra si NO está logueado -->
-                <div id="guestButtons" class="auth-buttons">
+                <div id="guestMenu" class="auth-buttons">
                     <a href="login.html" class="btn-login"><span class="material-icons">login</span> Iniciar Sesión</a>
                     <a href="register.html" class="btn-register"><span class="material-icons">person_add</span> Registrarse</a>
                 </div>
                 
-                <!-- SOLO se muestra si ESTÁ logueado -->
-                <div id="userButtons" class="user-menu" style="display: none;">
+                <div id="userMenu" class="user-menu" style="display: none;">
                     <div class="user-dropdown">
                         <button class="user-dropdown-btn">
                             <img id="userAvatar" src="https://via.placeholder.com/32" alt="Avatar" class="user-avatar">
@@ -67,41 +64,28 @@
         </div>
     </nav>
 
-    <!-- CART CONTENT -->
     <main class="cart-page">
         <div class="cart-container">
             <div class="cart-header">
-                <h1>
-                    <span class="material-icons">shopping_cart</span>
-                    Tu Carrito
-                </h1>
-                <button id="clearCart" class="btn-clear">
-                    <span class="material-icons">delete_sweep</span> Vaciar Carrito
-                </button>
+                <h1><span class="material-icons">shopping_cart</span> Tu Carrito</h1>
+                <button id="clearCart" class="btn-clear"><span class="material-icons">delete_sweep</span> Vaciar Carrito</button>
             </div>
-
             <div id="cartItemsContainer" class="cart-items-container"></div>
-
             <div id="emptyCartMessage" class="empty-cart-state" style="display: none;">
                 <span class="material-icons">shopping_cart_off</span>
                 <h2>Tu carrito está vacío</h2>
                 <p>Explora nuestros sistemas para Roblox</p>
-                <a href="index.html#products" class="btn-primary">
-                    <span class="material-icons">store</span> Ver Productos
-                </a>
+                <a href="index.html#products" class="btn-primary"><span class="material-icons">store</span> Ver Productos</a>
             </div>
-
             <div id="cartSummarySection" class="cart-summary-section" style="display: none;">
                 <div class="summary-card">
                     <h3>Resumen de Compra</h3>
                     <div class="summary-items" id="summaryItemsList"></div>
-                    
                     <div class="summary-totals">
                         <div class="summary-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
                         <div class="summary-row discount-row"><span>Descuento</span><span id="discount">$0.00</span></div>
                         <div class="summary-row total-row"><span>Total</span><span id="total">$0.00</span></div>
                     </div>
-                    
                     <div class="promo-section">
                         <div class="promo-input-group">
                             <span class="material-icons">discount</span>
@@ -110,10 +94,8 @@
                         </div>
                         <div id="promoMessage" class="promo-message"></div>
                     </div>
-                    
                     <div class="payment-section">
                         <h4>Método de Pago</h4>
-                        <!-- PayPal solo con botón, sin tarjeta -->
                         <div id="paypal-button-container"></div>
                         <div class="payment-info">
                             <span class="material-icons">lock</span>
@@ -125,7 +107,6 @@
         </div>
     </main>
 
-    <!-- PayPal SDK - SOLO BOTÓN DE PAYPAL, sin tarjeta -->
     <script src="https://www.paypal.com/sdk/js?client-id=Aa6KFjacVgqjs6vg9uBBD58-DAVVU1QPXJ_RIrDqUhVSXXs_n35A65NRxCcc3kN91D-pgZg6UsKBW05u&currency=USD&disable-funding=credit,card"></script>
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
