@@ -15,6 +15,7 @@ const promoCodes = {
     'YXSTUDIOS': 0.15
 };
 
+// Tasa de conversión: 1 Robux = $0.0125 USD
 const ROBUX_TO_USD = 0.0125;
 
 // ============================================
@@ -39,48 +40,54 @@ function loadCart() {
     updateCartBadge();
     
     if (!cart || cart.length === 0) {
-        itemsContainer.innerHTML = '';
-        emptyMessage.style.display = 'block';
-        summarySection.style.display = 'none';
+        if (itemsContainer) itemsContainer.innerHTML = '';
+        if (emptyMessage) emptyMessage.style.display = 'block';
+        if (summarySection) summarySection.style.display = 'none';
         return;
     }
     
-    emptyMessage.style.display = 'none';
-    summarySection.style.display = 'block';
+    if (emptyMessage) emptyMessage.style.display = 'none';
+    if (summarySection) summarySection.style.display = 'block';
     
     // Renderizar items
-    itemsContainer.innerHTML = cart.map((item, index) => `
-        <div class="cart-item-card">
-            <div class="cart-item-icon">
-                <span class="material-icons">${getIconForCategory(item.category)}</span>
-            </div>
-            <div class="cart-item-details">
-                <div class="cart-item-header">
-                    <h3>${item.name}</h3>
-                    <span class="cart-item-category">${item.category}</span>
+    if (itemsContainer) {
+        itemsContainer.innerHTML = cart.map((item, index) => `
+            <div class="cart-item-card">
+                <div class="cart-item-icon">
+                    <span class="material-icons">${getIconForCategory(item.category)}</span>
                 </div>
-                <div class="cart-item-features">
-                    ${item.features?.slice(0, 2).map(f => `<span class="feature-tag">${f}</span>`).join('') || ''}
+                <div class="cart-item-details">
+                    <div class="cart-item-header">
+                        <h3>${item.name}</h3>
+                        <span class="cart-item-category">${item.category}</span>
+                    </div>
+                    <div class="cart-item-features">
+                        ${item.features?.slice(0, 2).map(f => `<span class="feature-tag">${f}</span>`).join('') || ''}
+                    </div>
                 </div>
+                <div class="cart-item-quantity">
+                    <button class="qty-btn" onclick="updateItemQuantity(${index}, -1)">-</button>
+                    <span class="qty-value">${item.quantity || 1}</span>
+                    <button class="qty-btn" onclick="updateItemQuantity(${index}, 1)">+</button>
+                </div>
+                <div class="cart-item-pricing">
+                    <div class="item-price">$${convertToUSD(item.price * (item.quantity || 1)).toFixed(2)}</div>
+                    <div class="item-robux">${(item.price * (item.quantity || 1)).toLocaleString()} Robux</div>
+                </div>
+                <button class="btn-remove-item" onclick="removeItem(${index})">
+                    <span class="material-icons">close</span>
+                </button>
             </div>
-            <div class="cart-item-quantity">
-                <button class="qty-btn" onclick="updateItemQuantity(${index}, -1)">-</button>
-                <span class="qty-value">${item.quantity || 1}</span>
-                <button class="qty-btn" onclick="updateItemQuantity(${index}, 1)">+</button>
-            </div>
-            <div class="cart-item-pricing">
-                <div class="item-price">$${convertToUSD(item.price * (item.quantity || 1)).toFixed(2)}</div>
-                <div class="item-robux">${(item.price * (item.quantity || 1)).toLocaleString()} Robux</div>
-            </div>
-            <button class="btn-remove-item" onclick="removeItem(${index})">
-                <span class="material-icons">close</span>
-            </button>
-        </div>
-    `).join('');
+        `).join('');
+    }
     
     updateSummary();
     loadSummaryItems();
-    renderPayPalButton();
+    
+    // Renderizar PayPal después de un pequeño delay
+    setTimeout(() => {
+        renderPayPalButton();
+    }, 500);
 }
 
 // ============================================
@@ -114,49 +121,55 @@ window.removeItem = function(index) {
 // VACIAR CARRITO
 // ============================================
 function setupClearCart() {
-    document.getElementById('clearCart')?.addEventListener('click', () => {
-        if (cart.length === 0) return;
-        if (confirm('¿Estás seguro de vaciar el carrito?')) {
-            cart = [];
-            appliedDiscount = 0;
-            currentPromo = null;
-            saveCart();
-            loadCart();
-            showNotification('Carrito vaciado', 'info');
-        }
-    });
+    const clearBtn = document.getElementById('clearCart');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            if (cart.length === 0) return;
+            if (confirm('¿Estás seguro de vaciar el carrito?')) {
+                cart = [];
+                appliedDiscount = 0;
+                currentPromo = null;
+                saveCart();
+                loadCart();
+                showNotification('Carrito vaciado', 'info');
+            }
+        });
+    }
 }
 
 // ============================================
 // CÓDIGO PROMOCIONAL
 // ============================================
 function setupPromoCode() {
-    document.getElementById('applyPromo')?.addEventListener('click', () => {
-        const input = document.getElementById('promoInput');
-        const code = input.value.toUpperCase().trim();
-        const msgEl = document.getElementById('promoMessage');
-        
-        if (!code) {
-            msgEl.innerHTML = '<span class="promo-error">Ingresa un código</span>';
-            return;
-        }
-        
-        if (promoCodes[code]) {
-            currentPromo = code;
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-            appliedDiscount = convertToUSD(subtotal) * promoCodes[code];
+    const applyBtn = document.getElementById('applyPromo');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', () => {
+            const input = document.getElementById('promoInput');
+            const code = input.value.toUpperCase().trim();
+            const msgEl = document.getElementById('promoMessage');
             
-            msgEl.innerHTML = `<span class="promo-success">Código aplicado: ${(promoCodes[code] * 100)}% de descuento</span>`;
-            updateSummary();
-            renderPayPalButton();
-        } else {
-            msgEl.innerHTML = '<span class="promo-error">Código inválido</span>';
-            currentPromo = null;
-            appliedDiscount = 0;
-            updateSummary();
-            renderPayPalButton();
-        }
-    });
+            if (!code) {
+                if (msgEl) msgEl.innerHTML = '<span class="promo-error">Ingresa un código</span>';
+                return;
+            }
+            
+            if (promoCodes[code]) {
+                currentPromo = code;
+                const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+                appliedDiscount = convertToUSD(subtotal) * promoCodes[code];
+                
+                if (msgEl) msgEl.innerHTML = `<span class="promo-success">Código aplicado: ${(promoCodes[code] * 100)}% de descuento</span>`;
+                updateSummary();
+                setTimeout(() => renderPayPalButton(), 300);
+            } else {
+                if (msgEl) msgEl.innerHTML = '<span class="promo-error">Código inválido</span>';
+                currentPromo = null;
+                appliedDiscount = 0;
+                updateSummary();
+                setTimeout(() => renderPayPalButton(), 300);
+            }
+        });
+    }
 }
 
 // ============================================
@@ -165,11 +178,15 @@ function setupPromoCode() {
 function updateSummary() {
     const subtotalRobux = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     const subtotalUSD = convertToUSD(subtotalRobux);
-    const totalUSD = Math.max(0, subtotalUSD - appliedDiscount);
+    const totalUSD = Math.max(0.01, subtotalUSD - appliedDiscount);
     
-    document.getElementById('subtotal').textContent = `$${subtotalUSD.toFixed(2)}`;
-    document.getElementById('discount').textContent = appliedDiscount > 0 ? `-$${appliedDiscount.toFixed(2)}` : '$0.00';
-    document.getElementById('total').textContent = `$${totalUSD.toFixed(2)}`;
+    const subtotalEl = document.getElementById('subtotal');
+    const discountEl = document.getElementById('discount');
+    const totalEl = document.getElementById('total');
+    
+    if (subtotalEl) subtotalEl.textContent = `$${subtotalUSD.toFixed(2)}`;
+    if (discountEl) discountEl.textContent = appliedDiscount > 0 ? `-$${appliedDiscount.toFixed(2)}` : '$0.00';
+    if (totalEl) totalEl.textContent = `$${totalUSD.toFixed(2)}`;
 }
 
 // ============================================
@@ -191,55 +208,98 @@ function loadSummaryItems() {
 }
 
 // ============================================
-// PAYPAL
+// PAYPAL - CORREGIDO
 // ============================================
 function renderPayPalButton() {
     const container = document.getElementById('paypal-button-container');
-    if (!container) return;
+    if (!container) {
+        console.error('No se encontró el contenedor de PayPal');
+        return;
+    }
     
+    // Limpiar contenedor
     container.innerHTML = '';
     
     const total = getTotal();
     
     if (total <= 0 || cart.length === 0) {
-        container.innerHTML = '<p class="text-muted">Agrega productos para pagar</p>';
+        container.innerHTML = '<p class="text-muted" style="text-align:center;padding:20px;">Agrega productos al carrito para pagar</p>';
         return;
     }
     
-    paypal.Buttons({
-        style: {
-            layout: 'vertical',
-            color: 'gold',
-            shape: 'pill',
-            label: 'paypal'
-        },
-        createOrder: function(data, actions) {
-            return actions.order.create({
-                purchase_units: [{
-                    amount: { currency_code: 'USD', value: total.toFixed(2) },
-                    items: cart.map(item => ({
-                        name: item.name,
-                        unit_amount: { currency_code: 'USD', value: convertToUSD(item.price).toFixed(2) },
-                        quantity: (item.quantity || 1).toString(),
-                        category: 'DIGITAL_GOODS'
-                    }))
-                }]
-            });
-        },
-        onApprove: async function(data, actions) {
-            const order = await actions.order.capture();
-            saveOrder(order);
-            showNotification('Pago exitoso! Gracias por tu compra', 'success');
-            cart = [];
-            appliedDiscount = 0;
-            currentPromo = null;
-            saveCart();
-            loadCart();
-        },
-        onError: function(err) {
-            showNotification('Error al procesar el pago', 'error');
-        }
-    }).render('#paypal-button-container');
+    console.log('Total a pagar:', total.toFixed(2));
+    
+    try {
+        paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'pill',
+                label: 'paypal'
+            },
+            
+            // Crear la orden
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        description: 'Productos YX Studios',
+                        amount: {
+                            currency_code: 'USD',
+                            value: total.toFixed(2)
+                        }
+                    }]
+                });
+            },
+            
+            // Cuando se aprueba el pago
+            onApprove: async function(data, actions) {
+                try {
+                    const order = await actions.order.capture();
+                    console.log('Pago capturado:', order);
+                    
+                    // Guardar la orden
+                    saveOrder(order);
+                    
+                    // Mostrar mensaje de éxito
+                    showNotification('¡Pago exitoso! Gracias por tu compra', 'success');
+                    
+                    // Limpiar carrito
+                    cart = [];
+                    appliedDiscount = 0;
+                    currentPromo = null;
+                    saveCart();
+                    
+                    // Recargar carrito después de 2 segundos
+                    setTimeout(() => {
+                        loadCart();
+                    }, 2000);
+                    
+                } catch (error) {
+                    console.error('Error al capturar pago:', error);
+                    showNotification('Error al procesar el pago. Intenta de nuevo.', 'error');
+                }
+            },
+            
+            // Si hay error
+            onError: function(err) {
+                console.error('Error en PayPal:', err);
+                showNotification('Error al conectar con PayPal. Verifica tu conexión.', 'error');
+            },
+            
+            // Si se cancela
+            onCancel: function(data) {
+                console.log('Pago cancelado');
+                showNotification('Pago cancelado', 'info');
+            }
+            
+        }).render('#paypal-button-container');
+        
+        console.log('Botón de PayPal renderizado correctamente');
+        
+    } catch (error) {
+        console.error('Error al renderizar PayPal:', error);
+        container.innerHTML = '<p class="text-muted" style="text-align:center;padding:20px;color:var(--danger);">Error al cargar PayPal. Recarga la página.</p>';
+    }
 }
 
 // ============================================
@@ -247,14 +307,29 @@ function renderPayPalButton() {
 // ============================================
 function saveOrder(paypalOrder) {
     const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-    orders.push({
-        id: paypalOrder.id,
-        items: cart,
-        total: getTotal(),
+    
+    const orderData = {
+        paypalOrderId: paypalOrder.id,
+        payerEmail: paypalOrder.payer?.email_address || 'N/A',
+        payerName: paypalOrder.payer?.name?.given_name + ' ' + paypalOrder.payer?.name?.surname || 'N/A',
+        items: cart.map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity || 1,
+            totalUSD: convertToUSD(item.price * (item.quantity || 1))
+        })),
+        subtotalUSD: convertToUSD(cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0)),
+        discountUSD: appliedDiscount,
+        totalUSD: getTotal(),
+        promoCode: currentPromo,
         date: new Date().toISOString(),
         status: 'completed'
-    });
+    };
+    
+    orders.push(orderData);
     localStorage.setItem('yxOrders', JSON.stringify(orders));
+    
+    console.log('Orden guardada:', orderData);
 }
 
 // ============================================
@@ -265,8 +340,10 @@ function convertToUSD(robux) {
 }
 
 function getTotal() {
+    if (cart.length === 0) return 0;
     const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    return Math.max(0, convertToUSD(subtotal) - appliedDiscount);
+    const total = convertToUSD(subtotal) - appliedDiscount;
+    return Math.max(0.01, total); // Mínimo $0.01 para PayPal
 }
 
 function getIconForCategory(category) {
@@ -293,20 +370,31 @@ function saveCart() {
     updateCartBadge();
 }
 
+// ============================================
+// NOTIFICACIONES
+// ============================================
 function showNotification(message, type) {
-    // Eliminar notificación existente
     const existing = document.querySelector('.notification-toast');
     if (existing) existing.remove();
+    
+    const icons = {
+        'success': 'check_circle',
+        'error': 'error',
+        'info': 'info'
+    };
     
     const toast = document.createElement('div');
     toast.className = `notification-toast notification-${type}`;
     toast.innerHTML = `
-        <span class="material-icons">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}</span>
+        <span class="material-icons">${icons[type] || 'info'}</span>
         <span>${message}</span>
     `;
     document.body.appendChild(toast);
     
-    setTimeout(() => toast.classList.add('show'), 10);
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+    
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
@@ -320,9 +408,17 @@ async function updateUserUI() {
     const guestMenu = document.getElementById('guestMenu');
     const userMenu = document.getElementById('userMenu');
     
-    // Verificar si hay sesión en Supabase
     try {
-        const { data: { session } } = await supabase?.auth?.getSession() || { data: { session: null } };
+        // Verificar si supabase está disponible globalmente
+        let session = null;
+        
+        if (typeof supabase !== 'undefined' && supabase.auth) {
+            const { data } = await supabase.auth.getSession();
+            session = data.session;
+        } else if (window.supabase?.auth) {
+            const { data } = await window.supabase.auth.getSession();
+            session = data.session;
+        }
         
         if (session?.user) {
             if (guestMenu) guestMenu.style.display = 'none';
@@ -343,17 +439,23 @@ async function updateUserUI() {
             if (userMenu) userMenu.style.display = 'none';
         }
     } catch (e) {
-        // Si no hay Supabase, mostrar menú de invitado
+        console.log('Error al verificar sesión:', e);
         if (guestMenu) guestMenu.style.display = 'flex';
         if (userMenu) userMenu.style.display = 'none';
     }
 }
 
-// Logout
+// ============================================
+// LOGOUT
+// ============================================
 document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
     e.preventDefault();
     try {
-        await supabase?.auth?.signOut();
-    } catch (e) {}
+        if (typeof supabase !== 'undefined' && supabase.auth) {
+            await supabase.auth.signOut();
+        }
+    } catch (e) {
+        console.log('Error al cerrar sesión:', e);
+    }
     window.location.href = 'index.html';
 });
