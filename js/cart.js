@@ -2,12 +2,10 @@
 // YX STUDIOS - CARRITO DE COMPRAS
 // ============================================
 
-// Obtener carrito del localStorage
 let cart = JSON.parse(localStorage.getItem('yxCart')) || [];
 let appliedDiscount = 0;
 let currentPromo = null;
 
-// Promociones
 const promoCodes = {
     'WELCOME10': 0.10,
     'ROBLOX20': 0.20,
@@ -15,18 +13,22 @@ const promoCodes = {
     'YXSTUDIOS': 0.15
 };
 
-// Tasa de conversión: 1 Robux = $0.0125 USD
 const ROBUX_TO_USD = 0.0125;
 
 // ============================================
 // INICIALIZAR
 // ============================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('Carrito cargado. Items:', cart.length);
+    
+    // PRIMERO verificar usuario
+    await updateUserUI();
+    
+    // Luego cargar carrito
     loadCart();
-    updateUserUI();
     setupClearCart();
     setupPromoCode();
+    setupLogout();
 });
 
 // ============================================
@@ -49,7 +51,6 @@ function loadCart() {
     if (emptyMessage) emptyMessage.style.display = 'none';
     if (summarySection) summarySection.style.display = 'block';
     
-    // Renderizar items
     if (itemsContainer) {
         itemsContainer.innerHTML = cart.map((item, index) => `
             <div class="cart-item-card">
@@ -84,10 +85,53 @@ function loadCart() {
     updateSummary();
     loadSummaryItems();
     
-    // Renderizar PayPal después de un pequeño delay
-    setTimeout(() => {
-        renderPayPalButton();
-    }, 500);
+    setTimeout(() => renderPayPalButton(), 500);
+}
+
+// ============================================
+// ACTUALIZAR UI DE USUARIO (CORREGIDO)
+// ============================================
+async function updateUserUI() {
+    const guestButtons = document.getElementById('guestButtons');
+    const userButtons = document.getElementById('userButtons');
+    
+    // Por defecto mostrar guest
+    if (guestButtons) guestButtons.style.display = 'flex';
+    if (userButtons) userButtons.style.display = 'none';
+    
+    try {
+        // Intentar obtener sesión de Supabase
+        const supabaseUrl = 'https://xzfytuasxmqxdcdwfbbl.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6Znl0dWFzeG1xeGRjZHdmYmJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzkyMDcsImV4cCI6MjEwMTY1NTIwN30.QWM-EkPbQxTaWraKzUEQraJJLsgfjwNyxOc1Krh82tU';
+        
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+            // Usuario logueado
+            if (guestButtons) guestButtons.style.display = 'none';
+            if (userButtons) {
+                userButtons.style.display = 'flex';
+                
+                const nameEl = document.getElementById('userNameDisplay');
+                if (nameEl) {
+                    const fullName = session.user.user_metadata?.full_name;
+                    const email = session.user.email;
+                    nameEl.textContent = fullName || email?.split('@')[0] || 'Usuario';
+                }
+                
+                const avatarEl = document.getElementById('userAvatar');
+                if (avatarEl) {
+                    avatarEl.src = session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
+                }
+            }
+        }
+    } catch (error) {
+        console.log('Usuario no logueado o error:', error.message);
+        // Mantener vista de invitado
+    }
 }
 
 // ============================================
@@ -121,55 +165,49 @@ window.removeItem = function(index) {
 // VACIAR CARRITO
 // ============================================
 function setupClearCart() {
-    const clearBtn = document.getElementById('clearCart');
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            if (cart.length === 0) return;
-            if (confirm('¿Estás seguro de vaciar el carrito?')) {
-                cart = [];
-                appliedDiscount = 0;
-                currentPromo = null;
-                saveCart();
-                loadCart();
-                showNotification('Carrito vaciado', 'info');
-            }
-        });
-    }
+    document.getElementById('clearCart')?.addEventListener('click', () => {
+        if (cart.length === 0) return;
+        if (confirm('¿Estás seguro de vaciar el carrito?')) {
+            cart = [];
+            appliedDiscount = 0;
+            currentPromo = null;
+            saveCart();
+            loadCart();
+            showNotification('Carrito vaciado', 'info');
+        }
+    });
 }
 
 // ============================================
 // CÓDIGO PROMOCIONAL
 // ============================================
 function setupPromoCode() {
-    const applyBtn = document.getElementById('applyPromo');
-    if (applyBtn) {
-        applyBtn.addEventListener('click', () => {
-            const input = document.getElementById('promoInput');
-            const code = input.value.toUpperCase().trim();
-            const msgEl = document.getElementById('promoMessage');
+    document.getElementById('applyPromo')?.addEventListener('click', () => {
+        const input = document.getElementById('promoInput');
+        const code = input.value.toUpperCase().trim();
+        const msgEl = document.getElementById('promoMessage');
+        
+        if (!code) {
+            if (msgEl) msgEl.innerHTML = '<span class="promo-error">Ingresa un código</span>';
+            return;
+        }
+        
+        if (promoCodes[code]) {
+            currentPromo = code;
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+            appliedDiscount = convertToUSD(subtotal) * promoCodes[code];
             
-            if (!code) {
-                if (msgEl) msgEl.innerHTML = '<span class="promo-error">Ingresa un código</span>';
-                return;
-            }
-            
-            if (promoCodes[code]) {
-                currentPromo = code;
-                const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-                appliedDiscount = convertToUSD(subtotal) * promoCodes[code];
-                
-                if (msgEl) msgEl.innerHTML = `<span class="promo-success">Código aplicado: ${(promoCodes[code] * 100)}% de descuento</span>`;
-                updateSummary();
-                setTimeout(() => renderPayPalButton(), 300);
-            } else {
-                if (msgEl) msgEl.innerHTML = '<span class="promo-error">Código inválido</span>';
-                currentPromo = null;
-                appliedDiscount = 0;
-                updateSummary();
-                setTimeout(() => renderPayPalButton(), 300);
-            }
-        });
-    }
+            if (msgEl) msgEl.innerHTML = `<span class="promo-success">Código aplicado: ${(promoCodes[code] * 100)}% de descuento</span>`;
+            updateSummary();
+            setTimeout(() => renderPayPalButton(), 300);
+        } else {
+            if (msgEl) msgEl.innerHTML = '<span class="promo-error">Código inválido</span>';
+            currentPromo = null;
+            appliedDiscount = 0;
+            updateSummary();
+            setTimeout(() => renderPayPalButton(), 300);
+        }
+    });
 }
 
 // ============================================
@@ -208,98 +246,79 @@ function loadSummaryItems() {
 }
 
 // ============================================
-// PAYPAL - CORREGIDO
+// PAYPAL - SIN TARJETA, SOLO PAYPAL
 // ============================================
 function renderPayPalButton() {
     const container = document.getElementById('paypal-button-container');
-    if (!container) {
-        console.error('No se encontró el contenedor de PayPal');
-        return;
-    }
+    if (!container) return;
     
-    // Limpiar contenedor
     container.innerHTML = '';
     
     const total = getTotal();
     
     if (total <= 0 || cart.length === 0) {
-        container.innerHTML = '<p class="text-muted" style="text-align:center;padding:20px;">Agrega productos al carrito para pagar</p>';
+        container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--text-muted);">Agrega productos al carrito para pagar</p>';
         return;
     }
     
-    console.log('Total a pagar:', total.toFixed(2));
-    
-    try {
-        paypal.Buttons({
-            style: {
-                layout: 'vertical',
-                color: 'gold',
-                shape: 'pill',
-                label: 'paypal'
-            },
-            
-            // Crear la orden
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        description: 'Productos YX Studios',
-                        amount: {
-                            currency_code: 'USD',
-                            value: total.toFixed(2)
-                        }
-                    }]
-                });
-            },
-            
-            // Cuando se aprueba el pago
-            onApprove: async function(data, actions) {
-                try {
-                    const order = await actions.order.capture();
-                    console.log('Pago capturado:', order);
-                    
-                    // Guardar la orden
-                    saveOrder(order);
-                    
-                    // Mostrar mensaje de éxito
-                    showNotification('¡Pago exitoso! Gracias por tu compra', 'success');
-                    
-                    // Limpiar carrito
-                    cart = [];
-                    appliedDiscount = 0;
-                    currentPromo = null;
-                    saveCart();
-                    
-                    // Recargar carrito después de 2 segundos
-                    setTimeout(() => {
-                        loadCart();
-                    }, 2000);
-                    
-                } catch (error) {
-                    console.error('Error al capturar pago:', error);
-                    showNotification('Error al procesar el pago. Intenta de nuevo.', 'error');
-                }
-            },
-            
-            // Si hay error
-            onError: function(err) {
-                console.error('Error en PayPal:', err);
-                showNotification('Error al conectar con PayPal. Verifica tu conexión.', 'error');
-            },
-            
-            // Si se cancela
-            onCancel: function(data) {
-                console.log('Pago cancelado');
-                showNotification('Pago cancelado', 'info');
-            }
-            
-        }).render('#paypal-button-container');
-        
-        console.log('Botón de PayPal renderizado correctamente');
-        
-    } catch (error) {
-        console.error('Error al renderizar PayPal:', error);
-        container.innerHTML = '<p class="text-muted" style="text-align:center;padding:20px;color:var(--danger);">Error al cargar PayPal. Recarga la página.</p>';
+    if (typeof paypal === 'undefined') {
+        container.innerHTML = '<p style="text-align:center;padding:20px;color:var(--danger);">Error al cargar PayPal. Recarga la página.</p>';
+        return;
     }
+    
+    paypal.Buttons({
+        style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'pill',
+            label: 'paypal',
+            fundingicons: false
+        },
+        
+        // Deshabilitar tarjeta de crédito/débito
+        fundingSource: paypal.FUNDING.PAYPAL,
+        
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    description: 'Productos YX Studios - Sistemas Roblox',
+                    amount: {
+                        currency_code: 'USD',
+                        value: total.toFixed(2)
+                    }
+                }]
+            });
+        },
+        
+        onApprove: async function(data, actions) {
+            try {
+                const order = await actions.order.capture();
+                console.log('Pago exitoso:', order);
+                
+                saveOrder(order);
+                showNotification('¡Pago exitoso! Gracias por tu compra', 'success');
+                
+                cart = [];
+                appliedDiscount = 0;
+                currentPromo = null;
+                saveCart();
+                
+                setTimeout(() => loadCart(), 2000);
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error al procesar el pago', 'error');
+            }
+        },
+        
+        onError: function(err) {
+            console.error('Error PayPal:', err);
+            showNotification('Error al conectar con PayPal', 'error');
+        },
+        
+        onCancel: function() {
+            showNotification('Pago cancelado', 'info');
+        }
+    }).render('#paypal-button-container');
 }
 
 // ============================================
@@ -307,29 +326,14 @@ function renderPayPalButton() {
 // ============================================
 function saveOrder(paypalOrder) {
     const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-    
-    const orderData = {
+    orders.push({
         paypalOrderId: paypalOrder.id,
-        payerEmail: paypalOrder.payer?.email_address || 'N/A',
-        payerName: paypalOrder.payer?.name?.given_name + ' ' + paypalOrder.payer?.name?.surname || 'N/A',
-        items: cart.map(item => ({
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity || 1,
-            totalUSD: convertToUSD(item.price * (item.quantity || 1))
-        })),
-        subtotalUSD: convertToUSD(cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0)),
-        discountUSD: appliedDiscount,
-        totalUSD: getTotal(),
-        promoCode: currentPromo,
+        items: cart,
+        total: getTotal(),
         date: new Date().toISOString(),
         status: 'completed'
-    };
-    
-    orders.push(orderData);
+    });
     localStorage.setItem('yxOrders', JSON.stringify(orders));
-    
-    console.log('Orden guardada:', orderData);
 }
 
 // ============================================
@@ -342,8 +346,7 @@ function convertToUSD(robux) {
 function getTotal() {
     if (cart.length === 0) return 0;
     const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    const total = convertToUSD(subtotal) - appliedDiscount;
-    return Math.max(0.01, total); // Mínimo $0.01 para PayPal
+    return Math.max(0.01, convertToUSD(subtotal) - appliedDiscount);
 }
 
 function getIconForCategory(category) {
@@ -370,9 +373,6 @@ function saveCart() {
     updateCartBadge();
 }
 
-// ============================================
-// NOTIFICACIONES
-// ============================================
 function showNotification(message, type) {
     const existing = document.querySelector('.notification-toast');
     if (existing) existing.remove();
@@ -391,9 +391,7 @@ function showNotification(message, type) {
     `;
     document.body.appendChild(toast);
     
-    requestAnimationFrame(() => {
-        toast.classList.add('show');
-    });
+    requestAnimationFrame(() => toast.classList.add('show'));
     
     setTimeout(() => {
         toast.classList.remove('show');
@@ -402,60 +400,21 @@ function showNotification(message, type) {
 }
 
 // ============================================
-// UI DE USUARIO
-// ============================================
-async function updateUserUI() {
-    const guestMenu = document.getElementById('guestMenu');
-    const userMenu = document.getElementById('userMenu');
-    
-    try {
-        // Verificar si supabase está disponible globalmente
-        let session = null;
-        
-        if (typeof supabase !== 'undefined' && supabase.auth) {
-            const { data } = await supabase.auth.getSession();
-            session = data.session;
-        } else if (window.supabase?.auth) {
-            const { data } = await window.supabase.auth.getSession();
-            session = data.session;
-        }
-        
-        if (session?.user) {
-            if (guestMenu) guestMenu.style.display = 'none';
-            if (userMenu) {
-                userMenu.style.display = 'flex';
-                const nameEl = document.getElementById('userNameDisplay');
-                if (nameEl) {
-                    nameEl.textContent = session.user.user_metadata?.full_name || 
-                                        session.user.email?.split('@')[0] || 'Usuario';
-                }
-                const avatarEl = document.getElementById('userAvatar');
-                if (avatarEl && session.user.user_metadata?.avatar_url) {
-                    avatarEl.src = session.user.user_metadata.avatar_url;
-                }
-            }
-        } else {
-            if (guestMenu) guestMenu.style.display = 'flex';
-            if (userMenu) userMenu.style.display = 'none';
-        }
-    } catch (e) {
-        console.log('Error al verificar sesión:', e);
-        if (guestMenu) guestMenu.style.display = 'flex';
-        if (userMenu) userMenu.style.display = 'none';
-    }
-}
-
-// ============================================
 // LOGOUT
 // ============================================
-document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    try {
-        if (typeof supabase !== 'undefined' && supabase.auth) {
+function setupLogout() {
+    document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+            const supabase = createClient(
+                'https://xzfytuasxmqxdcdwfbbl.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6Znl0dWFzeG1xeGRjZHdmYmJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzkyMDcsImV4cCI6MjEwMTY1NTIwN30.QWM-EkPbQxTaWraKzUEQraJJLsgfjwNyxOc1Krh82tU'
+            );
             await supabase.auth.signOut();
+        } catch (e) {
+            console.log('Error al cerrar sesión:', e);
         }
-    } catch (e) {
-        console.log('Error al cerrar sesión:', e);
-    }
-    window.location.href = 'index.html';
-});
+        window.location.href = 'index.html';
+    });
+}
