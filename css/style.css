@@ -1596,3 +1596,424 @@ img {
         text-align: center;
     }
 }
+
+/* ============================================
+   MATERIAL ICONS STYLES
+   ============================================ */
+.logo-icon {
+    font-size: 2.5em !important;
+    color: var(--accent);
+}
+
+/* ============================================
+   DISCORD BUTTON
+   ============================================ */
+.btn-discord {
+    width: 100%;
+    padding: 14px;
+    background: #5865F2;
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.btn-discord:hover {
+    background: #4752c4;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(88, 101, 242, 0.3);
+}
+
+.btn-discord i {
+    font-size: 1.3em;
+}
+
+/* ============================================
+   PROFILE PAGE
+   ============================================ */
+.profile-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+}
+
+.profile-sidebar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    height: fit-content;
+}
+
+.profile-avatar-section {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    margin-bottom: 15px;
+}
+
+.profile-avatar-section h2 {
+    margin-bottom: 5px;
+}
+
+.profile-avatar-section p {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.profile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.profile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    font-size: 0.95em;
+}
+
+.profile-nav-link:hover,
+.profile-nav-link.active {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.profile-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+}
+
+.profile-section {
+    display: none;
+}
+
+.profile-section.active {
+    display: block;
+}
+
+.profile-section h3 {
+    margin-bottom: 25px;
+    font-size: 1.5em;
+}
+
+.profile-form .form-group {
+    margin-bottom: 20px;
+}
+
+.profile-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.profile-input {
+    width: 100%;
+    padding: 12px 15px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95em;
+    transition: var(--transition);
+}
+
+.profile-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.profile-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.text-muted {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 40px;
+}
+
+.settings-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn-danger {
+    padding: 14px 30px;
+    background: transparent;
+    border: 2px solid var(--danger);
+    color: var(--danger);
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* ============================================
+   CART MODERN REDESIGN
+   ============================================ */
+.cart-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.cart-header h1 {
+    font-size: 1.8em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.cart-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: var(--transition);
+}
+
+.cart-item:hover {
+    border-color: var(--accent);
+    transform: translateX(5px);
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    background: var(--accent-gradient);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-item-image .material-icons {
+    font-size: 2.5em;
+    color: white;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-info h3 {
+    font-size: 1.1em;
+    margin-bottom: 4px;
+}
+
+.cart-item-category {
+    font-size: 0.8em;
+    color: var(--accent);
+    text-transform: capitalize;
+}
+
+.cart-item-quantity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 50px;
+    padding: 4px;
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.qty-number {
+    font-weight: 600;
+    min-width: 25px;
+    text-align: center;
+}
+
+.cart-item-price {
+    text-align: right;
+    min-width: 100px;
+}
+
+.cart-item-price .price {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.cart-item-price .robux {
+    font-size: 0.75em;
+    color: var(--text-muted);
+}
+
+.btn-remove {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.btn-remove:hover {
+    color: var(--danger);
+    background: rgba(255, 23, 68, 0.1);
+}
+
+/* Cart Summary */
+.cart-summary {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+}
+
+.cart-summary h3 {
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    color: var(--text-secondary);
+}
+
+.summary-row.total {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--accent);
+    border-top: 2px solid var(--border-color);
+    padding-top: 20px;
+    margin-top: 10px;
+}
+
+.promo-code {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.promo-code input {
+    flex: 1;
+    padding: 12px 15px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+}
+
+.promo-code input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* Empty Cart */
+.empty-cart {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+}
+
+.empty-cart .material-icons {
+    font-size: 5em;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .cart-item {
+        flex-wrap: wrap;
+    }
+    
+    .cart-item-price {
+        text-align: left;
+        min-width: auto;
+    }
+}
