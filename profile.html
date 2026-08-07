@@ -1,1 +1,175 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="red">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - YX Studios</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="theme-switcher">
+        <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
+        <div class="theme-panel">
+            <h4><i class="fas fa-paint-brush"></i> Personalizar Tema</h4>
+            <div class="theme-options">
+                <button class="theme-option active" data-theme="red"><span class="theme-color red-theme"></span><span>Red Passion</span></button>
+                <button class="theme-option" data-theme="dark-gray"><span class="theme-color dark-gray-theme"></span><span>Dark Steel</span></button>
+                <button class="theme-option" data-theme="blue"><span class="theme-color blue-theme"></span><span>Ocean Blue</span></button>
+                <button class="theme-option" data-theme="purple"><span class="theme-color purple-theme"></span><span>Royal Purple</span></button>
+            </div>
+        </div>
+    </div>
 
+    <nav class="topbar">
+        <div class="topbar-container">
+            <div class="topbar-brand">
+                <a href="index.html">
+                    <span class="material-icons">sports_esports</span>
+                    <span>YX Studios</span>
+                </a>
+            </div>
+            <div class="topbar-nav">
+                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+                <a href="cart.html" class="nav-link cart-link">
+                    <span class="material-icons">shopping_cart</span><span>Carrito</span>
+                    <span id="cartCount" class="cart-badge">0</span>
+                </a>
+                <div id="userMenu" class="user-menu">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-btn">
+                            <img id="userAvatar" src="https://via.placeholder.com/32" alt="Avatar" class="user-avatar">
+                            <span id="userNameDisplay">Usuario</span>
+                            <span class="material-icons">arrow_drop_down</span>
+                        </button>
+                        <div class="user-dropdown-content">
+                            <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
+                            <a href="profile.html#purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="profile-container">
+        <div class="profile-sidebar">
+            <div class="profile-avatar-section">
+                <img id="profileAvatar" src="https://via.placeholder.com/120" alt="Avatar" class="profile-avatar">
+                <h2 id="profileName">Usuario</h2>
+                <p id="profileEmail">email@ejemplo.com</p>
+            </div>
+            <nav class="profile-nav">
+                <a href="#" class="profile-nav-link active" data-section="info">
+                    <span class="material-icons">person</span> Información Personal
+                </a>
+                <a href="#" class="profile-nav-link" data-section="purchases">
+                    <span class="material-icons">shopping_bag</span> Mis Compras
+                </a>
+                <a href="#" class="profile-nav-link" data-section="settings">
+                    <span class="material-icons">settings</span> Configuración
+                </a>
+            </nav>
+        </div>
+        
+        <div class="profile-content">
+            <div id="infoSection" class="profile-section active">
+                <h3>Información Personal</h3>
+                <div class="profile-form">
+                    <div class="form-group">
+                        <label>Nombre completo</label>
+                        <input type="text" id="editName" class="profile-input" placeholder="Tu nombre">
+                    </div>
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email" id="editEmail" class="profile-input" disabled>
+                    </div>
+                    <button class="btn-primary" id="saveProfile">
+                        <span class="material-icons">save</span> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+            
+            <div id="purchasesSection" class="profile-section">
+                <h3>Mis Compras</h3>
+                <div id="purchasesList">
+                    <p class="text-muted">No tienes compras realizadas</p>
+                </div>
+            </div>
+            
+            <div id="settingsSection" class="profile-section">
+                <h3>Configuración</h3>
+                <div class="settings-options">
+                    <button class="btn-outline" id="changePasswordBtn">
+                        <span class="material-icons">lock</span> Cambiar Contraseña
+                    </button>
+                    <button class="btn-danger" id="deleteAccountBtn">
+                        <span class="material-icons">delete_forever</span> Eliminar Cuenta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/theme.js"></script>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        async function loadProfile() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            
+            const user = session.user;
+            document.getElementById('profileName').textContent = user.user_metadata?.full_name || 'Usuario';
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('editName').value = user.user_metadata?.full_name || '';
+            document.getElementById('editEmail').value = user.email;
+            
+            if (user.user_metadata?.avatar_url) {
+                document.getElementById('profileAvatar').src = user.user_metadata.avatar_url;
+            }
+        }
+        
+        // Navegación de perfil
+        document.querySelectorAll('.profile-nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.profile-nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(link.dataset.section + 'Section').classList.add('active');
+            });
+        });
+        
+        document.getElementById('saveProfile')?.addEventListener('click', async () => {
+            const name = document.getElementById('editName').value;
+            const { error } = await supabase.auth.updateUser({ data: { full_name: name } });
+            if (!error) {
+                document.getElementById('profileName').textContent = name;
+                alert('Perfil actualizado');
+            }
+        });
+        
+        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        });
+        
+        // Cargar carrito
+        const cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
+        const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        const badge = document.getElementById('cartCount');
+        if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+        
+        loadProfile();
+    </script>
+</body>
+</html>
