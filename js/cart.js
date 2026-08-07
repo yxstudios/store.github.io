@@ -2,19 +2,27 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Inicializar carrito desde localStorage
-let cart = JSON.parse(localStorage.getItem('rbxCart')) || [];
+// ============================================
+// ESTADO DEL CARRITO
+// ============================================
+let cart = JSON.parse(localStorage.getItem('yxCart')) || [];
+let currentPromo = null;
+let appliedDiscount = 0;
 
 // Promociones disponibles
 const promoCodes = {
     'WELCOME10': 0.10, // 10% descuento
     'ROBLOX20': 0.20,  // 20% descuento
-    'VIP50': 0.50      // 50% descuento
+    'VIP50': 0.50,     // 50% descuento
+    'YXSTUDIOS': 0.15  // 15% descuento
 };
 
-let currentPromo = null;
+// Precio de Robux a USD (tasa de cambio simulada)
+const ROBUX_TO_USD_RATE = 0.0125; // 1 Robux = $0.0125 USD
 
-// Cargar carrito al iniciar
+// ============================================
+// CARGAR CARRITO
+// ============================================
 function loadCart() {
     const cartItems = document.getElementById('cartItems');
     const emptyCart = document.getElementById('emptyCart');
@@ -22,87 +30,101 @@ function loadCart() {
     
     updateCartCount();
     
-    if (cart.length === 0) {
-        cartItems.innerHTML = '';
-        emptyCart.style.display = 'block';
-        cartSummary.style.display = 'none';
+    if (!cart || cart.length === 0) {
+        if (cartItems) cartItems.innerHTML = '';
+        if (emptyCart) emptyCart.style.display = 'block';
+        if (cartSummary) cartSummary.style.display = 'none';
         return;
     }
     
-    emptyCart.style.display = 'none';
-    cartSummary.style.display = 'block';
+    if (emptyCart) emptyCart.style.display = 'none';
+    if (cartSummary) cartSummary.style.display = 'block';
     
-    cartItems.innerHTML = cart.map((item, index) => `
-        <div class="cart-item">
-            <div class="cart-item-image">
-                <i class="fas ${item.icon}"></i>
-            </div>
-            <div class="cart-item-info">
-                <h3>${item.name}</h3>
-                <p class="cart-item-category">${item.category}</p>
-                <div class="cart-item-features">
-                    ${item.features.map(f => `<span class="feature-tag">${f}</span>`).join('')}
+    if (cartItems) {
+        cartItems.innerHTML = cart.map((item, index) => `
+            <div class="cart-item">
+                <div class="cart-item-image">
+                    <i class="fas ${item.icon}"></i>
                 </div>
+                <div class="cart-item-info">
+                    <h3>${item.name}</h3>
+                    <span class="cart-item-category">${item.category}</span>
+                    <div class="cart-item-features">
+                        ${item.features.slice(0, 2).map(f => `<span class="feature-tag">${f}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="cart-item-quantity">
+                    <button class="qty-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                    <span class="qty-number">${item.quantity || 1}</span>
+                    <button class="qty-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                </div>
+                <div class="cart-item-price">
+                    <span class="price">$${convertRobuxToUSD(item.price).toFixed(2)}</span>
+                    <span class="robux">🎮 ${item.price.toLocaleString()} Robux</span>
+                </div>
+                <button class="btn-remove" onclick="removeFromCart(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
-            <div class="cart-item-price">
-                <span class="price">🎮 ${item.price.toLocaleString()}</span>
-                <span class="robux">Robux</span>
-            </div>
-            <div class="cart-item-quantity">
-                <button class="qty-btn" onclick="updateQuantity(${index}, -1)">-</button>
-                <span class="qty-number">${item.quantity || 1}</span>
-                <button class="qty-btn" onclick="updateQuantity(${index}, 1)">+</button>
-            </div>
-            <div class="cart-item-total">
-                <span>Total: 🎮 ${((item.price * (item.quantity || 1))).toLocaleString()}</span>
-            </div>
-            <button class="btn-remove" onclick="removeFromCart(${index})">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-    `).join('');
+        `).join('');
+    }
     
     updateSummary();
+    loadOrderItemsList();
 }
 
-// Actualizar contador del carrito
-function updateCartCount() {
-    const cartCount = document.getElementById('cartCount');
-    if (cartCount) {
-        const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-        cartCount.textContent = totalItems;
-        cartCount.style.display = totalItems > 0 ? 'inline-block' : 'none';
-    }
+// ============================================
+// CONVERTIR ROBUX A USD
+// ============================================
+function convertRobuxToUSD(robux) {
+    return robux * ROBUX_TO_USD_RATE;
 }
 
-// Actualizar resumen de compra
+// ============================================
+// ACTUALIZAR RESUMEN
+// ============================================
 function updateSummary() {
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    const discount = currentPromo ? subtotal * currentPromo : 0;
-    const total = subtotal - discount;
+    const subtotalRobux = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    const subtotalUSD = convertRobuxToUSD(subtotalRobux);
+    const discountUSD = appliedDiscount;
+    const totalUSD = subtotalUSD - discountUSD;
     
-    document.getElementById('subtotal').textContent = `🎮 ${subtotal.toLocaleString()}`;
-    document.getElementById('discount').textContent = discount > 0 ? `-🎮 ${discount.toLocaleString()}` : '🎮 0';
-    document.getElementById('total').textContent = `🎮 ${total.toLocaleString()}`;
+    const subtotalEl = document.getElementById('subtotal');
+    const discountEl = document.getElementById('discount');
+    const totalEl = document.getElementById('total');
+    
+    if (subtotalEl) subtotalEl.textContent = `$${subtotalUSD.toFixed(2)}`;
+    if (discountEl) discountEl.textContent = discountUSD > 0 ? `-$${discountUSD.toFixed(2)}` : '$0.00';
+    if (totalEl) totalEl.textContent = `$${Math.max(0, totalUSD).toFixed(2)}`;
+    
+    // Renderizar botón de PayPal con el total actualizado
+    renderPayPalButton(Math.max(0, totalUSD));
 }
 
-// Agregar al carrito (llamado desde products.html)
-window.addToCart = function(product) {
-    const existingIndex = cart.findIndex(item => item.id === product.id);
+// ============================================
+// CARGAR LISTA DE ITEMS PARA PAYPAL
+// ============================================
+function loadOrderItemsList() {
+    const orderItemsList = document.getElementById('orderItemsList');
+    if (!orderItemsList) return;
     
-    if (existingIndex !== -1) {
-        cart[existingIndex].quantity = (cart[existingIndex].quantity || 1) + 1;
-        showToast('✅ Cantidad actualizada en el carrito');
-    } else {
-        cart.push({ ...product, quantity: 1 });
-        showToast('🎉 Producto agregado al carrito');
-    }
-    
-    saveCart();
-    updateCartCount();
-};
+    orderItemsList.innerHTML = cart.map(item => `
+        <div class="order-item-row">
+            <div class="order-item-info">
+                <i class="fas ${item.icon}"></i>
+                <div>
+                    <span class="order-item-name">${item.name}</span>
+                    <span class="order-item-qty">x${item.quantity || 1}</span>
+                </div>
+            </div>
+            <span class="order-item-price">$${convertRobuxToUSD(item.price * (item.quantity || 1)).toFixed(2)}</span>
+        </div>
+    `).join('');
+}
 
-// Actualizar cantidad
+// ============================================
+// ACTUALIZAR CANTIDAD
+// ============================================
 window.updateQuantity = function(index, change) {
     const newQuantity = (cart[index].quantity || 1) + change;
     
@@ -116,7 +138,9 @@ window.updateQuantity = function(index, change) {
     loadCart();
 };
 
-// Eliminar del carrito
+// ============================================
+// ELIMINAR DEL CARRITO
+// ============================================
 window.removeFromCart = function(index) {
     const item = cart[index];
     cart.splice(index, 1);
@@ -125,190 +149,282 @@ window.removeFromCart = function(index) {
     showToast(`🗑️ ${item.name} eliminado del carrito`);
 };
 
-// Vaciar carrito
+// ============================================
+// VACIAR CARRITO
+// ============================================
 document.getElementById('clearCart')?.addEventListener('click', () => {
+    if (cart.length === 0) return;
+    
     if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
         cart = [];
+        currentPromo = null;
+        appliedDiscount = 0;
         saveCart();
         loadCart();
         showToast('🛒 Carrito vaciado');
     }
 });
 
-// Aplicar código promocional
+// ============================================
+// APLICAR CÓDIGO PROMOCIONAL
+// ============================================
 document.getElementById('applyPromo')?.addEventListener('click', () => {
     const promoInput = document.getElementById('promoInput');
-    const code = promoInput.value.toUpperCase();
+    const code = promoInput.value.toUpperCase().trim();
+    
+    if (!code) {
+        showToast('❌ Ingresa un código promocional', 'error');
+        return;
+    }
     
     if (promoCodes[code]) {
-        currentPromo = promoCodes[code];
+        currentPromo = code;
+        const subtotalRobux = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+        const subtotalUSD = convertRobuxToUSD(subtotalRobux);
+        appliedDiscount = subtotalUSD * promoCodes[code];
         updateSummary();
-        showToast(`🎉 Código aplicado: ${(currentPromo * 100)}% de descuento`);
-        promoInput.value = '';
+        showToast(`🎉 Código aplicado: ${(promoCodes[code] * 100)}% de descuento`);
     } else {
         showToast('❌ Código inválido', 'error');
         currentPromo = null;
+        appliedDiscount = 0;
         updateSummary();
     }
 });
 
-// Checkout
-document.getElementById('checkoutBtn')?.addEventListener('click', () => {
-    if (cart.length === 0) {
-        showToast('🛒 Tu carrito está vacío', 'error');
+// ============================================
+// RENDERIZAR BOTÓN DE PAYPAL
+// ============================================
+function renderPayPalButton(totalAmount) {
+    const container = document.getElementById('paypal-button-container');
+    if (!container) return;
+    
+    // Limpiar contenedor
+    container.innerHTML = '';
+    
+    // Solo renderizar si hay monto
+    if (totalAmount <= 0) {
+        container.innerHTML = '<p class="text-muted">Agrega productos al carrito para pagar</p>';
         return;
     }
     
-    document.getElementById('checkoutModal').style.display = 'block';
-    loadOrderSummary();
-});
-
-// Cerrar modal
-document.querySelector('.close')?.addEventListener('click', () => {
-    document.getElementById('checkoutModal').style.display = 'none';
-});
-
-// Pasos del checkout
-let currentStep = 1;
-
-window.nextStep = function(step) {
-    // Validar paso actual
-    if (step === 2 && !validateStep1()) return;
-    
-    // Ocultar todos los pasos
-    document.querySelectorAll('.checkout-step-content').forEach(el => {
-        el.style.display = 'none';
-    });
-    
-    // Mostrar paso actual
-    document.getElementById(`step${step}Content`).style.display = 'block';
-    
-    // Actualizar indicadores
-    document.querySelectorAll('.step').forEach(el => {
-        el.classList.remove('active', 'completed');
-        if (parseInt(el.dataset.step) === step) {
-            el.classList.add('active');
-        } else if (parseInt(el.dataset.step) < step) {
-            el.classList.add('completed');
+    paypal.Buttons({
+        style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'pill',
+            label: 'paypal'
+        },
+        
+        // Crear la orden
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    description: 'Productos YX Studios',
+                    amount: {
+                        currency_code: 'USD',
+                        value: totalAmount.toFixed(2),
+                        breakdown: {
+                            item_total: {
+                                currency_code: 'USD',
+                                value: totalAmount.toFixed(2)
+                            }
+                        }
+                    },
+                    items: cart.map(item => ({
+                        name: item.name,
+                        description: item.description?.substring(0, 127) || item.name,
+                        unit_amount: {
+                            currency_code: 'USD',
+                            value: convertRobuxToUSD(item.price).toFixed(2)
+                        },
+                        quantity: (item.quantity || 1).toString(),
+                        category: 'DIGITAL_GOODS'
+                    }))
+                }]
+            });
+        },
+        
+        // Cuando se aprueba el pago
+        onApprove: async function(data, actions) {
+            try {
+                // Capturar el pago
+                const order = await actions.order.capture();
+                
+                console.log('Pago exitoso:', order);
+                
+                // Guardar la orden en Supabase
+                await saveOrder(order);
+                
+                // Mostrar modal de éxito
+                showSuccessModal();
+                
+                // Limpiar carrito
+                cart = [];
+                currentPromo = null;
+                appliedDiscount = 0;
+                saveCart();
+                loadCart();
+                
+            } catch (error) {
+                console.error('Error al procesar el pago:', error);
+                showToast('❌ Error al procesar el pago: ' + error.message, 'error');
+            }
+        },
+        
+        // Si hay error
+        onError: function(err) {
+            console.error('Error en PayPal:', err);
+            showToast('❌ Error al conectar con PayPal. Intenta de nuevo.', 'error');
+        },
+        
+        // Si se cancela
+        onCancel: function() {
+            showToast('💳 Pago cancelado', 'info');
         }
+    }).render('#paypal-button-container');
+}
+
+// ============================================
+// GUARDAR ORDEN EN SUPABASE
+// ============================================
+async function saveOrder(paypalOrder) {
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        const orderData = {
+            user_id: session?.user?.id || 'guest',
+            user_email: session?.user?.email || paypalOrder.payer?.email_address,
+            paypal_order_id: paypalOrder.id,
+            paypal_payer_id: paypalOrder.payer?.payer_id,
+            items: cart,
+            subtotal: convertRobuxToUSD(cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0)),
+            discount: appliedDiscount,
+            total: parseFloat(paypalOrder.purchase_units[0].amount.value),
+            promo_code: currentPromo,
+            status: 'completed',
+            created_at: new Date().toISOString()
+        };
+        
+        // Guardar en localStorage como respaldo
+        const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+        orders.push(orderData);
+        localStorage.setItem('yxOrders', JSON.stringify(orders));
+        
+        // Intentar guardar en Supabase
+        const { error } = await supabase
+            .from('orders')
+            .insert([orderData]);
+        
+        if (error) {
+            console.warn('No se pudo guardar en Supabase, guardado localmente:', error);
+        }
+        
+    } catch (error) {
+        console.error('Error al guardar la orden:', error);
+    }
+}
+
+// ============================================
+// MOSTRAR MODAL DE ÉXITO
+// ============================================
+function showSuccessModal() {
+    const modal = document.getElementById('successModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+// ============================================
+// ACTUALIZAR CONTADOR DEL CARRITO
+// ============================================
+function updateCartCount() {
+    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const cartCountElements = document.querySelectorAll('#cartCount');
+    
+    cartCountElements.forEach(el => {
+        el.textContent = count;
+        el.style.display = count > 0 ? 'flex' : 'none';
     });
-    
-    currentStep = step;
-};
-
-function validateStep1() {
-    const discord = document.getElementById('discordUser').value;
-    const roblox = document.getElementById('robloxUser').value;
-    
-    if (!discord || !roblox) {
-        showToast('❌ Por favor completa todos los campos', 'error');
-        return false;
-    }
-    return true;
 }
 
-function loadOrderSummary() {
-    const orderItems = document.getElementById('orderItems');
-    const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    const discount = currentPromo ? total * currentPromo : 0;
-    const finalTotal = total - discount;
-    
-    orderItems.innerHTML = cart.map(item => `
-        <div class="order-item">
-            <span>${item.name} x${item.quantity || 1}</span>
-            <span>🎮 ${(item.price * (item.quantity || 1)).toLocaleString()}</span>
-        </div>
-    `).join('');
-    
-    if (discount > 0) {
-        orderItems.innerHTML += `
-            <div class="order-item discount">
-                <span>Descuento (${(currentPromo * 100)}%)</span>
-                <span>-🎮 ${discount.toLocaleString()}</span>
-            </div>
-        `;
+// ============================================
+// ACTUALIZAR UI SEGÚN SESIÓN
+// ============================================
+async function updateUI() {
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const guestMenu = document.getElementById('guestMenu');
+        const userMenu = document.getElementById('userMenu');
+        
+        if (session?.user) {
+            if (guestMenu) guestMenu.style.display = 'none';
+            if (userMenu) {
+                userMenu.style.display = 'flex';
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                if (userNameDisplay) {
+                    userNameDisplay.textContent = session.user.user_metadata?.full_name || 
+                                                   session.user.email?.split('@')[0] || 'Usuario';
+                }
+            }
+        } else {
+            if (guestMenu) guestMenu.style.display = 'flex';
+            if (userMenu) userMenu.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error al verificar sesión:', error);
     }
-    
-    document.getElementById('orderTotal').textContent = `🎮 ${finalTotal.toLocaleString()}`;
 }
 
-// Procesar pedido
-document.getElementById('checkoutForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-        showToast('❌ Debes iniciar sesión para comprar', 'error');
-        return;
-    }
-    
-    const discordUser = document.getElementById('discordUser').value;
-    const robloxUser = document.getElementById('robloxUser').value;
-    const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-    const total = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    const discount = currentPromo ? total * currentPromo : 0;
-    const finalTotal = total - discount;
-    
-    // Aquí conectarías con Supabase para guardar la orden
-    const orderData = {
-        userId: session.user.id,
-        items: cart,
-        discordUser,
-        robloxUser,
-        paymentMethod,
-        total: finalTotal,
-        status: 'pending',
-        createdAt: new Date().toISOString()
-    };
-    
-    console.log('Orden creada:', orderData);
-    
-    // Simular procesamiento
-    showToast('✅ ¡Pedido realizado con éxito!');
-    
-    // Limpiar carrito
-    cart = [];
-    saveCart();
-    
-    // Cerrar modal
-    setTimeout(() => {
-        document.getElementById('checkoutModal').style.display = 'none';
-        loadCart();
-    }, 2000);
-});
-
-// Toast notifications
+// ============================================
+// TOAST NOTIFICATION
+// ============================================
 function showToast(message, type = 'success') {
-    // Remover toast existente
     const existingToast = document.querySelector('.toast');
     if (existingToast) existingToast.remove();
     
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}"></i>
+        <span>${message}</span>
+    `;
     document.body.appendChild(toast);
     
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 100);
-    
+    setTimeout(() => toast.classList.add('show'), 100);
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
 
-// Guardar carrito en localStorage
+// ============================================
+// GUARDAR CARRITO
+// ============================================
 function saveCart() {
-    localStorage.setItem('rbxCart', JSON.stringify(cart));
+    localStorage.setItem('yxCart', JSON.stringify(cart));
+    updateCartCount();
 }
 
-// Cerrar sesión
-document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+// ============================================
+// LOGOUT
+// ============================================
+document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+    e.preventDefault();
     await supabase.auth.signOut();
     window.location.href = 'index.html';
 });
 
-// Cargar carrito al iniciar
-loadCart();
+// ============================================
+// INICIALIZACIÓN
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🛒 YX Studios - Carrito de Compras');
+    updateUI();
+    loadCart();
+});
+
+// Escuchar cambios de autenticación
+supabase.auth.onAuthStateChange((event, session) => {
+    updateUI();
+});
