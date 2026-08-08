@@ -36,7 +36,10 @@
             </div>
             <div class="topbar-nav">
                 <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
-                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span><span>Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
+                <a href="cart.html" class="nav-link cart-link">
+                    <span class="material-icons">shopping_cart</span><span>Carrito</span>
+                    <span id="cartCount" class="cart-badge">0</span>
+                </a>
                 <div class="user-menu" style="display:flex;">
                     <div class="user-dropdown">
                         <button class="user-dropdown-btn">
@@ -46,7 +49,6 @@
                         </button>
                         <div class="user-dropdown-content">
                             <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
-                            <a href="profile.html#purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
                             <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
                             <div class="dropdown-divider"></div>
                             <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
@@ -70,8 +72,8 @@
                     </label>
                     <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
                 </div>
-                <h2 id="profileName">Usuario</h2>
-                <p id="profileEmail">email@ejemplo.com</p>
+                <h2 id="profileName">Cargando...</h2>
+                <p id="profileEmail">Cargando...</p>
                 <span class="badge" id="profileBadge">Cliente</span>
             </div>
             
@@ -84,9 +86,6 @@
                 </a>
                 <a href="#" class="profile-nav-link" data-section="purchases">
                     <span class="material-icons">shopping_bag</span> Historial de Compras
-                </a>
-                <a href="#" class="profile-nav-link" data-section="invoices">
-                    <span class="material-icons">receipt_long</span> Facturación
                 </a>
                 <a href="#" class="profile-nav-link" data-section="settings">
                     <span class="material-icons">settings</span> Configuración
@@ -112,23 +111,23 @@
                     
                     <div class="form-group">
                         <label>Biografía</label>
-                        <textarea id="editBio" class="profile-input profile-textarea" placeholder="Cuéntanos sobre ti..."></textarea>
+                        <textarea id="editBio" class="profile-input profile-textarea" placeholder="Cuéntanos sobre ti..." rows="3"></textarea>
                     </div>
                     
                     <div class="form-group">
                         <label>Usuario de Roblox</label>
-                        <div class="input-with-icon">
-                            <span class="material-icons input-prefix">sports_esports</span>
-                            <input type="text" id="editRoblox" class="profile-input" placeholder="Tu username de Roblox">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="material-icons" style="color:var(--accent);">sports_esports</span>
+                            <input type="text" id="editRoblox" class="profile-input" placeholder="Tu username de Roblox" style="flex:1;">
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label>Cuenta de Discord</label>
-                        <div class="input-with-icon">
-                            <span class="material-icons input-prefix">discord</span>
-                            <input type="text" id="editDiscord" class="profile-input" placeholder="Usuario#0000">
-                            <button id="connectDiscord" class="btn-sm btn-discord-connect">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="material-icons" style="color:var(--accent);">discord</span>
+                            <input type="text" id="editDiscord" class="profile-input" placeholder="Usuario#0000" style="flex:1;">
+                            <button id="connectDiscord" class="btn-discord-connect">
                                 <i class="fab fa-discord"></i> Conectar
                             </button>
                         </div>
@@ -159,10 +158,6 @@
                 <div class="security-card">
                     <h4>Cambiar Contraseña</h4>
                     <div class="form-group">
-                        <label>Contraseña actual</label>
-                        <input type="password" id="currentPassword" class="profile-input" placeholder="••••••••">
-                    </div>
-                    <div class="form-group">
                         <label>Nueva contraseña</label>
                         <input type="password" id="newPassword" class="profile-input" placeholder="Mínimo 6 caracteres">
                     </div>
@@ -192,7 +187,7 @@
             <div id="purchasesSection" class="profile-section">
                 <h3>Historial de Compras</h3>
                 
-                <div class="purchases-filters">
+                <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
                     <input type="text" id="searchPurchases" class="profile-input" placeholder="Buscar compra..." style="max-width:300px;">
                     <select id="filterStatus" class="profile-input" style="max-width:200px;">
                         <option value="all">Todos</option>
@@ -201,7 +196,7 @@
                     </select>
                 </div>
                 
-                <div class="purchases-table-wrapper">
+                <div style="overflow-x:auto;">
                     <table class="purchases-table">
                         <thead>
                             <tr>
@@ -210,24 +205,15 @@
                                 <th>Productos</th>
                                 <th>Total</th>
                                 <th>Estado</th>
-                                <th>Acción</th>
+                                <th>Factura</th>
                             </tr>
                         </thead>
                         <tbody id="purchasesTableBody">
                             <tr>
-                                <td colspan="6" class="text-muted">No tienes compras realizadas</td>
+                                <td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">No tienes compras realizadas</td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-            
-            <!-- SECCIÓN: FACTURACIÓN -->
-            <div id="invoicesSection" class="profile-section">
-                <h3>Facturación</h3>
-                
-                <div class="invoices-list" id="invoicesList">
-                    <p class="text-muted">No hay facturas disponibles</p>
                 </div>
             </div>
             
@@ -235,7 +221,7 @@
             <div id="settingsSection" class="profile-section">
                 <h3>Configuración</h3>
                 
-                <div class="settings-card">
+                <div class="security-card">
                     <h4>Idioma</h4>
                     <select id="languageSelect" class="profile-input">
                         <option value="es">Español</option>
@@ -243,7 +229,7 @@
                     </select>
                 </div>
                 
-                <div class="settings-card">
+                <div class="security-card">
                     <h4>Moneda</h4>
                     <select id="currencySelect" class="profile-input">
                         <option value="USD">USD - Dólar estadounidense</option>
@@ -252,13 +238,13 @@
                     </select>
                 </div>
                 
-                <div class="settings-card">
+                <div class="security-card">
                     <h4>Color de acento</h4>
-                    <div class="accent-colors">
-                        <button class="accent-color-btn active" data-accent="red" style="background:#ff2d2d;"></button>
-                        <button class="accent-color-btn" data-accent="dark-gray" style="background:#888888;"></button>
-                        <button class="accent-color-btn" data-accent="blue" style="background:#2196f3;"></button>
-                        <button class="accent-color-btn" data-accent="purple" style="background:#9c27b0;"></button>
+                    <div style="display:flex;gap:10px;">
+                        <button class="accent-color-btn active" data-accent="red" style="background:#ff2d2d;width:35px;height:35px;border-radius:50%;border:2px solid white;cursor:pointer;"></button>
+                        <button class="accent-color-btn" data-accent="dark-gray" style="background:#888;width:35px;height:35px;border-radius:50%;border:2px solid transparent;cursor:pointer;"></button>
+                        <button class="accent-color-btn" data-accent="blue" style="background:#2196f3;width:35px;height:35px;border-radius:50%;border:2px solid transparent;cursor:pointer;"></button>
+                        <button class="accent-color-btn" data-accent="purple" style="background:#9c27b0;width:35px;height:35px;border-radius:50%;border:2px solid transparent;cursor:pointer;"></button>
                     </div>
                 </div>
             </div>
@@ -268,9 +254,9 @@
                 <h3 style="color:var(--danger);">Zona de Peligro</h3>
                 
                 <div class="danger-card">
-                    <div class="danger-info">
-                        <h4>Eliminar Cuenta</h4>
-                        <p>Esta acción es irreversible. Todos tus datos, compras y reseñas serán eliminados permanentemente.</p>
+                    <div>
+                        <h4 style="color:var(--danger);margin-bottom:5px;">Eliminar Cuenta</h4>
+                        <p style="color:var(--text-muted);font-size:0.85em;">Esta acción es irreversible. Todos tus datos serán eliminados.</p>
                     </div>
                     <button class="btn-danger" id="deleteAccountBtn">
                         <span class="material-icons">delete_forever</span> Eliminar mi cuenta
@@ -280,13 +266,13 @@
         </div>
     </main>
 
-    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR CUENTA -->
-    <div id="deleteModal" class="modal-overlay" style="display:none;">
-        <div class="modal-card">
-            <h3 style="color:var(--danger);">Eliminar Cuenta</h3>
-            <p>Para confirmar, escribe <strong>ELIMINAR</strong> en el campo de abajo:</p>
-            <input type="text" id="deleteConfirmInput" class="profile-input" placeholder="Escribe ELIMINAR">
-            <div class="modal-actions">
+    <!-- MODAL ELIMINAR -->
+    <div id="deleteModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:10000;align-items:center;justify-content:center;">
+        <div style="background:var(--bg-secondary);padding:30px;border-radius:16px;max-width:450px;width:90%;border:1px solid var(--border-color);">
+            <h3 style="color:var(--danger);margin-bottom:15px;">Eliminar Cuenta</h3>
+            <p style="color:var(--text-secondary);margin-bottom:15px;font-size:0.9em;">Para confirmar, escribe <strong>ELIMINAR</strong> en el campo de abajo:</p>
+            <input type="text" id="deleteConfirmInput" class="profile-input" placeholder="Escribe ELIMINAR" style="width:100%;margin-bottom:15px;">
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
                 <button class="btn-outline" id="cancelDelete">Cancelar</button>
                 <button class="btn-danger" id="confirmDelete" disabled>Eliminar Permanentemente</button>
             </div>
