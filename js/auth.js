@@ -2,13 +2,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Verificar sesión
-async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
-}
-
-// Login con Email
+// ============================================
+// LOGIN CON EMAIL
+// ============================================
 async function signInWithEmail(email, password) {
     try {
         showLoading(true);
@@ -16,17 +12,19 @@ async function signInWithEmail(email, password) {
         
         if (error) throw error;
         
-        showMessage('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
+        showMessage('Inicio de sesión exitoso. Redirigiendo...', 'success');
         setTimeout(() => {
             window.location.href = 'index.html';
-        }, 1500);
+        }, 1000);
     } catch (error) {
         showMessage(error.message, 'error');
         showLoading(false);
     }
 }
 
-// Registro con Email
+// ============================================
+// REGISTRO CON EMAIL
+// ============================================
 async function signUpWithEmail(name, email, password) {
     try {
         showLoading(true);
@@ -40,26 +38,23 @@ async function signUpWithEmail(name, email, password) {
         
         if (error) throw error;
         
-        if (data.user && data.user.identities && data.user.identities.length === 0) {
-            showMessage('Este email ya está registrado. Por favor inicia sesión.', 'error');
-        } else {
-            showMessage('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
-        }
+        showMessage('Cuenta creada exitosamente. Redirigiendo...', 'success');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1000);
     } catch (error) {
         showMessage(error.message, 'error');
-    } finally {
         showLoading(false);
     }
 }
 
-// Login con Google
-async function signInWithGoogle() {
+// ============================================
+// LOGIN CON DISCORD
+// ============================================
+async function signInWithDiscord() {
     try {
         const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
+            provider: 'discord',
             options: {
                 redirectTo: window.location.origin + '/index.html'
             }
@@ -67,17 +62,41 @@ async function signInWithGoogle() {
         
         if (error) throw error;
     } catch (error) {
-        showMessage(error.message, 'error');
+        showMessage('Error al conectar con Discord: ' + error.message, 'error');
     }
 }
 
-// Cerrar sesión
+// ============================================
+// FORGOT PASSWORD
+// ============================================
+async function resetPassword(email) {
+    try {
+        showLoading(true);
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/reset-password.html'
+        });
+        
+        if (error) throw error;
+        
+        showMessage('Se ha enviado un enlace a tu correo para restablecer la contraseña.', 'success');
+        showLoading(false);
+    } catch (error) {
+        showMessage(error.message, 'error');
+        showLoading(false);
+    }
+}
+
+// ============================================
+// CERRAR SESIÓN
+// ============================================
 async function signOut() {
     await supabase.auth.signOut();
     window.location.href = 'index.html';
 }
 
-// Mostrar mensajes
+// ============================================
+// MOSTRAR MENSAJES
+// ============================================
 function showMessage(message, type) {
     const messageElement = document.getElementById('authMessage');
     if (messageElement) {
@@ -89,7 +108,9 @@ function showMessage(message, type) {
     }
 }
 
-// Mostrar/Ocultar loading
+// ============================================
+// LOADING
+// ============================================
 function showLoading(show) {
     const submitBtn = document.querySelector('.btn-primary[type="submit"]');
     if (submitBtn) {
@@ -98,23 +119,104 @@ function showLoading(show) {
             submitBtn.innerHTML = '<span class="spinner"></span> Cargando...';
         } else {
             submitBtn.disabled = false;
-            const icon = submitBtn.querySelector('i');
-            const text = icon ? icon.outerHTML + ' ' + submitBtn.textContent.trim() : submitBtn.textContent;
-            submitBtn.innerHTML = text;
+            submitBtn.innerHTML = submitBtn.dataset.originalHtml || submitBtn.innerHTML;
         }
     }
 }
 
-// Event Listeners
+// ============================================
+// TOGGLE PASSWORD
+// ============================================
+function setupTogglePassword() {
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const target = document.getElementById(this.dataset.target);
+            if (target.type === 'password') {
+                target.type = 'text';
+                this.textContent = 'visibility';
+            } else {
+                target.type = 'password';
+                this.textContent = 'visibility_off';
+            }
+        });
+    });
+}
+
+// ============================================
+// FORGOT PASSWORD TOGGLE
+// ============================================
+function setupForgotPassword() {
+    const showBtn = document.getElementById('showForgotPassword');
+    const backBtn = document.getElementById('backToLogin');
+    const loginForm = document.getElementById('loginForm');
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    
+    if (showBtn) {
+        showBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'none';
+            forgotForm.style.display = 'block';
+        });
+    }
+    
+    if (backBtn) {
+        backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        });
+    }
+}
+
+// ============================================
+// PASSWORD STRENGTH
+// ============================================
+function setupPasswordStrength() {
+    const passwordInput = document.getElementById('registerPassword');
+    if (!passwordInput) return;
+    
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        
+        if (!strengthFill || !strengthText) return;
+        
+        let strength = 0;
+        if (password.length >= 6) strength++;
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        
+        const percentages = ['0%', '25%', '50%', '75%', '100%'];
+        const colors = ['#ff1744', '#ff9100', '#ffd600', '#76ff03', '#00e676'];
+        const texts = ['Muy débil', 'Débil', 'Media', 'Fuerte', 'Muy fuerte'];
+        
+        strengthFill.style.width = percentages[strength] || '0%';
+        strengthFill.style.background = colors[strength] || colors[0];
+        strengthText.textContent = texts[strength] || texts[0];
+        strengthText.style.color = colors[strength] || colors[0];
+    });
+}
+
+// ============================================
+// INIT
+// ============================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Si ya hay sesión, redirigir al index
-    const session = await checkSession();
+    // Verificar sesión existente
+    const { data: { session } } = await supabase.auth.getSession();
     if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
         window.location.href = 'index.html';
         return;
     }
     
-    // Form de Login
+    // Guardar HTML original de botones
+    document.querySelectorAll('.btn-primary[type="submit"]').forEach(btn => {
+        btn.dataset.originalHtml = btn.innerHTML;
+    });
+    
+    // Login form
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
@@ -125,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
-    // Form de Register
+    // Register form
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', (e) => {
@@ -135,57 +237,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             const password = document.getElementById('registerPassword').value;
             signUpWithEmail(name, email, password);
         });
-        
-        // Medidor de fortaleza de contraseña
-        const passwordInput = document.getElementById('registerPassword');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', updatePasswordStrength);
-        }
     }
     
-    // Botones de Google
-    const googleLogin = document.getElementById('googleLogin');
-    const googleRegister = document.getElementById('googleRegister');
-    if (googleLogin) googleLogin.addEventListener('click', signInWithGoogle);
-    if (googleRegister) googleRegister.addEventListener('click', signInWithGoogle);
-    
-    // Toggle password visibility
-    document.querySelectorAll('.toggle-password').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const target = document.getElementById(this.dataset.target);
-            if (target.type === 'password') {
-                target.type = 'text';
-                this.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                target.type = 'password';
-                this.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+    // Forgot password form
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+            resetPassword(email);
         });
-    });
+    }
+    
+    // Discord buttons
+    const discordLogin = document.getElementById('discordLogin');
+    const discordRegister = document.getElementById('discordRegister');
+    if (discordLogin) discordLogin.addEventListener('click', signInWithDiscord);
+    if (discordRegister) discordRegister.addEventListener('click', signInWithDiscord);
+    
+    // Setup toggle password
+    setupTogglePassword();
+    
+    // Setup forgot password
+    setupForgotPassword();
+    
+    // Setup password strength
+    setupPasswordStrength();
 });
 
-// Medidor de fortaleza de contraseña
-function updatePasswordStrength(e) {
-    const password = e.target.value;
-    const strengthFill = document.getElementById('strengthFill');
-    const strengthText = document.getElementById('strengthText');
-    const strengthBar = document.getElementById('passwordStrength');
-    
-    if (!strengthFill || !strengthText) return;
-    
-    let strength = 0;
-    if (password.length >= 6) strength++;
-    if (password.length >= 8) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
-    
-    const percentages = ['0%', '25%', '50%', '75%', '100%'];
-    const colors = ['#ff1744', '#ff9100', '#ffd600', '#76ff03', '#00e676'];
-    const texts = ['Muy débil', 'Débil', 'Media', 'Fuerte', 'Muy fuerte'];
-    
-    strengthFill.style.width = percentages[strength] || '0%';
-    strengthFill.style.background = colors[strength] || colors[0];
-    strengthText.textContent = texts[strength] || texts[0];
-    strengthText.style.color = colors[strength] || colors[0];
-}
+// Exportar signOut para usar en otras páginas
+window.signOut = signOut;
