@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="es" data-theme="red">
 <head>
@@ -36,17 +38,10 @@
             </div>
             <div class="topbar-nav">
                 <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
-                <a href="cart.html" class="nav-link cart-link">
-                    <span class="material-icons">shopping_cart</span><span>Carrito</span>
-                    <span id="cartCount" class="cart-badge">0</span>
-                </a>
+                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span><span>Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
                 <div class="user-menu" style="display:flex;">
                     <div class="user-dropdown">
-                        <button class="user-dropdown-btn">
-                            <img id="userAvatarTop" src="https://via.placeholder.com/32" class="user-avatar">
-                            <span id="userNameDisplay">Usuario</span>
-                            <span class="material-icons">arrow_drop_down</span>
-                        </button>
+                        <button class="user-dropdown-btn"><img id="userAvatarTop" src="https://via.placeholder.com/32" class="user-avatar"><span id="userNameDisplay">Usuario</span><span class="material-icons">arrow_drop_down</span></button>
                         <div class="user-dropdown-content">
                             <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
                             <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
@@ -59,92 +54,92 @@
         </div>
     </nav>
 
+    <!-- BANNER DE PORTADA -->
+    <div class="profile-banner-wrapper">
+        <div class="profile-banner" id="profileBanner" style="background-image:url('https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner+de+Perfil');">
+            <div class="profile-banner-overlay"></div>
+            <label for="bannerUpload" class="profile-banner-edit-btn" title="Cambiar banner">
+                <span class="material-icons">edit</span> Cambiar portada
+            </label>
+            <input type="file" id="bannerUpload" accept="image/*" style="display:none;">
+        </div>
+    </div>
+
     <!-- PROFILE CONTAINER -->
-    <main class="profile-container">
+    <main class="profile-container-new">
         
         <!-- SIDEBAR -->
-        <div class="profile-sidebar">
-            <div class="profile-avatar-section">
-                <div class="avatar-upload-wrapper">
-                    <img id="profileAvatar" src="https://via.placeholder.com/120" class="profile-avatar" alt="Avatar">
-                    <label for="avatarUpload" class="avatar-upload-btn" title="Cambiar foto">
-                        <span class="material-icons">camera_alt</span>
+        <div class="profile-sidebar-new">
+            <div class="profile-avatar-section-new">
+                <div class="avatar-upload-wrapper-new">
+                    <img id="profileAvatar" src="https://via.placeholder.com/140" class="profile-avatar-new" alt="Avatar">
+                    <label for="avatarUpload" class="avatar-edit-btn" title="Cambiar foto">
+                        <span class="material-icons">edit</span>
                     </label>
                     <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
                 </div>
                 <h2 id="profileName">Cargando...</h2>
-                <p id="profileEmail">Cargando...</p>
+                <p id="profileEmailDisplay">cargando@email.com</p>
                 <span class="badge" id="profileBadge">Cliente</span>
             </div>
             
-            <nav class="profile-nav">
-                <a href="#" class="profile-nav-link active" data-section="personal">
-                    <span class="material-icons">person</span> Información Personal
+            <nav class="profile-nav-new">
+                <a href="#" class="profile-nav-link-new active" data-section="personal">
+                    <span class="material-icons">person</span> Información
                 </a>
-                <a href="#" class="profile-nav-link" data-section="security">
+                <a href="#" class="profile-nav-link-new" data-section="security">
                     <span class="material-icons">security</span> Seguridad
                 </a>
-                <a href="#" class="profile-nav-link" data-section="purchases">
-                    <span class="material-icons">shopping_bag</span> Historial de Compras
+                <a href="#" class="profile-nav-link-new" data-section="purchases">
+                    <span class="material-icons">shopping_bag</span> Compras
                 </a>
-                <a href="#" class="profile-nav-link" data-section="invoices">
+                <a href="#" class="profile-nav-link-new" data-section="invoices">
                     <span class="material-icons">receipt_long</span> Facturación
                 </a>
-                <a href="#" class="profile-nav-link" data-section="settings">
+                <a href="#" class="profile-nav-link-new" data-section="settings">
                     <span class="material-icons">settings</span> Configuración
                 </a>
-                <a href="#" class="profile-nav-link" data-section="danger">
+                <a href="#" class="profile-nav-link-new" data-section="danger">
                     <span class="material-icons" style="color:var(--danger);">dangerous</span> Zona de Peligro
                 </a>
             </nav>
         </div>
         
         <!-- CONTENT -->
-        <div class="profile-content">
+        <div class="profile-content-new">
             
             <!-- SECCIÓN: INFORMACIÓN PERSONAL -->
             <div id="personalSection" class="profile-section active">
                 <h3>Información Personal</h3>
                 
-                <div class="profile-form">
-                    <div class="form-group">
-                        <label>Nombre completo</label>
-                        <input type="text" id="editName" class="profile-input" placeholder="Tu nombre completo">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Biografía</label>
-                        <textarea id="editBio" class="profile-input profile-textarea" placeholder="Cuéntanos sobre ti..." rows="3"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Usuario de Roblox</label>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <span class="material-icons" style="color:var(--accent);">sports_esports</span>
-                            <input type="text" id="editRoblox" class="profile-input" placeholder="Tu username de Roblox" style="flex:1;">
+                <div class="profile-form-new">
+                    <div class="form-row">
+                        <div class="form-group-new">
+                            <label>Nombre completo</label>
+                            <input type="text" id="editName" class="profile-input-new" placeholder="Tu nombre completo">
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Cuenta de Discord</label>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <span class="material-icons" style="color:var(--accent);">discord</span>
-                            <input type="text" id="editDiscord" class="profile-input" placeholder="Usuario#0000" style="flex:1;">
-                            <button id="connectDiscord" class="btn-discord-connect">
-                                <i class="fab fa-discord"></i> Conectar
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Banner de perfil</label>
-                        <div class="banner-upload-wrapper">
-                            <div id="bannerPreview" class="banner-preview" style="background-image:url('https://via.placeholder.com/800x200/1a1a1a/ffffff?text=Banner');">
-                                <label for="bannerUpload" class="banner-upload-btn">
-                                    <span class="material-icons">add_photo_alternate</span> Cambiar banner
-                                </label>
-                                <input type="file" id="bannerUpload" accept="image/*" style="display:none;">
+                        <div class="form-group-new">
+                            <label>Usuario de Roblox</label>
+                            <div class="input-icon-wrapper">
+                                <span class="material-icons input-prefix-icon">sports_esports</span>
+                                <input type="text" id="editRoblox" class="profile-input-new has-icon" placeholder="Username de Roblox">
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group-new">
+                        <label>Biografía</label>
+                        <textarea id="editBio" class="profile-input-new profile-textarea-new" placeholder="Cuéntanos sobre ti..." rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group-new">
+                        <label>Discord</label>
+                        <div class="input-icon-wrapper">
+                            <span class="material-icons input-prefix-icon">discord</span>
+                            <input type="text" id="editDiscord" class="profile-input-new has-icon" placeholder="Usuario#0000">
+                            <button id="connectDiscord" class="btn-discord-connect-new">
+                                <i class="fab fa-discord"></i> Vincular
+                            </button>
                         </div>
                     </div>
                     
@@ -158,30 +153,61 @@
             <div id="securitySection" class="profile-section">
                 <h3>Seguridad</h3>
                 
-                <div class="security-card">
-                    <h4>Cambiar Contraseña</h4>
-                    <div class="form-group">
-                        <label>Nueva contraseña</label>
-                        <input type="password" id="newPassword" class="profile-input" placeholder="Mínimo 6 caracteres">
+                <div class="security-card-new">
+                    <div class="security-header">
+                        <span class="material-icons">lock</span>
+                        <div>
+                            <h4>Contraseña</h4>
+                            <p class="security-subtitle">Actualiza tu contraseña periódicamente</p>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Confirmar nueva contraseña</label>
-                        <input type="password" id="confirmNewPassword" class="profile-input" placeholder="Repite la contraseña">
+                    <div class="form-group-new">
+                        <label>Nueva contraseña</label>
+                        <div class="input-icon-wrapper">
+                            <span class="material-icons input-prefix-icon">lock</span>
+                            <input type="password" id="newPassword" class="profile-input-new has-icon" placeholder="Mínimo 6 caracteres">
+                            <button class="toggle-pass-btn" data-target="newPassword">
+                                <span class="material-icons">visibility_off</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group-new">
+                        <label>Confirmar contraseña</label>
+                        <div class="input-icon-wrapper">
+                            <span class="material-icons input-prefix-icon">lock_reset</span>
+                            <input type="password" id="confirmNewPassword" class="profile-input-new has-icon" placeholder="Repite la contraseña">
+                            <button class="toggle-pass-btn" data-target="confirmNewPassword">
+                                <span class="material-icons">visibility_off</span>
+                            </button>
+                        </div>
                     </div>
                     <button class="btn-primary" id="changePasswordBtn">
-                        <span class="material-icons">lock_reset</span> Cambiar Contraseña
+                        <span class="material-icons">lock_reset</span> Actualizar Contraseña
                     </button>
                 </div>
                 
-                <div class="security-card">
-                    <h4>Cambiar Correo Electrónico</h4>
-                    <p class="security-info">Se enviará un enlace de confirmación a tu nuevo correo.</p>
-                    <div class="form-group">
+                <div class="security-card-new">
+                    <div class="security-header">
+                        <span class="material-icons">email</span>
+                        <div>
+                            <h4>Correo Electrónico</h4>
+                            <p class="security-subtitle">Cambia tu dirección de correo</p>
+                        </div>
+                    </div>
+                    <!-- TOOLTIP con email actual -->
+                    <div class="current-email-tooltip">
+                        <span class="material-icons">info</span>
+                        <span>Correo actual: <strong id="tooltipEmail">cargando...</strong></span>
+                    </div>
+                    <div class="form-group-new">
                         <label>Nuevo correo electrónico</label>
-                        <input type="email" id="newEmail" class="profile-input" placeholder="nuevo@correo.com">
+                        <div class="input-icon-wrapper">
+                            <span class="material-icons input-prefix-icon">alternate_email</span>
+                            <input type="email" id="newEmail" class="profile-input-new has-icon" placeholder="nuevo@correo.com">
+                        </div>
                     </div>
                     <button class="btn-primary" id="changeEmailBtn">
-                        <span class="material-icons">email</span> Solicitar Cambio
+                        <span class="material-icons">send</span> Solicitar Cambio
                     </button>
                 </div>
             </div>
@@ -190,17 +216,20 @@
             <div id="purchasesSection" class="profile-section">
                 <h3>Historial de Compras</h3>
                 
-                <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-                    <input type="text" id="searchPurchases" class="profile-input" placeholder="Buscar compra..." style="max-width:300px;">
-                    <select id="filterStatus" class="profile-input" style="max-width:200px;">
+                <div class="purchases-filters-new">
+                    <div class="input-icon-wrapper" style="flex:1;max-width:300px;">
+                        <span class="material-icons input-prefix-icon">search</span>
+                        <input type="text" id="searchPurchases" class="profile-input-new has-icon" placeholder="Buscar compra...">
+                    </div>
+                    <select id="filterStatus" class="profile-input-new" style="max-width:180px;">
                         <option value="all">Todos</option>
                         <option value="completed">Completado</option>
                         <option value="pending">Pendiente</option>
                     </select>
                 </div>
                 
-                <div style="overflow-x:auto;">
-                    <table class="purchases-table">
+                <div class="table-wrapper">
+                    <table class="purchases-table-new">
                         <thead>
                             <tr>
                                 <th>Pedido</th>
@@ -208,12 +237,12 @@
                                 <th>Productos</th>
                                 <th>Total</th>
                                 <th>Estado</th>
-                                <th>Factura</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody id="purchasesTableBody">
                             <tr>
-                                <td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">No tienes compras realizadas</td>
+                                <td colspan="6" class="table-empty">No tienes compras realizadas</td>
                             </tr>
                         </tbody>
                     </table>
@@ -223,8 +252,7 @@
             <!-- SECCIÓN: FACTURACIÓN -->
             <div id="invoicesSection" class="profile-section">
                 <h3>Facturación</h3>
-                
-                <div class="invoices-list" id="invoicesList">
+                <div id="invoicesList">
                     <p class="text-muted">No hay facturas disponibles</p>
                 </div>
             </div>
@@ -233,30 +261,35 @@
             <div id="settingsSection" class="profile-section">
                 <h3>Configuración</h3>
                 
-                <div class="security-card">
-                    <h4>Idioma</h4>
-                    <select id="languageSelect" class="profile-input">
-                        <option value="es">Español</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
-                
-                <div class="security-card">
-                    <h4>Moneda</h4>
-                    <select id="currencySelect" class="profile-input">
-                        <option value="USD">USD - Dólar estadounidense</option>
-                        <option value="EUR">EUR - Euro</option>
-                        <option value="MXN">MXN - Peso mexicano</option>
-                    </select>
-                </div>
-                
-                <div class="security-card">
-                    <h4>Color de acento</h4>
-                    <div style="display:flex;gap:10px;">
-                        <button class="accent-color-btn active" data-accent="red" style="background:#ff2d2d;width:35px;height:35px;border-radius:50%;border:2px solid white;cursor:pointer;"></button>
-                        <button class="accent-color-btn" data-accent="dark-gray" style="background:#888;width:35px;height:35px;border-radius:50%;border:2px solid transparent;cursor:pointer;"></button>
-                        <button class="accent-color-btn" data-accent="blue" style="background:#2196f3;width:35px;height:35px;border-radius:50%;border:2px solid transparent;cursor:pointer;"></button>
-                        <button class="accent-color-btn" data-accent="purple" style="background:#9c27b0;width:35px;height:35px;border-radius:50%;border:2px solid transparent;cursor:pointer;"></button>
+                <div class="settings-grid-new">
+                    <div class="settings-card-new">
+                        <span class="material-icons settings-icon">language</span>
+                        <h4>Idioma</h4>
+                        <select id="languageSelect" class="profile-input-new">
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                    
+                    <div class="settings-card-new">
+                        <span class="material-icons settings-icon">attach_money</span>
+                        <h4>Moneda</h4>
+                        <select id="currencySelect" class="profile-input-new">
+                            <option value="USD">USD - Dólar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="MXN">MXN - Peso mexicano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="settings-card-new">
+                        <span class="material-icons settings-icon">palette</span>
+                        <h4>Tema</h4>
+                        <div class="accent-colors-new">
+                            <button class="accent-dot active" data-accent="red" style="background:#ff2d2d;" title="Red"></button>
+                            <button class="accent-dot" data-accent="dark-gray" style="background:#888;" title="Dark"></button>
+                            <button class="accent-dot" data-accent="blue" style="background:#2196f3;" title="Blue"></button>
+                            <button class="accent-dot" data-accent="purple" style="background:#9c27b0;" title="Purple"></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -265,10 +298,13 @@
             <div id="dangerSection" class="profile-section">
                 <h3 style="color:var(--danger);">Zona de Peligro</h3>
                 
-                <div class="danger-card">
-                    <div>
-                        <h4 style="color:var(--danger);margin-bottom:5px;">Eliminar Cuenta</h4>
-                        <p style="color:var(--text-muted);font-size:0.85em;">Esta acción es irreversible. Todos tus datos, compras y reseñas serán eliminados permanentemente.</p>
+                <div class="danger-card-new">
+                    <div class="danger-info-new">
+                        <span class="material-icons danger-icon">warning</span>
+                        <div>
+                            <h4>Eliminar Cuenta</h4>
+                            <p>Esta acción es irreversible. Todos tus datos, compras y reseñas serán eliminados permanentemente.</p>
+                        </div>
                     </div>
                     <button class="btn-danger" id="deleteAccountBtn">
                         <span class="material-icons">delete_forever</span> Eliminar mi cuenta
@@ -278,13 +314,14 @@
         </div>
     </main>
 
-    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR CUENTA -->
-    <div id="deleteModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:10000;align-items:center;justify-content:center;">
-        <div style="background:var(--bg-secondary);padding:30px;border-radius:16px;max-width:450px;width:90%;border:1px solid var(--border-color);">
-            <h3 style="color:var(--danger);margin-bottom:15px;">Eliminar Cuenta</h3>
-            <p style="color:var(--text-secondary);margin-bottom:15px;font-size:0.9em;">Para confirmar, escribe <strong>ELIMINAR</strong> en el campo de abajo:</p>
-            <input type="text" id="deleteConfirmInput" class="profile-input" placeholder="Escribe ELIMINAR" style="width:100%;margin-bottom:15px;">
-            <div style="display:flex;gap:10px;justify-content:flex-end;">
+    <!-- MODAL ELIMINAR CUENTA -->
+    <div id="deleteModal" class="modal-overlay-new" style="display:none;">
+        <div class="modal-card-new">
+            <span class="material-icons modal-danger-icon">warning</span>
+            <h3>Eliminar Cuenta</h3>
+            <p>Para confirmar, escribe <strong>ELIMINAR</strong> en el campo de abajo:</p>
+            <input type="text" id="deleteConfirmInput" class="profile-input-new" placeholder="Escribe ELIMINAR">
+            <div class="modal-actions-new">
                 <button class="btn-outline" id="cancelDelete">Cancelar</button>
                 <button class="btn-danger" id="confirmDelete" disabled>Eliminar Permanentemente</button>
             </div>
