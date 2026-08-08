@@ -5,11 +5,14 @@ var supabase = createClient(
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
 );
 
+var BASE_URL = 'https://yxstudios.github.io/store.github.io';
 var currentUser = null;
+var tempAvatar = null;
+var tempBanner = null;
 
 async function init() {
     var { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
+    if (!session) { window.location.href = BASE_URL + '/login.html'; return; }
     currentUser = session.user;
     await loadProfile();
     loadPurchases();
@@ -20,32 +23,17 @@ async function init() {
 }
 
 async function loadProfile() {
-    // Buscar perfil en la tabla profiles
-    var { data: profile, error } = await supabase
+    var { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', currentUser.id)
         .single();
 
-    // Si no existe, crear uno
     if (!profile) {
-        await supabase.from('profiles').insert({
-            id: currentUser.id,
-            full_name: currentUser.user_metadata?.full_name || '',
-            avatar_url: currentUser.user_metadata?.avatar_url || null,
-            banner_url: currentUser.user_metadata?.banner_url || null
-        });
-        profile = {
-            full_name: currentUser.user_metadata?.full_name || '',
-            bio: '',
-            roblox: '',
-            discord: '',
-            avatar_url: currentUser.user_metadata?.avatar_url || null,
-            banner_url: currentUser.user_metadata?.banner_url || null
-        };
+        await supabase.from('profiles').insert({ id: currentUser.id });
+        profile = {};
     }
 
-    // Actualizar UI
     document.getElementById('profileName').textContent = profile.full_name || 'Usuario';
     document.getElementById('profileEmailDisplay').textContent = currentUser.email;
     document.getElementById('userNameDisplay').textContent = profile.full_name || currentUser.email.split('@')[0];
@@ -117,73 +105,71 @@ function setupNavigation() {
 }
 
 function setupEvents() {
-    // GUARDAR PERFIL - Ahora usa UPSERT para sobrescribir
+    // AVATAR - Solo guarda en variable temporal
+    document.getElementById('avatarUpload').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            tempAvatar = ev.target.result;
+            document.getElementById('profileAvatar').src = tempAvatar;
+            document.getElementById('userAvatarTop').src = tempAvatar;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // BANNER - Solo guarda en variable temporal
+    document.getElementById('bannerUpload').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            tempBanner = ev.target.result;
+            document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // GUARDAR TODO - Solo cuando se hace clic
     document.getElementById('savePersonal').addEventListener('click', async function() {
         var name = document.getElementById('editName').value.trim();
         var bio = document.getElementById('editBio').value.trim();
         var roblox = document.getElementById('editRoblox').value.trim();
         var discord = document.getElementById('editDiscord').value.trim();
 
-        // UPSERT: si existe lo actualiza, si no lo crea
-        var { error } = await supabase
-            .from('profiles')
-            .upsert({
-                id: currentUser.id,
-                full_name: name,
-                bio: bio,
-                roblox: roblox,
-                discord: discord,
-                updated_at: new Date().toISOString()
-            });
+        var updateData = {
+            id: currentUser.id,
+            full_name: name,
+            bio: bio,
+            roblox: roblox,
+            discord: discord,
+            updated_at: new Date().toISOString()
+        };
 
-        if (error) { showNotification('Error', error.message, 'error'); return; }
+        // Si hay avatar temporal, incluirlo
+        if (tempAvatar) {
+            updateData.avatar_url = tempAvatar;
+        }
+
+        // Si hay banner temporal, incluirlo
+        if (tempBanner) {
+            updateData.banner_url = tempBanner;
+        }
+
+        var { error } = await supabase.from('profiles').upsert(updateData);
+
+        if (error) {
+            showNotification('Error', error.message, 'error');
+            return;
+        }
+
+        // Limpiar temporales
+        tempAvatar = null;
+        tempBanner = null;
 
         document.getElementById('profileName').textContent = name || 'Usuario';
         document.getElementById('userNameDisplay').textContent = name || currentUser.email.split('@')[0];
-        showNotification('Perfil actualizado', 'Datos guardados correctamente', 'success');
-    });
-
-    // AVATAR
-    document.getElementById('avatarUpload').addEventListener('change', async function(e) {
-        var file = e.target.files[0];
-        if (!file) return;
-
-        var reader = new FileReader();
-        reader.onload = async function(ev) {
-            var url = ev.target.result;
-
-            document.getElementById('profileAvatar').src = url;
-            document.getElementById('userAvatarTop').src = url;
-
-            var { error } = await supabase
-                .from('profiles')
-                .upsert({ id: currentUser.id, avatar_url: url, updated_at: new Date().toISOString() });
-
-            if (error) { showNotification('Error', error.message, 'error'); return; }
-            showNotification('Avatar actualizado', 'Imagen guardada correctamente', 'success');
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // BANNER
-    document.getElementById('bannerUpload').addEventListener('change', async function(e) {
-        var file = e.target.files[0];
-        if (!file) return;
-
-        var reader = new FileReader();
-        reader.onload = async function(ev) {
-            var url = ev.target.result;
-
-            document.getElementById('profileBanner').style.backgroundImage = 'url(' + url + ')';
-
-            var { error } = await supabase
-                .from('profiles')
-                .upsert({ id: currentUser.id, banner_url: url, updated_at: new Date().toISOString() });
-
-            if (error) { showNotification('Error', error.message, 'error'); return; }
-            showNotification('Banner actualizado', 'Portada guardada correctamente', 'success');
-        };
-        reader.readAsDataURL(file);
+        showNotification('Perfil actualizado', 'Todos los cambios guardados', 'success');
     });
 
     // CAMBIAR CONTRASEÑA
@@ -216,9 +202,12 @@ function setupEvents() {
         });
     });
 
-    // DISCORD
+    // DISCORD - Con ruta completa
     document.getElementById('connectDiscord').addEventListener('click', async function() {
-        await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin + '/profile.html' } });
+        await supabase.auth.signInWithOAuth({
+            provider: 'discord',
+            options: { redirectTo: BASE_URL + '/profile.html' }
+        });
     });
 
     // IDIOMA
@@ -245,11 +234,15 @@ function setupEvents() {
         await supabase.from('profiles').delete().eq('id', currentUser.id);
         await supabase.auth.signOut();
         localStorage.clear();
-        window.location.href = 'index.html';
+        window.location.href = BASE_URL + '/index.html';
     });
 
     // LOGOUT
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = 'index.html'; });
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        window.location.href = BASE_URL + '/index.html';
+    });
 }
 
 function updateCartBadge() {
