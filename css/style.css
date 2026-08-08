@@ -814,12 +814,41 @@ img { max-width: 100%; }
 /* ============================================
    HERO RECTANGULAR
    ============================================ */
+/* ============================================
+   HERO RECTANGULAR PROFESIONAL
+   ============================================ */
 .hero-rect {
+    position: relative;
+    padding: 80px 0;
     background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-    padding: 60px 0;
+    overflow: hidden;
+}
+.hero-rect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 50%, var(--accent-light) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, var(--accent-light) 0%, transparent 40%);
+    z-index: 0;
+}
+.hero-rect::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    z-index: 0;
 }
 .hero-rect-content {
+    position: relative;
+    z-index: 1;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
@@ -829,14 +858,16 @@ img { max-width: 100%; }
     align-items: center;
 }
 .hero-rect-left h1 {
-    font-size: 2.8em;
+    font-size: 3em;
     font-weight: 800;
     line-height: 1.2;
     margin: 15px 0;
 }
 .hero-rect-left p {
     color: var(--text-secondary);
+    font-size: 1.05em;
     margin-bottom: 25px;
+    line-height: 1.6;
 }
 .hero-rect-right {
     display: flex;
@@ -844,35 +875,92 @@ img { max-width: 100%; }
 }
 .hero-rect-image {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 320px;
+    height: 320px;
     background: var(--accent-gradient);
     border-radius: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.hero-rect-image::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 26px;
+    background: var(--accent-gradient);
+    opacity: 0.3;
+    z-index: -1;
+    filter: blur(20px);
 }
 .hero-rect-image i {
     font-size: 8em;
     color: white;
-    opacity: 0.4;
+    opacity: 0.3;
 }
 .hero-float-card {
     position: absolute;
     background: var(--bg-card);
-    padding: 8px 15px;
-    border-radius: 10px;
-    font-size: 0.8em;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 6px;
-    box-shadow: var(--shadow-md);
+    gap: 8px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
 }
-.hero-float-card i { color: var(--accent); }
-.hfc-1 { top: 20px; left: -30px; animation: float 3s ease-in-out infinite; }
-.hfc-2 { top: 50%; right: -40px; animation: float 4s ease-in-out infinite 0.5s; }
-.hfc-3 { bottom: 30px; left: -20px; animation: float 3.5s ease-in-out infinite 1s; }
-@keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+.hero-float-card i { color: var(--accent); font-size: 1.1em; }
+.hfc-1 { top: 25px; left: -40px; animation: floatHero 3s ease-in-out infinite; }
+.hfc-2 { top: 50%; right: -50px; animation: floatHero 4s ease-in-out infinite 0.5s; }
+.hfc-3 { bottom: 30px; left: -30px; animation: floatHero 3.5s ease-in-out infinite 1s; }
+
+@keyframes floatHero {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+/* Hero Stats */
+.hero-stats {
+    display: flex;
+    gap: 40px;
+}
+.stat {
+    display: flex;
+    flex-direction: column;
+}
+.stat-number {
+    font-size: 2em;
+    font-weight: 800;
+    color: var(--accent);
+    transition: all 0.3s ease;
+}
+.stat-label {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .hero-rect-content {
+        grid-template-columns: 1fr;
+    }
+    .hero-rect-right {
+        display: none;
+    }
+    .hero-rect-left h1 {
+        font-size: 2em;
+    }
+    .hero-stats {
+        gap: 20px;
+    }
+    .stat-number {
+        font-size: 1.5em;
+    }
+}
 
 /* ============================================
    PRODUCT CARD - BOTONES FIJOS Y ALINEADOS
