@@ -1,309 +1,191 @@
-// ============================================
-// YX STUDIOS - AUTENTICACIÓN
-// ============================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabaseAuth = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ============================================
-// INICIAR SESIÓN
-// ============================================
-async function signIn(email, password) {
-    if (!email || !password) {
-        showNotification('Campos vacíos', 'Completa todos los campos', 'error');
-        return;
-    }
+// Verificar sesión
+async function checkSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session;
+}
 
-    // Mostrar loading
-    const submitBtn = document.querySelector('#loginForm .btn-primary');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Iniciando...';
-    }
-
+// Login con Email
+async function signInWithEmail(email, password) {
     try {
-        const { data, error } = await supabaseAuth.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            if (error.message.includes('Invalid login credentials')) {
-                showNotification('Datos incorrectos', 'Email o contraseña inválidos', 'error');
-            } else if (error.message.includes('Email not confirmed')) {
-                showNotification('Email no verificado', 'Revisa tu correo para verificar tu cuenta', 'error');
-            } else {
-                showNotification('Error', error.message, 'error');
-            }
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
-            }
-            return;
-        }
-
-        if (data.session) {
-            showNotification('Inicio exitoso', 'Bienvenido de vuelta', 'success');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
-        }
+        showLoading(true);
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) throw error;
+        
+        showMessage('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 1500);
     } catch (error) {
-        showNotification('Error', 'Error al iniciar sesión', 'error');
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
-        }
+        showMessage(error.message, 'error');
+        showLoading(false);
     }
 }
 
-// ============================================
-// REGISTRARSE
-// ============================================
-async function signUp(name, email, password) {
-    if (!name || !email || !password) {
-        showNotification('Campos vacíos', 'Completa todos los campos', 'error');
-        return;
-    }
-
-    if (password.length < 6) {
-        showNotification('Contraseña débil', 'La contraseña debe tener al menos 6 caracteres', 'error');
-        return;
-    }
-
-    // Mostrar loading
-    const submitBtn = document.querySelector('#registerForm .btn-primary');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
-    }
-
+// Registro con Email
+async function signUpWithEmail(name, email, password) {
     try {
-        const { data, error } = await supabaseAuth.auth.signUp({
+        showLoading(true);
+        const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: { full_name: name }
             }
         });
-
-        if (error) {
-            if (error.message.includes('already registered')) {
-                showNotification('Ya registrado', 'Este email ya tiene una cuenta. Inicia sesión.', 'error');
-            } else if (error.message.includes('password')) {
-                showNotification('Contraseña inválida', 'La contraseña debe ser más segura', 'error');
-            } else {
-                showNotification('Error', error.message, 'error');
-            }
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span class="material-icons">person_add</span> Crear Cuenta';
-            }
-            return;
-        }
-
-        if (data.user) {
-            console.log('Usuario creado:', data.user);
-            
-            showNotification(
-                'Cuenta creada exitosamente',
-                'Serás redirigido al inicio de sesión',
-                'success'
-            );
-            
-            // Limpiar formulario
-            document.getElementById('registerForm')?.reset();
-            
-            // Redirigir al login después de 2 segundos
+        
+        if (error) throw error;
+        
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+            showMessage('Este email ya está registrado. Por favor inicia sesión.', 'error');
+        } else {
+            showMessage('¡Cuenta creada exitosamente! Redirigiendo...', 'success');
             setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
+                window.location.href = 'index.html';
+            }, 1500);
         }
     } catch (error) {
-        showNotification('Error', 'Error al crear la cuenta', 'error');
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span class="material-icons">person_add</span> Crear Cuenta';
-        }
+        showMessage(error.message, 'error');
+    } finally {
+        showLoading(false);
     }
 }
 
-// ============================================
-// RESTABLECER CONTRASEÑA
-// ============================================
-async function resetPassword(email) {
-    if (!email) {
-        showNotification('Campo vacío', 'Ingresa tu correo electrónico', 'error');
-        return;
-    }
-
+// Login con Google
+async function signInWithGoogle() {
     try {
-        const { error } = await supabaseAuth.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/reset-password.html'
-        });
-
-        if (error) {
-            showNotification('Error', error.message, 'error');
-            return;
-        }
-
-        showNotification(
-            'Correo enviado',
-            'Revisa tu bandeja de entrada para restablecer tu contraseña',
-            'success'
-        );
-    } catch (error) {
-        showNotification('Error', 'Error al enviar el correo', 'error');
-    }
-}
-
-// ============================================
-// INICIAR SESIÓN CON DISCORD
-// ============================================
-async function signInWithDiscord() {
-    try {
-        const { error } = await supabaseAuth.auth.signInWithOAuth({
-            provider: 'discord',
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
             options: {
                 redirectTo: window.location.origin + '/index.html'
             }
         });
-
-        if (error) {
-            showNotification('Error', error.message, 'error');
-        }
+        
+        if (error) throw error;
     } catch (error) {
-        showNotification('Error', 'Error al conectar con Discord', 'error');
+        showMessage(error.message, 'error');
     }
 }
 
-// ============================================
-// NOTIFICACIÓN
-// ============================================
-function showNotification(title, message, type) {
-    const existing = document.querySelector('.notify-toast');
-    if (existing) existing.remove();
-
-    const icons = { success: 'check_circle', error: 'error', info: 'info' };
-
-    const toast = document.createElement('div');
-    toast.className = `notify-toast notify-${type}`;
-    toast.innerHTML = `
-        <div class="notify-icon"><span class="material-icons">${icons[type] || 'info'}</span></div>
-        <div class="notify-content">
-            <div class="notify-title">${title}</div>
-            <div class="notify-message">${message}</div>
-        </div>
-        <button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button>
-        <div class="notify-progress"></div>
-    `;
-    document.body.appendChild(toast);
-
-    setTimeout(() => toast.classList.add('show'), 10);
-
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
-    }, 5000);
+// Cerrar sesión
+async function signOut() {
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
 }
 
-// ============================================
-// SPINNER CSS (agrégalo a tu style.css)
-// ============================================
-const spinnerStyle = document.createElement('style');
-spinnerStyle.textContent = `
-    .spinner {
-        width: 18px;
-        height: 18px;
-        border: 2px solid rgba(255,255,255,0.3);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 0.6s linear infinite;
-        display: inline-block;
+// Mostrar mensajes
+function showMessage(message, type) {
+    const messageElement = document.getElementById('authMessage');
+    if (messageElement) {
+        messageElement.textContent = message;
+        messageElement.className = `auth-message ${type}`;
+        setTimeout(() => {
+            messageElement.className = 'auth-message';
+        }, 5000);
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-`;
-document.head.appendChild(spinnerStyle);
+}
 
-// ============================================
-// EVENT LISTENERS
-// ============================================
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Auth JS cargado');
-
-    // Verificar si ya hay sesión activa
-    const { data: { session } } = await supabaseAuth.auth.getSession();
-    if (session) {
-        console.log('Sesión activa, redirigiendo...');
-        if (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html')) {
-            window.location.href = 'index.html';
-            return;
+// Mostrar/Ocultar loading
+function showLoading(show) {
+    const submitBtn = document.querySelector('.btn-primary[type="submit"]');
+    if (submitBtn) {
+        if (show) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Cargando...';
+        } else {
+            submitBtn.disabled = false;
+            const icon = submitBtn.querySelector('i');
+            const text = icon ? icon.outerHTML + ' ' + submitBtn.textContent.trim() : submitBtn.textContent;
+            submitBtn.innerHTML = text;
         }
     }
+}
 
-    // Login form
+// Event Listeners
+document.addEventListener('DOMContentLoaded', async () => {
+    // Si ya hay sesión, redirigir al index
+    const session = await checkSession();
+    if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // Form de Login
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
+            const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            signIn(email, password);
+            signInWithEmail(email, password);
         });
     }
-
-    // Register form
+    
+    // Form de Register
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('registerName').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
-            signUp(name, email, password);
+            signUpWithEmail(name, email, password);
         });
+        
+        // Medidor de fortaleza de contraseña
+        const passwordInput = document.getElementById('registerPassword');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', updatePasswordStrength);
+        }
     }
-
-    // Forgot password form
-    const forgotForm = document.getElementById('forgotPasswordForm');
-    if (forgotForm) {
-        forgotForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('resetEmail').value.trim();
-            resetPassword(email);
-        });
-    }
-
-    // Toggle forgot password
-    const showForgot = document.getElementById('showForgotPassword');
-    const backToLogin = document.getElementById('backToLogin');
-    if (showForgot && backToLogin) {
-        showForgot.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('forgotPasswordForm').style.display = 'block';
-        });
-        backToLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('forgotPasswordForm').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
-        });
-    }
-
-    // Discord login
-    document.getElementById('discordLogin')?.addEventListener('click', signInWithDiscord);
-    document.getElementById('discordRegister')?.addEventListener('click', signInWithDiscord);
-
-    // Toggle password
+    
+    // Botones de Google
+    const googleLogin = document.getElementById('googleLogin');
+    const googleRegister = document.getElementById('googleRegister');
+    if (googleLogin) googleLogin.addEventListener('click', signInWithGoogle);
+    if (googleRegister) googleRegister.addEventListener('click', signInWithGoogle);
+    
+    // Toggle password visibility
     document.querySelectorAll('.toggle-password').forEach(btn => {
         btn.addEventListener('click', function() {
             const target = document.getElementById(this.dataset.target);
-            if (target) {
-                if (target.type === 'password') {
-                    target.type = 'text';
-                    this.textContent = 'visibility';
-                } else {
-                    target.type = 'password';
-                    this.textContent = 'visibility_off';
-                }
+            if (target.type === 'password') {
+                target.type = 'text';
+                this.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                target.type = 'password';
+                this.classList.replace('fa-eye-slash', 'fa-eye');
             }
         });
     });
 });
+
+// Medidor de fortaleza de contraseña
+function updatePasswordStrength(e) {
+    const password = e.target.value;
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthText = document.getElementById('strengthText');
+    const strengthBar = document.getElementById('passwordStrength');
+    
+    if (!strengthFill || !strengthText) return;
+    
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    
+    const percentages = ['0%', '25%', '50%', '75%', '100%'];
+    const colors = ['#ff1744', '#ff9100', '#ffd600', '#76ff03', '#00e676'];
+    const texts = ['Muy débil', 'Débil', 'Media', 'Fuerte', 'Muy fuerte'];
+    
+    strengthFill.style.width = percentages[strength] || '0%';
+    strengthFill.style.background = colors[strength] || colors[0];
+    strengthText.textContent = texts[strength] || texts[0];
+    strengthText.style.color = colors[strength] || colors[0];
+}
