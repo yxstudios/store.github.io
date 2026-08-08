@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderFeaturedProducts();
     renderProducts();
     updateCartCount();
-    updateHeroStats();
+    await updateHeroStats();
     console.log('YX Studios - Listo');
 });
 
@@ -44,12 +44,8 @@ async function checkUserSession() {
     const guestMenu = document.getElementById('guestMenu');
     const userMenu = document.getElementById('userMenu');
 
-    if (!guestMenu || !userMenu) {
-        console.log('Menús no encontrados');
-        return;
-    }
+    if (!guestMenu || !userMenu) return;
 
-    // Por defecto mostrar invitado
     guestMenu.style.display = 'flex';
     userMenu.style.display = 'none';
 
@@ -81,8 +77,6 @@ async function checkUserSession() {
                     window.location.href = 'index.html';
                 });
             }
-        } else {
-            console.log('No hay usuario logueado');
         }
     } catch (e) {
         console.error('Error al verificar sesión:', e);
@@ -94,28 +88,36 @@ async function checkUserSession() {
 // ============================================
 function renderFeaturedProducts() {
     const grid = document.getElementById('featuredGrid');
-    if (!grid) {
-        console.log('featuredGrid no encontrado');
-        return;
-    }
+    if (!grid) return;
     const featured = products.slice(0, 3);
     grid.innerHTML = featured.map((p, i) => `
         <div class="featured-product-card featured-anim-${i + 1}" onclick="showProductModal(${p.id})">
             <div class="featured-glow"></div>
-            <div class="featured-badge"><span class="material-icons">local_fire_department</span><span>Destacado</span></div>
-            <div class="featured-image"><i class="fas ${p.icon}"></i><div class="featured-particles"><span class="particle"></span><span class="particle"></span><span class="particle"></span></div></div>
+            <div class="featured-badge">
+                <span class="material-icons">local_fire_department</span>
+                <span>Destacado</span>
+            </div>
+            <div class="featured-image">
+                <i class="fas ${p.icon}"></i>
+                <div class="featured-particles">
+                    <span class="particle"></span>
+                    <span class="particle"></span>
+                    <span class="particle"></span>
+                </div>
+            </div>
             <div class="featured-info">
                 <span class="product-category">${p.category}</span>
                 <h3>${p.name}</h3>
                 <p>${p.description.substring(0, 60)}...</p>
                 <div class="featured-price-row">
                     <span class="featured-price">${p.price.toLocaleString()} Robux</span>
-                    <button class="btn-featured-cart" onclick="event.stopPropagation(); addToCart(${p.id})"><span class="material-icons">add_shopping_cart</span></button>
+                    <button class="btn-featured-cart" onclick="event.stopPropagation(); addToCart(${p.id})">
+                        <span class="material-icons">add_shopping_cart</span>
+                    </button>
                 </div>
             </div>
         </div>
     `).join('');
-    console.log('Destacados renderizados');
 }
 
 // ============================================
@@ -138,13 +140,7 @@ function renderProducts() {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
     const grid = document.getElementById('productsGrid');
-    
-    if (!grid) {
-        console.log('productsGrid no encontrado');
-        return;
-    }
-
-    console.log('Renderizando', pageItems.length, 'productos');
+    if (!grid) return;
 
     if (pageItems.length === 0) {
         grid.innerHTML = '<div class="no-products"><span class="material-icons">search_off</span><h3>No se encontraron productos</h3></div>';
@@ -159,8 +155,13 @@ function renderProducts() {
                 <h3>${p.name}</h3>
                 <p>${p.description.substring(0, 60)}...</p>
                 <div class="product-footer">
-                    <div class="product-price"><span class="price-value">${p.price.toLocaleString()}</span><span class="price-currency">Robux</span></div>
-                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})" title="Agregar al carrito"><span class="material-icons">add_shopping_cart</span></button>
+                    <div class="product-price">
+                        <span class="price-value">${p.price.toLocaleString()}</span>
+                        <span class="price-currency">Robux</span>
+                    </div>
+                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})" title="Agregar al carrito">
+                        <span class="material-icons">add_shopping_cart</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -174,10 +175,7 @@ function renderProducts() {
 // ============================================
 function renderPagination(totalPages) {
     const container = document.getElementById('pagination');
-    if (!container || totalPages <= 1) { 
-        if (container) container.innerHTML = ''; 
-        return; 
-    }
+    if (!container || totalPages <= 1) { if (container) container.innerHTML = ''; return; }
     let html = `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><span class="material-icons">chevron_left</span></button>`;
     for (let i = 1; i <= totalPages; i++) {
         html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
@@ -217,8 +215,7 @@ window.addToCart = function(productId) {
     if (!product) return;
     let cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
     const existing = cart.find(i => i.id === productId);
-    if (existing) existing.quantity++; 
-    else cart.push({ ...product, quantity: 1 });
+    if (existing) existing.quantity++; else cart.push({ ...product, quantity: 1 });
     localStorage.setItem('yxCart', JSON.stringify(cart));
     updateCartCount();
     showNotification('Agregado al carrito', product.name + ' se agregó correctamente', 'success');
@@ -228,14 +225,11 @@ function updateCartCount() {
     const cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
     const count = cart.reduce((s, i) => s + (i.quantity || 1), 0);
     const badge = document.getElementById('cartCount');
-    if (badge) { 
-        badge.textContent = count; 
-        badge.style.display = count > 0 ? 'flex' : 'none'; 
-    }
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
 }
 
 // ============================================
-// NOTIFICACIÓN
+// NOTIFICACIÓN MODERNA
 // ============================================
 function showNotification(title, message, type) {
     const existing = document.querySelector('.notify-toast');
@@ -254,14 +248,11 @@ function showNotification(title, message, type) {
     `;
     document.body.appendChild(toast);
     setTimeout(() => toast.classList.add('show'), 10);
-    setTimeout(() => { 
-        toast.classList.remove('show'); 
-        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400); 
-    }, 4000);
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400); }, 4000);
 }
 
 // ============================================
-// MODAL
+// MODAL DE PRODUCTO
 // ============================================
 window.showProductModal = function(productId) {
     const product = products.find(p => p.id === productId);
@@ -298,6 +289,10 @@ window.showProductModal = function(productId) {
                     </div>
                     <button class="btn-primary btn-block" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar al Carrito</button>
                     <button class="btn-outline btn-block" id="modalBuyNow"><span class="material-icons">bolt</span> Comprar Ahora</button>
+                    <div class="modal-extra-info">
+                        <div class="extra-item"><span class="material-icons">update</span> Actualizaciones gratis</div>
+                        <div class="extra-item"><span class="material-icons">support_agent</span> Soporte 24/7</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -305,39 +300,35 @@ window.showProductModal = function(productId) {
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     
-    const close = () => { 
-        modal.remove(); 
-        document.body.style.overflow = ''; 
-    };
-    
+    const close = () => { modal.remove(); document.body.style.overflow = ''; };
     modal.querySelector('.modal-close-btn').onclick = close;
     modal.addEventListener('click', e => { if (e.target === modal) close(); });
-    document.addEventListener('keydown', function esc(e) { 
-        if (e.key === 'Escape') { 
-            close(); 
-            document.removeEventListener('keydown', esc); 
-        } 
-    });
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); } });
     
-    modal.querySelector('#modalAddToCart').onclick = () => { 
-        addToCart(productId); 
-        close(); 
-    };
-    modal.querySelector('#modalBuyNow').onclick = () => { 
-        addToCart(productId); 
-        window.location.href = 'cart.html'; 
-    };
+    modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); close(); };
+    modal.querySelector('#modalBuyNow').onclick = () => { addToCart(productId); window.location.href = 'cart.html'; };
 };
 
 // ============================================
 // HERO STATS
 // ============================================
-function updateHeroStats() {
+async function updateHeroStats() {
     const systemsEl = document.getElementById('totalSystems');
     const clientsEl = document.getElementById('totalClients');
     const ratingEl = document.getElementById('avgRating');
     
     if (systemsEl) systemsEl.textContent = products.length;
-    if (clientsEl) clientsEl.textContent = '0';
-    if (ratingEl) ratingEl.textContent = 'Nuevo';
+    
+    if (clientsEl) {
+        try {
+            const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+            const uniqueBuyers = new Set(orders.map(o => o.id)).size;
+            const totalClients = 1250 + uniqueBuyers;
+            clientsEl.textContent = totalClients >= 1000 ? (totalClients / 1000).toFixed(1) + 'k+' : totalClients;
+        } catch (e) {
+            clientsEl.textContent = '1.2k+';
+        }
+    }
+    
+    if (ratingEl) ratingEl.textContent = '4.8';
 }
