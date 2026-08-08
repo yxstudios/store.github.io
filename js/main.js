@@ -1,15 +1,13 @@
-// ============================================
-// PRODUCTOS
-// ============================================
+// Productos - ventas en 0
 const products = [
-    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control. Incluye más de 50 comandos.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 234, reviews: [], banner: 'https://via.placeholder.com/900x300/ff2d2d/ffffff?text=Admin+System+Pro' },
-    { id: 2, name: 'Economy System', description: 'Sistema económico completo con tiendas, inventario, trading y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 189, reviews: [], banner: 'https://via.placeholder.com/900x300/00c853/ffffff?text=Economy+System' },
-    { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado con hitboxes precisos, sistema de combos fluidos y habilidades especiales.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes precisos', 'Combos', 'Habilidades', 'Efectos'], sales: 312, reviews: [], banner: 'https://via.placeholder.com/900x300/2196f3/ffffff?text=Combat+Engine' },
-    { id: 4, name: 'Build System', description: 'Sistema de construcción intuitivo con grid snapping, rotación 3D y múltiples materiales.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D', 'Materiales', 'Undo/Redo'], sales: 156, reviews: [], banner: 'https://via.placeholder.com/900x300/ff9100/ffffff?text=Build+System' },
-    { id: 5, name: 'VIP System', description: 'Sistema VIP premium con perks exclusivos, salas privadas y beneficios especiales.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks exclusivos', 'Salas VIP', 'Comandos', 'Insignias'], sales: 278, reviews: [], banner: 'https://via.placeholder.com/900x300/9c27b0/ffffff?text=VIP+System' },
-    { id: 6, name: 'Data Store Manager', description: 'Sistema avanzado de guardado de datos con respaldo automático y recuperación.', price: 2200, category: 'economy', icon: 'fa-database', features: ['Auto-save', 'Backups', 'Recuperación', 'Sincronización'], sales: 145, reviews: [], banner: 'https://via.placeholder.com/900x300/607d8b/ffffff?text=Data+Store' },
-    { id: 7, name: 'Anti-Cheat System', description: 'Protección avanzada contra hackers y exploits con detección automática.', price: 3500, category: 'admin', icon: 'fa-shield-virus', features: ['Detección', 'Auto-ban', 'Logs', 'Protección'], sales: 198, reviews: [], banner: 'https://via.placeholder.com/900x300/ff1744/ffffff?text=Anti+Cheat' },
-    { id: 8, name: 'Trading System', description: 'Sistema de intercambio seguro entre jugadores con historial y protección anti-scam.', price: 2800, category: 'economy', icon: 'fa-arrow-right-arrow-left', features: ['Seguro', 'Historial', 'Notificaciones', 'Anti-scam'], sales: 167, reviews: [], banner: 'https://via.placeholder.com/900x300/00bcd4/ffffff?text=Trading+System' }
+    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/ff2d2d/ffffff?text=Admin+System+Pro' },
+    { id: 2, name: 'Economy System', description: 'Sistema económico con tiendas, inventario y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/00c853/ffffff?text=Economy+System' },
+    { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado con hitboxes y habilidades especiales.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes', 'Combos', 'Habilidades', 'Efectos'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/2196f3/ffffff?text=Combat+Engine' },
+    { id: 4, name: 'Build System', description: 'Sistema de construcción intuitivo con grid snapping.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D', 'Materiales', 'Undo/Redo'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/ff9100/ffffff?text=Build+System' },
+    { id: 5, name: 'VIP System', description: 'Sistema VIP con perks exclusivos y beneficios especiales.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks', 'Salas VIP', 'Comandos', 'Insignias'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/9c27b0/ffffff?text=VIP+System' },
+    { id: 6, name: 'Data Store Manager', description: 'Sistema de guardado de datos con respaldo automático.', price: 2200, category: 'economy', icon: 'fa-database', features: ['Auto-save', 'Backups', 'Recuperación', 'Sincronización'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/607d8b/ffffff?text=Data+Store' },
+    { id: 7, name: 'Anti-Cheat System', description: 'Protección avanzada contra hackers y exploits.', price: 3500, category: 'admin', icon: 'fa-shield-virus', features: ['Detección', 'Auto-ban', 'Logs', 'Protección'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/ff1744/ffffff?text=Anti+Cheat' },
+    { id: 8, name: 'Trading System', description: 'Sistema de intercambio seguro entre jugadores.', price: 2800, category: 'economy', icon: 'fa-arrow-right-arrow-left', features: ['Seguro', 'Historial', 'Notificaciones', 'Anti-scam'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/00bcd4/ffffff?text=Trading+System' }
 ];
 
 const ITEMS_PER_PAGE = 6;
@@ -17,63 +15,35 @@ let currentPage = 1;
 let currentCategory = 'all';
 let currentSearch = '';
 
-// ============================================
-// INICIALIZAR
-// ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('YX Studios cargado');
     renderFeaturedProducts();
     renderProducts();
     updateCartCount();
     updateHeroStats();
 });
 
-// ============================================
-// PRODUCTOS DESTACADOS
-// ============================================
 function renderFeaturedProducts() {
     const grid = document.getElementById('featuredGrid');
     if (!grid) return;
-
-    const featured = [...products].sort((a, b) => b.sales - a.sales).slice(0, 3);
-
+    const featured = products.slice(0, 3);
     grid.innerHTML = featured.map((p, i) => `
-        <div class="featured-product-card featured-anim-${i + 1}">
+        <div class="featured-product-card featured-anim-${i + 1}" onclick="showProductModal(${p.id})">
             <div class="featured-glow"></div>
-            <div class="featured-badge">
-                <span class="material-icons">local_fire_department</span>
-                <span>Más Vendido</span>
-            </div>
-            <div class="featured-image" onclick="showProductModal(${p.id})">
-                <i class="fas ${p.icon}"></i>
-                <div class="featured-particles">
-                    <span class="particle"></span>
-                    <span class="particle"></span>
-                    <span class="particle"></span>
-                </div>
-            </div>
+            <div class="featured-badge"><span class="material-icons">local_fire_department</span><span>Destacado</span></div>
+            <div class="featured-image"><i class="fas ${p.icon}"></i><div class="featured-particles"><span class="particle"></span><span class="particle"></span><span class="particle"></span></div></div>
             <div class="featured-info">
                 <span class="product-category">${p.category}</span>
-                <h3 onclick="showProductModal(${p.id})" style="cursor:pointer;">${p.name}</h3>
+                <h3>${p.name}</h3>
                 <p>${p.description.substring(0, 60)}...</p>
-                <div class="featured-stats">
-                    <span><span class="material-icons">star</span> Popular</span>
-                    <span><span class="material-icons">download</span> ${p.sales} ventas</span>
-                </div>
                 <div class="featured-price-row">
                     <span class="featured-price">${p.price.toLocaleString()} Robux</span>
-                    <button class="btn-featured-cart" onclick="addToCart(${p.id})">
-                        <span class="material-icons">add_shopping_cart</span>
-                    </button>
+                    <button class="btn-featured-cart" onclick="event.stopPropagation(); addToCart(${p.id})"><span class="material-icons">add_shopping_cart</span></button>
                 </div>
             </div>
         </div>
     `).join('');
 }
 
-// ============================================
-// PRODUCTOS
-// ============================================
 function getFilteredProducts() {
     let f = products;
     if (currentCategory !== 'all') f = f.filter(p => p.category === currentCategory);
@@ -96,27 +66,15 @@ function renderProducts() {
     }
 
     grid.innerHTML = pageItems.map(p => `
-        <div class="product-card">
-            <div class="product-image" onclick="showProductModal(${p.id})">
-                <i class="fas ${p.icon}"></i>
-            </div>
+        <div class="product-card" onclick="showProductModal(${p.id})">
+            <div class="product-image"><i class="fas ${p.icon}"></i></div>
             <div class="product-info">
                 <span class="product-category">${p.category}</span>
-                <h3 onclick="showProductModal(${p.id})" style="cursor:pointer;">${p.name}</h3>
-                <p onclick="showProductModal(${p.id})" style="cursor:pointer;">${p.description.substring(0, 70)}...</p>
+                <h3>${p.name}</h3>
+                <p>${p.description.substring(0, 70)}...</p>
                 <div class="product-footer">
-                    <div class="product-price">
-                        <span class="price-value">${p.price.toLocaleString()}</span>
-                        <span class="price-currency">Robux</span>
-                    </div>
-                    <div class="product-actions">
-                        <button class="btn-view-details" onclick="showProductModal(${p.id})" title="Ver info">
-                            <span class="material-icons">info</span>
-                        </button>
-                        <button class="btn-add-cart" onclick="addToCart(${p.id})" title="Agregar al carrito">
-                            <span class="material-icons">add_shopping_cart</span>
-                        </button>
-                    </div>
+                    <div class="product-price"><span class="price-value">${p.price.toLocaleString()}</span><span class="price-currency">Robux</span></div>
+                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})"><span class="material-icons">add_shopping_cart</span> Agregar</button>
                 </div>
             </div>
         </div>
@@ -139,7 +97,6 @@ window.goToPage = function(page) {
     if (page < 1 || page > tp) return;
     currentPage = page;
     renderProducts();
-    window.scrollTo({ top: document.getElementById('products').offsetTop - 80, behavior: 'smooth' });
 };
 
 window.filterProducts = function(cat) {
@@ -157,9 +114,6 @@ window.searchProducts = function() {
     renderProducts();
 };
 
-// ============================================
-// CARRITO
-// ============================================
 window.addToCart = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -178,13 +132,9 @@ function updateCartCount() {
     if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
 }
 
-// ============================================
-// MODAL
-// ============================================
 window.showProductModal = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
-
     const old = document.querySelector('.product-modal-overlay');
     if (old) old.remove();
 
@@ -193,63 +143,31 @@ window.showProductModal = function(productId) {
     modal.innerHTML = `
         <div class="product-modal">
             <button class="modal-close-btn"><span class="material-icons">close</span></button>
-            <div class="modal-banner" style="background-image: url('${product.banner}')">
-                <div class="modal-banner-overlay"></div>
-                <div class="modal-banner-content">
-                    <span class="product-category">${product.category}</span>
-                    <h2>${product.name}</h2>
-                </div>
-            </div>
+            <div class="modal-banner" style="background-image:url('${product.banner}')"><div class="modal-banner-overlay"></div><div class="modal-banner-content"><span class="product-category">${product.category}</span><h2>${product.name}</h2></div></div>
             <div class="modal-body">
                 <div class="modal-left-info">
                     <p class="modal-description">${product.description}</p>
-                    <div class="modal-features">
-                        <h4>Características</h4>
-                        <div class="features-grid-inline">
-                            ${product.features.map(f => `<div class="feature-item-inline"><span class="material-icons">check_circle</span><span>${f}</span></div>`).join('')}
-                        </div>
-                    </div>
+                    <div class="modal-features"><h4>Características</h4><div class="features-grid-inline">${product.features.map(f => `<div class="feature-item-inline"><span class="material-icons">check_circle</span><span>${f}</span></div>`).join('')}</div></div>
                 </div>
                 <div class="modal-right-actions">
-                    <div class="modal-price-box">
-                        <span class="modal-price-big">${product.price.toLocaleString()}</span>
-                        <span class="modal-price-label">Robux</span>
-                    </div>
-                    <button class="btn-primary btn-block" id="modalAddToCart">
-                        <span class="material-icons">add_shopping_cart</span> Agregar al Carrito
-                    </button>
-                    <button class="btn-outline btn-block" id="modalBuyNow">
-                        <span class="material-icons">bolt</span> Comprar Ahora
-                    </button>
-                    <div class="modal-extra-info">
-                        <div class="extra-item"><span class="material-icons">download</span> ${product.sales} ventas</div>
-                        <div class="extra-item"><span class="material-icons">update</span> Actualizaciones gratis</div>
-                        <div class="extra-item"><span class="material-icons">support_agent</span> Soporte 24/7</div>
-                    </div>
+                    <div class="modal-price-box"><span class="modal-price-big">${product.price.toLocaleString()}</span><span class="modal-price-label">Robux</span></div>
+                    <button class="btn-primary btn-block" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar al Carrito</button>
+                    <button class="btn-outline btn-block" id="modalBuyNow"><span class="material-icons">bolt</span> Comprar Ahora</button>
                 </div>
             </div>
         </div>
     `;
-
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
-
     const close = () => { modal.remove(); document.body.style.overflow = ''; };
     modal.querySelector('.modal-close-btn').onclick = close;
     modal.addEventListener('click', e => { if (e.target === modal) close(); });
-    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); } });
-
     modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); close(); };
     modal.querySelector('#modalBuyNow').onclick = () => { addToCart(productId); window.location.href = 'cart.html'; };
 };
 
-// ============================================
-// HERO STATS
-// ============================================
 function updateHeroStats() {
     document.getElementById('totalSystems').textContent = products.length;
-    const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-    const total = 1250 + orders.length;
-    document.getElementById('totalClients').textContent = total >= 1000 ? (total / 1000).toFixed(1) + 'k+' : total;
-    document.getElementById('avgRating').textContent = '4.7';
+    document.getElementById('totalClients').textContent = '0';
+    document.getElementById('avgRating').textContent = 'Nuevo';
 }
