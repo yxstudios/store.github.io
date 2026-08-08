@@ -4,8 +4,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 var supabase = createClient(
-    'https://xzfytuasxmqxdcdwfbbl.supabase.co',
-    'sb_publishable_sjdKZM4PVvfp5pA5sTlSbg_F-_UJLgX'
+    'https://qfgofnlvfxcmzexwuzou.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
 );
 
 console.log('Auth JS - Supabase inicializado');
@@ -95,6 +95,14 @@ async function resetPassword(email) {
         showMessage(error.message, 'error');
         showLoading(false);
     }
+}
+
+// ============================================
+// CERRAR SESIÓN
+// ============================================
+async function signOut() {
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
 }
 
 // ============================================
@@ -264,3 +272,5 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupForgotPassword();
     setupPasswordStrength();
 });
+
+window.signOut = signOut;
