@@ -16,24 +16,12 @@ const ITEMS_PER_PAGE = 6;
 let currentPage = 1;
 let currentCategory = 'all';
 let currentSearch = '';
-let supabase = null;
 
 // ============================================
 // INICIALIZAR
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Inicializar Supabase
-    try {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (e) {
-        console.log('Supabase no disponible');
-    }
-
-    // Verificar sesión
     await checkUserSession();
-
-    // Cargar contenido
     renderFeaturedProducts();
     renderProducts();
     updateCartCount();
@@ -49,19 +37,15 @@ async function checkUserSession() {
 
     if (!guestMenu || !userMenu) return;
 
-    // Por defecto mostrar invitado
     guestMenu.style.display = 'flex';
     userMenu.style.display = 'none';
 
     try {
         const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
         const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session && session.user) {
-            console.log('Usuario logueado:', session.user.email);
-            
             guestMenu.style.display = 'none';
             userMenu.style.display = 'flex';
 
@@ -75,7 +59,6 @@ async function checkUserSession() {
                 userAvatar.src = session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
             }
 
-            // Logout
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
                 const newBtn = logoutBtn.cloneNode(true);
@@ -90,31 +73,6 @@ async function checkUserSession() {
     } catch (e) {
         console.error('Error al verificar sesión:', e);
     }
-}
-
-function setupLogout() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (!logoutBtn || !supabase) return;
-
-    // Eliminar listeners anteriores
-    const newLogoutBtn = logoutBtn.cloneNode(true);
-    logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
-
-    newLogoutBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await supabase.auth.signOut();
-        window.location.href = 'index.html';
-    });
-}
-
-// Escuchar cambios de autenticación
-if (window.supabase) {
-    supabase?.auth?.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-            checkUserSession();
-        }
-    });
 }
 
 // ============================================
@@ -181,21 +139,14 @@ function renderProducts() {
 
     grid.innerHTML = pageItems.map(p => `
         <div class="product-card" onclick="showProductModal(${p.id})">
-            <div class="product-image">
-                <i class="fas ${p.icon}"></i>
-            </div>
+            <div class="product-image"><i class="fas ${p.icon}"></i></div>
             <div class="product-info">
                 <span class="product-category">${p.category}</span>
                 <h3>${p.name}</h3>
                 <p>${p.description.substring(0, 60)}...</p>
                 <div class="product-footer">
-                    <div class="product-price">
-                        <span class="price-value">${p.price.toLocaleString()}</span>
-                        <span class="price-currency">Robux</span>
-                    </div>
-                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})" title="Agregar al carrito">
-                        <span class="material-icons">add_shopping_cart</span>
-                    </button>
+                    <div class="product-price"><span class="price-value">${p.price.toLocaleString()}</span><span class="price-currency">Robux</span></div>
+                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})" title="Agregar al carrito"><span class="material-icons">add_shopping_cart</span></button>
                 </div>
             </div>
         </div>
@@ -216,9 +167,6 @@ function renderPagination(totalPages) {
     container.innerHTML = html;
 }
 
-// ============================================
-// FUNCIONES GLOBALES
-// ============================================
 window.goToPage = function(page) {
     const totalPages = Math.ceil(getFilteredProducts().length / ITEMS_PER_PAGE) || 1;
     if (page < 1 || page > totalPages) return;
@@ -253,7 +201,7 @@ window.addToCart = function(productId) {
     if (existing) existing.quantity++; else cart.push({ ...product, quantity: 1 });
     localStorage.setItem('yxCart', JSON.stringify(cart));
     updateCartCount();
-    alert(product.name + ' agregado al carrito!');
+    showNotification('Agregado al carrito', product.name + ' se agregó correctamente', 'success');
 };
 
 function updateCartCount() {
@@ -261,6 +209,36 @@ function updateCartCount() {
     const count = cart.reduce((s, i) => s + (i.quantity || 1), 0);
     const badge = document.getElementById('cartCount');
     if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+}
+
+// ============================================
+// NOTIFICACIÓN MODERNA
+// ============================================
+function showNotification(title, message, type) {
+    const existing = document.querySelector('.notify-toast');
+    if (existing) existing.remove();
+
+    const icons = { success: 'check_circle', error: 'error', info: 'info' };
+    
+    const toast = document.createElement('div');
+    toast.className = `notify-toast notify-${type}`;
+    toast.innerHTML = `
+        <div class="notify-icon"><span class="material-icons">${icons[type] || 'info'}</span></div>
+        <div class="notify-content">
+            <div class="notify-title">${title}</div>
+            <div class="notify-message">${message}</div>
+        </div>
+        <button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button>
+        <div class="notify-progress"></div>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => { toast.classList.add('show'); }, 10);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
+    }, 4000);
 }
 
 // ============================================
