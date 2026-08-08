@@ -21,9 +21,6 @@ const discountCoupons = [
 // TABLA DE PRODUCTOS
 // ============================================
 const products = [
-    // ──────────────────────────────────────────
-    // PRODUCTO 1 - Admin System Pro
-    // ──────────────────────────────────────────
     {
         id: 1,
         name: 'Admin System Pro',
@@ -31,21 +28,12 @@ const products = [
         price: 2500,
         category: 'admin',
         icon: 'fa-shield-halved',
-        features: [
-            'Comandos avanzados',
-            'Panel de control',
-            'Sistema de rangos',
-            'Anti-exploit'
-        ],
+        features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'],
         sales: 0,
         reviews: [],
         banner: 'https://via.placeholder.com/900x300/ff2d2d/ffffff?text=Admin+System+Pro',
         featured: true
     },
-    
-    // ──────────────────────────────────────────
-    // PRODUCTO 2 - Economy System
-    // ──────────────────────────────────────────
     {
         id: 2,
         name: 'Economy System',
@@ -53,21 +41,12 @@ const products = [
         price: 1800,
         category: 'economy',
         icon: 'fa-coins',
-        features: [
-            'Tiendas',
-            'Inventario',
-            'Trading',
-            'Monedas personalizables'
-        ],
+        features: ['Tiendas', 'Inventario', 'Trading', 'Monedas personalizables'],
         sales: 0,
         reviews: [],
         banner: 'https://via.placeholder.com/900x300/00c853/ffffff?text=Economy+System',
         featured: true
     },
-    
-    // ──────────────────────────────────────────
-    // PRODUCTO 3 - Combat Engine
-    // ──────────────────────────────────────────
     {
         id: 3,
         name: 'Combat Engine',
@@ -75,21 +54,12 @@ const products = [
         price: 3000,
         category: 'combat',
         icon: 'fa-hand-fist',
-        features: [
-            'Hitboxes precisos',
-            'Sistema de combos',
-            'Habilidades especiales',
-            'Efectos visuales'
-        ],
+        features: ['Hitboxes precisos', 'Sistema de combos', 'Habilidades especiales', 'Efectos visuales'],
         sales: 0,
         reviews: [],
         banner: 'https://via.placeholder.com/900x300/2196f3/ffffff?text=Combat+Engine',
         featured: true
     },
-    
-    // ──────────────────────────────────────────
-    // PRODUCTO 4 - Build System
-    // ──────────────────────────────────────────
     {
         id: 4,
         name: 'Build System',
@@ -97,21 +67,12 @@ const products = [
         price: 2000,
         category: 'building',
         icon: 'fa-hammer',
-        features: [
-            'Grid snapping',
-            'Rotación 3D',
-            'Múltiples materiales',
-            'Undo/Redo'
-        ],
+        features: ['Grid snapping', 'Rotación 3D', 'Múltiples materiales', 'Undo/Redo'],
         sales: 0,
         reviews: [],
         banner: 'https://via.placeholder.com/900x300/ff9100/ffffff?text=Build+System',
         featured: false
     },
-    
-    // ──────────────────────────────────────────
-    // PRODUCTO 5 - VIP System
-    // ──────────────────────────────────────────
     {
         id: 5,
         name: 'VIP System',
@@ -119,21 +80,12 @@ const products = [
         price: 1500,
         category: 'admin',
         icon: 'fa-crown',
-        features: [
-            'Perks exclusivos',
-            'Salas VIP',
-            'Comandos especiales',
-            'Insignias'
-        ],
+        features: ['Perks exclusivos', 'Salas VIP', 'Comandos especiales', 'Insignias'],
         sales: 0,
         reviews: [],
         banner: 'https://via.placeholder.com/900x300/9c27b0/ffffff?text=VIP+System',
         featured: false
     },
-    
-    // ──────────────────────────────────────────
-    // PRODUCTO 6 - Data Store Manager
-    // ──────────────────────────────────────────
     {
         id: 6,
         name: 'Data Store Manager',
@@ -141,21 +93,12 @@ const products = [
         price: 2200,
         category: 'economy',
         icon: 'fa-database',
-        features: [
-            'Auto-save',
-            'Backups automáticos',
-            'Recuperación de datos',
-            'Sincronización'
-        ],
+        features: ['Auto-save', 'Backups automáticos', 'Recuperación de datos', 'Sincronización'],
         sales: 0,
         reviews: [],
         banner: 'https://via.placeholder.com/900x300/607d8b/ffffff?text=Data+Store+Manager',
         featured: false
     },
-    
-    // ──────────────────────────────────────────
-    // PRODUCTO 7 - Anti-Cheat System
-    // ──────────────────────────────────────────
     {
         id: 7,
         name: 'Anti-Cheat System',
@@ -163,21 +106,12 @@ const products = [
         price: 3500,
         category: 'admin',
         icon: 'fa-shield-virus',
-        features: [
-            'Detección de exploits',
-            'Auto-ban',
-            'Logs detallados',
-            'Protección remota'
-        ],
+        features: ['Detección de exploits', 'Auto-ban', 'Logs detallados', 'Protección remota'],
         sales: 0,
         reviews: [],
         banner: 'https://via.placeholder.com/900x300/ff1744/ffffff?text=Anti+Cheat+System',
         featured: false
     },
-    
-    // ──────────────────────────────────────────
-    // PRODUCTO 8 - Trading System
-    // ──────────────────────────────────────────
     {
         id: 8,
         name: 'Trading System',
@@ -185,12 +119,7 @@ const products = [
         price: 2800,
         category: 'economy',
         icon: 'fa-arrow-right-arrow-left',
-        features: [
-            'Intercambio seguro',
-            'Historial de trades',
-            'Notificaciones',
-            'Protección anti-scam'
-        ],
+        features: ['Intercambio seguro', 'Historial de trades', 'Notificaciones', 'Protección anti-scam'],
         sales: 0,
         reviews: [],
         banner: 'https://via.placeholder.com/900x300/00bcd4/ffffff?text=Trading+System',
@@ -198,9 +127,6 @@ const products = [
     }
 ];
 
-// ============================================
-// CONFIGURACIÓN
-// ============================================
 const ITEMS_PER_PAGE = 6;
 let currentPage = 1;
 let currentCategory = 'all';
@@ -235,6 +161,7 @@ async function checkUserSession() {
         const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session && session.user) {
+            console.log('Usuario logueado:', session.user.email);
             guestMenu.style.display = 'none';
             userMenu.style.display = 'flex';
 
@@ -271,7 +198,6 @@ function renderFeaturedProducts() {
     const grid = document.getElementById('featuredGrid');
     if (!grid) return;
     
-    // Obtener productos marcados como destacados
     const featured = products.filter(p => p.featured === true).slice(0, 3);
     
     grid.innerHTML = featured.map((p, i) => `
