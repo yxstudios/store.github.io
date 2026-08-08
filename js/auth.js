@@ -8,6 +8,9 @@ var supabase = createClient(
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
 );
 
+// Ruta base correcta
+var BASE_URL = 'https://yxstudios.github.io/store.github.io';
+
 console.log('Auth JS - Supabase inicializado');
 
 // ============================================
@@ -25,7 +28,7 @@ async function signInWithEmail(email, password) {
         
         showMessage('Inicio de sesión exitoso. Redirigiendo...', 'success');
         setTimeout(function() {
-            window.location.href = 'index.html';
+            window.location.href = BASE_URL + '/index.html';
         }, 1000);
     } catch (error) {
         showMessage(error.message, 'error');
@@ -51,7 +54,7 @@ async function signUpWithEmail(name, email, password) {
         
         showMessage('Cuenta creada exitosamente. Redirigiendo...', 'success');
         setTimeout(function() {
-            window.location.href = 'index.html';
+            window.location.href = BASE_URL + '/index.html';
         }, 1000);
     } catch (error) {
         showMessage(error.message, 'error');
@@ -67,7 +70,7 @@ async function signInWithDiscord() {
         var { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'discord',
             options: {
-                redirectTo: window.location.origin + '/index.html'
+                redirectTo: BASE_URL + '/index.html'
             }
         });
         
@@ -88,7 +91,7 @@ async function resetPassword(email) {
     try {
         showLoading(true);
         var { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/reset-password.html'
+            redirectTo: BASE_URL + '/reset-password.html'
         });
         
         if (error) throw error;
@@ -106,7 +109,7 @@ async function resetPassword(email) {
 // ============================================
 async function signOut() {
     await supabase.auth.signOut();
-    window.location.href = 'index.html';
+    window.location.href = BASE_URL + '/index.html';
 }
 
 // ============================================
@@ -222,13 +225,17 @@ function setupPasswordStrength() {
 // ============================================
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Auth JS - DOM cargado');
+    console.log('Base URL:', BASE_URL);
     
     // Verificar sesión existente
     try {
         var { data: { session } } = await supabase.auth.getSession();
-        if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
-            window.location.href = 'index.html';
-            return;
+        if (session) {
+            console.log('Sesión activa detectada');
+            if (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html')) {
+                window.location.href = BASE_URL + '/index.html';
+                return;
+            }
         }
     } catch (e) {
         console.log('No hay sesión activa');
@@ -284,5 +291,4 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupPasswordStrength();
 });
 
-// Exportar signOut para usar en otras páginas
 window.signOut = signOut;
