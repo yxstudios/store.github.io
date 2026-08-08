@@ -1,6 +1,9 @@
+// ============================================
+// YX STUDIOS - AUTENTICACIÓN
+// ============================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================
 // LOGIN CON EMAIL
@@ -8,12 +11,12 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 async function signInWithEmail(email, password) {
     try {
         showLoading(true);
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        var { data, error } = await supabase.auth.signInWithPassword({ email: email, password: password });
         
         if (error) throw error;
         
         showMessage('Inicio de sesión exitoso. Redirigiendo...', 'success');
-        setTimeout(() => {
+        setTimeout(function() {
             window.location.href = 'index.html';
         }, 1000);
     } catch (error) {
@@ -28,9 +31,9 @@ async function signInWithEmail(email, password) {
 async function signUpWithEmail(name, email, password) {
     try {
         showLoading(true);
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
+        var { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
             options: {
                 data: { full_name: name }
             }
@@ -39,7 +42,7 @@ async function signUpWithEmail(name, email, password) {
         if (error) throw error;
         
         showMessage('Cuenta creada exitosamente. Redirigiendo...', 'success');
-        setTimeout(() => {
+        setTimeout(function() {
             window.location.href = 'index.html';
         }, 1000);
     } catch (error) {
@@ -53,7 +56,7 @@ async function signUpWithEmail(name, email, password) {
 // ============================================
 async function signInWithDiscord() {
     try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        var { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'discord',
             options: {
                 redirectTo: window.location.origin + '/index.html'
@@ -72,7 +75,7 @@ async function signInWithDiscord() {
 async function resetPassword(email) {
     try {
         showLoading(true);
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        var { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + '/reset-password.html'
         });
         
@@ -98,11 +101,11 @@ async function signOut() {
 // MOSTRAR MENSAJES
 // ============================================
 function showMessage(message, type) {
-    const messageElement = document.getElementById('authMessage');
+    var messageElement = document.getElementById('authMessage');
     if (messageElement) {
         messageElement.textContent = message;
-        messageElement.className = `auth-message ${type}`;
-        setTimeout(() => {
+        messageElement.className = 'auth-message ' + type;
+        setTimeout(function() {
             messageElement.className = 'auth-message';
         }, 5000);
     }
@@ -112,7 +115,7 @@ function showMessage(message, type) {
 // LOADING
 // ============================================
 function showLoading(show) {
-    const submitBtn = document.querySelector('.btn-primary[type="submit"]');
+    var submitBtn = document.querySelector('.btn-primary[type="submit"]');
     if (submitBtn) {
         if (show) {
             submitBtn.disabled = true;
@@ -128,9 +131,9 @@ function showLoading(show) {
 // TOGGLE PASSWORD
 // ============================================
 function setupTogglePassword() {
-    document.querySelectorAll('.toggle-password').forEach(btn => {
+    document.querySelectorAll('.toggle-password').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            const target = document.getElementById(this.dataset.target);
+            var target = document.getElementById(this.dataset.target);
             if (target.type === 'password') {
                 target.type = 'text';
                 this.textContent = 'visibility';
@@ -146,13 +149,13 @@ function setupTogglePassword() {
 // FORGOT PASSWORD TOGGLE
 // ============================================
 function setupForgotPassword() {
-    const showBtn = document.getElementById('showForgotPassword');
-    const backBtn = document.getElementById('backToLogin');
-    const loginForm = document.getElementById('loginForm');
-    const forgotForm = document.getElementById('forgotPasswordForm');
+    var showBtn = document.getElementById('showForgotPassword');
+    var backBtn = document.getElementById('backToLogin');
+    var loginForm = document.getElementById('loginForm');
+    var forgotForm = document.getElementById('forgotPasswordForm');
     
     if (showBtn) {
-        showBtn.addEventListener('click', (e) => {
+        showBtn.addEventListener('click', function(e) {
             e.preventDefault();
             loginForm.style.display = 'none';
             forgotForm.style.display = 'block';
@@ -160,7 +163,7 @@ function setupForgotPassword() {
     }
     
     if (backBtn) {
-        backBtn.addEventListener('click', (e) => {
+        backBtn.addEventListener('click', function(e) {
             e.preventDefault();
             forgotForm.style.display = 'none';
             loginForm.style.display = 'block';
@@ -172,26 +175,26 @@ function setupForgotPassword() {
 // PASSWORD STRENGTH
 // ============================================
 function setupPasswordStrength() {
-    const passwordInput = document.getElementById('registerPassword');
+    var passwordInput = document.getElementById('registerPassword');
     if (!passwordInput) return;
     
     passwordInput.addEventListener('input', function() {
-        const password = this.value;
-        const strengthFill = document.getElementById('strengthFill');
-        const strengthText = document.getElementById('strengthText');
+        var password = this.value;
+        var strengthFill = document.getElementById('strengthFill');
+        var strengthText = document.getElementById('strengthText');
         
         if (!strengthFill || !strengthText) return;
         
-        let strength = 0;
+        var strength = 0;
         if (password.length >= 6) strength++;
         if (password.length >= 8) strength++;
         if (/[A-Z]/.test(password)) strength++;
         if (/[0-9]/.test(password)) strength++;
         if (/[^A-Za-z0-9]/.test(password)) strength++;
         
-        const percentages = ['0%', '25%', '50%', '75%', '100%'];
-        const colors = ['#ff1744', '#ff9100', '#ffd600', '#76ff03', '#00e676'];
-        const texts = ['Muy débil', 'Débil', 'Media', 'Fuerte', 'Muy fuerte'];
+        var percentages = ['0%', '25%', '50%', '75%', '100%'];
+        var colors = ['#ff1744', '#ff9100', '#ffd600', '#76ff03', '#00e676'];
+        var texts = ['Muy débil', 'Débil', 'Media', 'Fuerte', 'Muy fuerte'];
         
         strengthFill.style.width = percentages[strength] || '0%';
         strengthFill.style.background = colors[strength] || colors[0];
@@ -203,55 +206,55 @@ function setupPasswordStrength() {
 // ============================================
 // INIT
 // ============================================
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async function() {
     // Verificar sesión existente
-    const { data: { session } } = await supabase.auth.getSession();
+    var { data: { session } } = await supabase.auth.getSession();
     if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
         window.location.href = 'index.html';
         return;
     }
     
     // Guardar HTML original de botones
-    document.querySelectorAll('.btn-primary[type="submit"]').forEach(btn => {
+    document.querySelectorAll('.btn-primary[type="submit"]').forEach(function(btn) {
         btn.dataset.originalHtml = btn.innerHTML;
     });
     
     // Login form
-    const loginForm = document.getElementById('loginForm');
+    var loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+            var email = document.getElementById('loginEmail').value;
+            var password = document.getElementById('loginPassword').value;
             signInWithEmail(email, password);
         });
     }
     
     // Register form
-    const registerForm = document.getElementById('registerForm');
+    var registerForm = document.getElementById('registerForm');
     if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
+        registerForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
+            var name = document.getElementById('registerName').value;
+            var email = document.getElementById('registerEmail').value;
+            var password = document.getElementById('registerPassword').value;
             signUpWithEmail(name, email, password);
         });
     }
     
     // Forgot password form
-    const forgotForm = document.getElementById('forgotPasswordForm');
+    var forgotForm = document.getElementById('forgotPasswordForm');
     if (forgotForm) {
-        forgotForm.addEventListener('submit', (e) => {
+        forgotForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            const email = document.getElementById('resetEmail').value;
+            var email = document.getElementById('resetEmail').value;
             resetPassword(email);
         });
     }
     
     // Discord buttons
-    const discordLogin = document.getElementById('discordLogin');
-    const discordRegister = document.getElementById('discordRegister');
+    var discordLogin = document.getElementById('discordLogin');
+    var discordRegister = document.getElementById('discordRegister');
     if (discordLogin) discordLogin.addEventListener('click', signInWithDiscord);
     if (discordRegister) discordRegister.addEventListener('click', signInWithDiscord);
     
