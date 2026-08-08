@@ -20,29 +20,30 @@ async function init() {
 }
 
 async function loadUserData() {
-    // Forzar refresh desde Supabase
+    // Forzar refresh del token para obtener datos frescos
+    await supabase.auth.refreshSession();
+    
+    // Obtener usuario fresco
     var { data: { user }, error } = await supabase.auth.getUser();
     if (error) { console.error(error); return; }
     
     currentUser = user;
     var metadata = user.user_metadata || {};
-    console.log('Metadata cargada:', metadata);
+    console.log('Metadata fresca desde Supabase:', metadata);
 
     document.getElementById('profileName').textContent = metadata.full_name || 'Usuario';
     document.getElementById('profileEmailDisplay').textContent = user.email;
     document.getElementById('userNameDisplay').textContent = metadata.full_name || user.email.split('@')[0];
     document.getElementById('tooltipEmail').textContent = user.email;
 
-    // Avatar - SIEMPRE cargar desde Supabase, no desde cache
-    if (metadata.avatar_url) {
-        document.getElementById('profileAvatar').src = metadata.avatar_url + '?t=' + Date.now();
-        document.getElementById('userAvatarTop').src = metadata.avatar_url + '?t=' + Date.now();
-    }
+    // Avatar - Agregar timestamp para evitar cache
+    var avatarUrl = metadata.avatar_url || 'https://via.placeholder.com/140';
+    document.getElementById('profileAvatar').src = avatarUrl;
+    document.getElementById('userAvatarTop').src = avatarUrl;
 
-    // Banner - SIEMPRE cargar desde Supabase
-    if (metadata.banner_url) {
-        document.getElementById('profileBanner').style.backgroundImage = 'url(' + metadata.banner_url + '?t=' + Date.now() + ')';
-    }
+    // Banner - Agregar timestamp para evitar cache
+    var bannerUrl = metadata.banner_url || 'https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner';
+    document.getElementById('profileBanner').style.backgroundImage = 'url(' + bannerUrl + ')';
 
     document.getElementById('editName').value = metadata.full_name || '';
     document.getElementById('editBio').value = metadata.bio || '';
@@ -103,29 +104,23 @@ function setupNavigation() {
 }
 
 function setupEvents() {
-    // Guardar perfil
     document.getElementById('savePersonal').addEventListener('click', async function() {
         var name = document.getElementById('editName').value.trim();
         var bio = document.getElementById('editBio').value.trim();
         var roblox = document.getElementById('editRoblox').value.trim();
         var discord = document.getElementById('editDiscord').value.trim();
         
-        var { data, error } = await supabase.auth.updateUser({ 
+        var { error } = await supabase.auth.updateUser({ 
             data: { full_name: name, bio: bio, roblox: roblox, discord: discord } 
         });
         
         if (error) { showNotification('Error', error.message, 'error'); return; }
         
-        console.log('Perfil actualizado:', data);
-        
-        // Actualizar UI inmediatamente
         document.getElementById('profileName').textContent = name || 'Usuario';
         document.getElementById('userNameDisplay').textContent = name || currentUser.email.split('@')[0];
-        
         showNotification('Perfil actualizado', 'Datos guardados correctamente', 'success');
     });
 
-    // Avatar
     document.getElementById('avatarUpload').addEventListener('change', async function(e) {
         var file = e.target.files[0];
         if (!file) return;
@@ -134,25 +129,26 @@ function setupEvents() {
         reader.onload = async function(ev) {
             var url = ev.target.result;
             
-            // Actualizar UI primero
+            // Actualizar UI
             document.getElementById('profileAvatar').src = url;
             document.getElementById('userAvatarTop').src = url;
             
             // Guardar en Supabase
-            var { data, error } = await supabase.auth.updateUser({ data: { avatar_url: url } });
+            var { error } = await supabase.auth.updateUser({ data: { avatar_url: url } });
             
             if (error) {
                 showNotification('Error', error.message, 'error');
                 return;
             }
             
-            console.log('Avatar guardado en Supabase:', data);
+            // Refrescar sesión para que Supabase actualice
+            await supabase.auth.refreshSession();
+            
             showNotification('Avatar actualizado', 'Imagen guardada correctamente', 'success');
         };
         reader.readAsDataURL(file);
     });
 
-    // Banner
     document.getElementById('bannerUpload').addEventListener('change', async function(e) {
         var file = e.target.files[0];
         if (!file) return;
@@ -161,24 +157,25 @@ function setupEvents() {
         reader.onload = async function(ev) {
             var url = ev.target.result;
             
-            // Actualizar UI primero
+            // Actualizar UI
             document.getElementById('profileBanner').style.backgroundImage = 'url(' + url + ')';
             
             // Guardar en Supabase
-            var { data, error } = await supabase.auth.updateUser({ data: { banner_url: url } });
+            var { error } = await supabase.auth.updateUser({ data: { banner_url: url } });
             
             if (error) {
                 showNotification('Error', error.message, 'error');
                 return;
             }
             
-            console.log('Banner guardado en Supabase:', data);
+            // Refrescar sesión para que Supabase actualice
+            await supabase.auth.refreshSession();
+            
             showNotification('Banner actualizado', 'Portada guardada correctamente', 'success');
         };
         reader.readAsDataURL(file);
     });
 
-    // Cambiar contraseña
     document.getElementById('changePasswordBtn').addEventListener('click', async function() {
         var p1 = document.getElementById('newPassword').value;
         var p2 = document.getElementById('confirmNewPassword').value;
@@ -190,7 +187,6 @@ function setupEvents() {
         else { showNotification('Contraseña actualizada', '', 'success'); document.getElementById('newPassword').value = ''; document.getElementById('confirmNewPassword').value = ''; }
     });
 
-    // Cambiar email
     document.getElementById('changeEmailBtn').addEventListener('click', async function() {
         var email = document.getElementById('newEmail').value.trim();
         if (!email) { showNotification('Error', 'Ingresa un correo', 'error'); return; }
@@ -199,7 +195,6 @@ function setupEvents() {
         else { showNotification('Solicitud enviada', 'Revisa tu correo', 'success'); }
     });
 
-    // Toggle password
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
@@ -208,18 +203,13 @@ function setupEvents() {
         });
     });
 
-    // Discord
     document.getElementById('connectDiscord').addEventListener('click', async function() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin + '/profile.html' } });
     });
 
-    // Idioma
     document.getElementById('languageSelect').addEventListener('change', function() { localStorage.setItem('yxLang', this.value); });
-    
-    // Moneda
     document.getElementById('currencySelect').addEventListener('change', function() { localStorage.setItem('yxCurrency', this.value); });
 
-    // Tema
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
         dot.addEventListener('click', function() {
             document.documentElement.setAttribute('data-theme', this.dataset.accent);
@@ -229,13 +219,11 @@ function setupEvents() {
         });
     });
 
-    // Eliminar cuenta
     document.getElementById('deleteAccountBtn').addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'flex'; });
     document.getElementById('cancelDelete').addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'none'; document.getElementById('deleteConfirmInput').value = ''; });
     document.getElementById('deleteConfirmInput').addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
     document.getElementById('confirmDelete').addEventListener('click', async function() { await supabase.auth.signOut(); localStorage.clear(); window.location.href = 'index.html'; });
 
-    // Logout
     document.getElementById('logoutBtn').addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = 'index.html'; });
 }
 
