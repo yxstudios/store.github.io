@@ -6,13 +6,12 @@ var supabase = createClient(
 );
 
 var currentUser = null;
-var savedProfile = JSON.parse(localStorage.getItem('yxProfile') || '{}');
 
 async function init() {
     var { data: { session } } = await supabase.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
     currentUser = session.user;
-    loadUserData();
+    await loadUserData();
     loadPurchases();
     loadInvoices();
     setupNavigation();
@@ -20,25 +19,31 @@ async function init() {
     updateCartBadge();
 }
 
-function loadUserData() {
-    var metadata = currentUser.user_metadata || {};
+async function loadUserData() {
+    // Refrescar sesión para obtener datos más recientes
+    await supabase.auth.refreshSession();
+    var { data: { user } } = await supabase.auth.getUser();
+    currentUser = user;
+    var metadata = user.user_metadata || {};
 
-    document.getElementById('profileName').textContent = savedProfile.full_name || metadata.full_name || 'Usuario';
-    document.getElementById('profileEmailDisplay').textContent = currentUser.email;
-    document.getElementById('userNameDisplay').textContent = savedProfile.full_name || metadata.full_name || currentUser.email.split('@')[0];
-    document.getElementById('tooltipEmail').textContent = currentUser.email;
+    document.getElementById('profileName').textContent = metadata.full_name || 'Usuario';
+    document.getElementById('profileEmailDisplay').textContent = user.email;
+    document.getElementById('userNameDisplay').textContent = metadata.full_name || user.email.split('@')[0];
+    document.getElementById('tooltipEmail').textContent = user.email;
 
-    var avatarUrl = savedProfile.avatar_url || metadata.avatar_url || 'https://via.placeholder.com/140';
+    // Avatar
+    var avatarUrl = metadata.avatar_url || 'https://via.placeholder.com/140';
     document.getElementById('profileAvatar').src = avatarUrl;
     document.getElementById('userAvatarTop').src = avatarUrl;
 
-    var bannerUrl = savedProfile.banner_url || metadata.banner_url || 'https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner';
+    // Banner
+    var bannerUrl = metadata.banner_url || 'https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner';
     document.getElementById('profileBanner').style.backgroundImage = 'url(' + bannerUrl + ')';
 
-    document.getElementById('editName').value = savedProfile.full_name || metadata.full_name || '';
-    document.getElementById('editBio').value = savedProfile.bio || metadata.bio || '';
-    document.getElementById('editRoblox').value = savedProfile.roblox || metadata.roblox || '';
-    document.getElementById('editDiscord').value = savedProfile.discord || metadata.discord || '';
+    document.getElementById('editName').value = metadata.full_name || '';
+    document.getElementById('editBio').value = metadata.bio || '';
+    document.getElementById('editRoblox').value = metadata.roblox || '';
+    document.getElementById('editDiscord').value = metadata.discord || '';
     document.getElementById('languageSelect').value = localStorage.getItem('yxLang') || 'es';
     document.getElementById('currencySelect').value = localStorage.getItem('yxCurrency') || 'USD';
 
@@ -48,11 +53,6 @@ function loadUserData() {
     else if (orders.length >= 5) badge.textContent = 'Cliente Frecuente';
     else if (orders.length >= 1) badge.textContent = 'Cliente';
     else badge.textContent = 'Nuevo';
-}
-
-function saveProfileData(key, value) {
-    savedProfile[key] = value;
-    localStorage.setItem('yxProfile', JSON.stringify(savedProfile));
 }
 
 function loadPurchases() {
@@ -100,70 +100,78 @@ function setupNavigation() {
 
 function setupEvents() {
     // GUARDAR PERFIL
-    document.getElementById('savePersonal').addEventListener('click', function() {
+    document.getElementById('savePersonal').addEventListener('click', async function() {
         var name = document.getElementById('editName').value.trim();
         var bio = document.getElementById('editBio').value.trim();
         var roblox = document.getElementById('editRoblox').value.trim();
         var discord = document.getElementById('editDiscord').value.trim();
 
-        // Guardar en localStorage (inmediato y confiable)
-        saveProfileData('full_name', name);
-        saveProfileData('bio', bio);
-        saveProfileData('roblox', roblox);
-        saveProfileData('discord', discord);
+        var { error } = await supabase.auth.updateUser({ 
+            data: { full_name: name, bio: bio, roblox: roblox, discord: discord } 
+        });
 
-        // Actualizar UI
-        document.getElementById('profileName').textContent = name || 'Usuario';
-        document.getElementById('userNameDisplay').textContent = name || currentUser.email.split('@')[0];
+        if (error) { showNotification('Error', error.message, 'error'); return; }
 
-        // Intentar guardar en Supabase también
-        supabase.auth.updateUser({ data: { full_name: name, bio: bio, roblox: roblox, discord: discord } });
+        // Refrescar datos
+        await supabase.auth.refreshSession();
+        await loadUserData();
 
         showNotification('Perfil actualizado', 'Datos guardados correctamente', 'success');
     });
 
     // AVATAR
-    document.getElementById('avatarUpload').addEventListener('change', function(e) {
+    document.getElementById('avatarUpload').addEventListener('change', async function(e) {
         var file = e.target.files[0];
         if (!file) return;
 
         var reader = new FileReader();
-        reader.onload = function(ev) {
+        reader.onload = async function(ev) {
             var url = ev.target.result;
 
-            // Guardar en localStorage
-            saveProfileData('avatar_url', url);
-
-            // Actualizar UI
+            // Actualizar UI primero
             document.getElementById('profileAvatar').src = url;
             document.getElementById('userAvatarTop').src = url;
 
-            // Intentar guardar en Supabase
-            supabase.auth.updateUser({ data: { avatar_url: url } });
+            // Guardar en Supabase
+            var { error } = await supabase.auth.updateUser({ data: { avatar_url: url } });
 
+            if (error) {
+                showNotification('Error', error.message, 'error');
+                // Recargar datos anteriores si falla
+                await loadUserData();
+                return;
+            }
+
+            // Refrescar
+            await supabase.auth.refreshSession();
             showNotification('Avatar actualizado', 'Imagen guardada correctamente', 'success');
         };
         reader.readAsDataURL(file);
     });
 
     // BANNER
-    document.getElementById('bannerUpload').addEventListener('change', function(e) {
+    document.getElementById('bannerUpload').addEventListener('change', async function(e) {
         var file = e.target.files[0];
         if (!file) return;
 
         var reader = new FileReader();
-        reader.onload = function(ev) {
+        reader.onload = async function(ev) {
             var url = ev.target.result;
 
-            // Guardar en localStorage
-            saveProfileData('banner_url', url);
-
-            // Actualizar UI
+            // Actualizar UI primero
             document.getElementById('profileBanner').style.backgroundImage = 'url(' + url + ')';
 
-            // Intentar guardar en Supabase
-            supabase.auth.updateUser({ data: { banner_url: url } });
+            // Guardar en Supabase
+            var { error } = await supabase.auth.updateUser({ data: { banner_url: url } });
 
+            if (error) {
+                showNotification('Error', error.message, 'error');
+                await loadUserData();
+                return;
+            }
+
+            // Refrescar
+            await supabase.auth.refreshSession();
             showNotification('Banner actualizado', 'Portada guardada correctamente', 'success');
         };
         reader.readAsDataURL(file);
