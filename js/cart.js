@@ -1,22 +1,25 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let cart = JSON.parse(localStorage.getItem('yxCart')) || [];
+let cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
 let appliedDiscount = 0;
 const promoCodes = { 'WELCOME10': 0.10, 'ROBLOX20': 0.20, 'VIP50': 0.50 };
 const ROBUX_TO_USD = 0.0125;
 let paypalRendered = false;
+let supabase = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {}
+
     await updateUserUI();
     loadCart();
-    
-    document.getElementById('clearCart')?.addEventListener('click', () => { cart = []; saveCart(); loadCart(); });
-    document.getElementById('applyPromo')?.addEventListener('click', () => {
+
+    document.getElementById('clearCart').addEventListener('click', () => { cart = []; saveCart(); loadCart(); });
+    document.getElementById('applyPromo').addEventListener('click', () => {
         const code = document.getElementById('promoInput').value.toUpperCase();
         if (promoCodes[code]) {
             appliedDiscount = cart.reduce((s, i) => s + (i.price * (i.quantity || 1)), 0) * ROBUX_TO_USD * promoCodes[code];
-            document.getElementById('promoMessage').innerHTML = `<span class="promo-success">${promoCodes[code]*100}% descuento</span>`;
+            document.getElementById('promoMessage').innerHTML = '<span class="promo-success">' + (promoCodes[code] * 100) + '% descuento</span>';
         } else {
             appliedDiscount = 0;
             document.getElementById('promoMessage').innerHTML = '<span class="promo-error">Inválido</span>';
@@ -27,15 +30,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function updateUserUI() {
     const guest = document.getElementById('guestMenu'), user = document.getElementById('userMenu');
+    if (!supabase) { if (guest) guest.style.display = 'flex'; if (user) user.style.display = 'none'; return; }
     try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
-            guest.style.display = 'none'; user.style.display = 'flex';
+            if (guest) guest.style.display = 'none';
+            if (user) user.style.display = 'flex';
             document.getElementById('userNameDisplay').textContent = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
             document.getElementById('userAvatar').src = session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
             document.getElementById('logoutBtn').onclick = async (e) => { e.preventDefault(); await supabase.auth.signOut(); window.location.href = 'index.html'; };
-        } else { guest.style.display = 'flex'; user.style.display = 'none'; }
-    } catch (e) { guest.style.display = 'flex'; user.style.display = 'none'; }
+        } else {
+            if (guest) guest.style.display = 'flex';
+            if (user) user.style.display = 'none';
+        }
+    } catch (e) { if (guest) guest.style.display = 'flex'; if (user) user.style.display = 'none'; }
 }
 
 function loadCart() {
@@ -43,69 +51,78 @@ function loadCart() {
     const empty = document.getElementById('emptyCartMessage');
     const summary = document.getElementById('cartSummarySection');
     updateCartBadge();
+
     if (!cart.length) {
-        container.innerHTML = ''; empty.style.display = 'block'; summary.style.display = 'none';
+        if (container) container.innerHTML = '';
+        if (empty) empty.style.display = 'block';
+        if (summary) summary.style.display = 'none';
         paypalRendered = false;
         return;
     }
-    empty.style.display = 'none'; summary.style.display = 'block';
-    container.innerHTML = cart.map((item, idx) => `
-        <div class="cart-item-card">
-            <div class="cart-item-icon"><span class="material-icons">${item.icon?.replace('fa-','') || 'code'}</span></div>
-            <div class="cart-item-details"><h3>${item.name}</h3><span class="cart-item-category">${item.category}</span></div>
-            <div class="cart-item-quantity"><button class="qty-btn" onclick="updateQty(${idx},-1)">-</button><span>${item.quantity}</span><button class="qty-btn" onclick="updateQty(${idx},1)">+</button></div>
-            <div class="cart-item-pricing"><div>$${(item.price*item.quantity*ROBUX_TO_USD).toFixed(2)}</div><small>${item.price*item.quantity} Robux</small></div>
-            <button class="btn-remove-item" onclick="removeItem(${idx})"><span class="material-icons">close</span></button>
-        </div>
-    `).join('');
+
+    if (empty) empty.style.display = 'none';
+    if (summary) summary.style.display = 'block';
+
+    if (container) {
+        container.innerHTML = cart.map((item, idx) => `
+            <div class="cart-item-card">
+                <div class="cart-item-icon"><span class="material-icons">${(item.icon || 'code').replace('fa-', '')}</span></div>
+                <div class="cart-item-details"><h3>${item.name}</h3><span class="cart-item-category">${item.category}</span></div>
+                <div class="cart-item-quantity"><button class="qty-btn" onclick="updateQty(${idx},-1)">-</button><span class="qty-value">${item.quantity || 1}</span><button class="qty-btn" onclick="updateQty(${idx},1)">+</button></div>
+                <div class="cart-item-pricing"><div class="item-price">$${(item.price * (item.quantity || 1) * ROBUX_TO_USD).toFixed(2)}</div><div class="item-robux">${(item.price * (item.quantity || 1)).toLocaleString()} Robux</div></div>
+                <button class="btn-remove-item" onclick="removeItem(${idx})"><span class="material-icons">close</span></button>
+            </div>
+        `).join('');
+    }
     updateSummary();
 }
 
-window.updateQty = (idx, ch) => {
+window.updateQty = function(idx, ch) {
     cart[idx].quantity = (cart[idx].quantity || 1) + ch;
-    if (cart[idx].quantity <= 0) cart.splice(idx,1);
+    if (cart[idx].quantity <= 0) cart.splice(idx, 1);
     saveCart(); loadCart();
 };
-window.removeItem = (idx) => { cart.splice(idx,1); saveCart(); loadCart(); };
+
+window.removeItem = function(idx) { cart.splice(idx, 1); saveCart(); loadCart(); };
 
 function updateSummary() {
-    const subtotalRobux = cart.reduce((s,i)=>s+(i.price*(i.quantity||1)),0);
-    const subtotalUSD = subtotalRobux*ROBUX_TO_USD;
-    document.getElementById('subtotal').textContent = `$${subtotalUSD.toFixed(2)}`;
-    document.getElementById('discount').textContent = appliedDiscount ? `-$${appliedDiscount.toFixed(2)}` : '$0.00';
-    document.getElementById('total').textContent = `$${Math.max(0,subtotalUSD-appliedDiscount).toFixed(2)}`;
-    document.getElementById('summaryItemsList').innerHTML = cart.map(i => `<div class="summary-item"><span>${i.name} x${i.quantity}</span><span>$${(i.price*i.quantity*ROBUX_TO_USD).toFixed(2)}</span></div>`).join('');
-    
-    // Renderizar PayPal SOLO si no está ya renderizado
-    if (!paypalRendered && cart.length > 0) {
-        renderPayPal();
+    const subtotalRobux = cart.reduce((s, i) => s + (i.price * (i.quantity || 1)), 0);
+    const subtotalUSD = subtotalRobux * ROBUX_TO_USD;
+    const totalUSD = Math.max(0, subtotalUSD - appliedDiscount);
+
+    document.getElementById('subtotal').textContent = '$' + subtotalUSD.toFixed(2);
+    document.getElementById('discount').textContent = appliedDiscount > 0 ? '-$' + appliedDiscount.toFixed(2) : '$0.00';
+    document.getElementById('total').textContent = '$' + totalUSD.toFixed(2);
+    document.getElementById('summaryItemsList').innerHTML = cart.map(i => '<div class="summary-item"><span>' + i.name + ' x' + (i.quantity || 1) + '</span><span>$' + (i.price * (i.quantity || 1) * ROBUX_TO_USD).toFixed(2) + '</span></div>').join('');
+
+    if (!paypalRendered && cart.length > 0 && totalUSD > 0) {
+        renderPayPal(totalUSD);
         paypalRendered = true;
     }
 }
 
-function renderPayPal() {
+function renderPayPal(total) {
     const container = document.getElementById('paypal-button-container');
-    if (!container) return;
+    if (!container || typeof paypal === 'undefined') return;
     container.innerHTML = '';
-    
-    const total = Math.max(0.01, cart.reduce((s,i)=>s+(i.price*(i.quantity||1)),0)*ROBUX_TO_USD - appliedDiscount);
-    
     paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'pill', label: 'paypal' },
         createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { currency_code: 'USD', value: total.toFixed(2) } }] }),
         onApprove: async (data, actions) => {
             await actions.order.capture();
-            const orders = JSON.parse(localStorage.getItem('yxOrders')||'[]');
+            const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
             orders.push({ id: data.orderID, items: cart, total, date: new Date().toISOString() });
             localStorage.setItem('yxOrders', JSON.stringify(orders));
-            cart = []; saveCart(); loadCart(); paypalRendered = false;
-            alert('Pago exitoso');
+            cart = []; appliedDiscount = 0; saveCart(); paypalRendered = false; loadCart();
+            alert('¡Pago exitoso!');
         }
     }).render('#paypal-button-container');
 }
 
 function updateCartBadge() {
-    const count = cart.reduce((s,i)=>s+(i.quantity||1),0);
+    const count = cart.reduce((s, i) => s + (i.quantity || 1), 0);
     const badge = document.getElementById('cartCount');
-    if (badge) { badge.textContent = count; badge.style.display = count ? 'flex' : 'none'; }
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
 }
+
 function saveCart() { localStorage.setItem('yxCart', JSON.stringify(cart)); updateCartBadge(); }
