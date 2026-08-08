@@ -1902,3 +1902,67 @@ img { max-width: 100%; }
 }
 .notify-success .notify-progress { background: var(--success); }
 .notify-error .notify-progress { background: var(--danger); }
+
+
+/* ============================================
+   PROFILE PAGE - COMPLETO
+   ============================================ */
+.avatar-upload-wrapper { position: relative; display: inline-block; }
+.avatar-upload-btn {
+    position: absolute; bottom: 5px; right: 5px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: white; border: none;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 0.9em; transition: all 0.3s;
+}
+.avatar-upload-btn:hover { transform: scale(1.1); }
+.profile-textarea { min-height: 80px; resize: vertical; }
+.input-with-icon { display: flex; align-items: center; gap: 8px; }
+.input-prefix { color: var(--accent); }
+.btn-discord-connect { background: #5865F2; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.8em; display: flex; align-items: center; gap: 5px; }
+.btn-discord-connect:hover { background: #4752c4; }
+
+.banner-upload-wrapper { border-radius: 12px; overflow: hidden; }
+.banner-preview { height: 150px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; border-radius: 12px; }
+.banner-upload-btn { background: rgba(0,0,0,0.6); color: white; padding: 8px 18px; border-radius: 50px; cursor: pointer; font-size: 0.8em; display: flex; align-items: center; gap: 5px; transition: all 0.3s; }
+.banner-upload-btn:hover { background: rgba(0,0,0,0.8); }
+
+.security-card { background: var(--bg-tertiary); padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+.security-card h4 { margin-bottom: 15px; }
+.security-info { color: var(--text-muted); font-size: 0.85em; margin-bottom: 15px; }
+
+.purchases-filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.purchases-table-wrapper { overflow-x: auto; }
+.purchases-table { width: 100%; border-collapse: collapse; }
+.purchases-table th { text-align: left; padding: 12px 15px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); font-size: 0.8em; font-weight: 600; }
+.purchases-table td { padding: 12px 15px; border-bottom: 1px solid var(--border-color); font-size: 0.85em; }
+.status-badge { padding: 4px 10px; border-radius: 50px; font-size: 0.75em; font-weight: 500; }
+.status-completed { background: rgba(0,200,83,0.15); color: var(--success); }
+.status-pending { background: rgba(255,214,0,0.15); color: var(--warning); }
+
+.invoice-card { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 10px; }
+.invoice-info { display: flex; align-items: center; gap: 12px; }
+.invoice-info .material-icons { color: var(--accent); font-size: 2em; }
+.invoice-info strong { display: block; margin-bottom: 3px; }
+.invoice-info p { color: var(--text-muted); font-size: 0.8em; margin: 0; }
+
+.settings-card { background: var(--bg-tertiary); padding: 20px 25px; border-radius: 12px; margin-bottom: 15px; }
+.settings-card h4 { margin-bottom: 10px; }
+.accent-colors { display: flex; gap: 10px; }
+.accent-color-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all 0.3s; }
+.accent-color-btn.active { border-color: white; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+.danger-card { background: var(--bg-tertiary); border: 1px solid var(--danger); padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+.danger-info h4 { color: var(--danger); margin-bottom: 5px; }
+.danger-info p { color: var(--text-muted); font-size: 0.85em; }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+.modal-card { background: var(--bg-secondary); padding: 30px; border-radius: 16px; max-width: 450px; width: 90%; border: 1px solid var(--border-color); }
+.modal-card h3 { margin-bottom: 15px; }
+.modal-card p { color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9em; }
+.modal-actions { display: flex; gap: 10px; margin-top: 15px; justify-content: flex-end; }
+
+@media (max-width: 768px) {
+    .purchases-filters { flex-direction: column; }
+    .danger-card { flex-direction: column; }
+}
