@@ -3,15 +3,24 @@
 // ============================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-var supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Credenciales directas
+var supabase = createClient(
+    'https://xzfytuasxmqxdcdwfbbl.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6Znl0dWFzeG1xeGRjZHdmYmJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzkyMDcsImV4cCI6MjEwMTY1NTIwN30.QWM-EkPbQxTaWraKzUEQraJJLsgfjwNyxOc1Krh82tU'
+);
+
+console.log('Auth JS - Supabase inicializado');
 
 // ============================================
-// LOGIN CON EMAIL
+// INICIAR SESIÓN
 // ============================================
 async function signInWithEmail(email, password) {
     try {
         showLoading(true);
-        var { data, error } = await supabase.auth.signInWithPassword({ email: email, password: password });
+        var { data, error } = await supabase.auth.signInWithPassword({ 
+            email: email, 
+            password: password 
+        });
         
         if (error) throw error;
         
@@ -26,7 +35,7 @@ async function signInWithEmail(email, password) {
 }
 
 // ============================================
-// REGISTRO CON EMAIL
+// REGISTRO
 // ============================================
 async function signUpWithEmail(name, email, password) {
     try {
@@ -56,7 +65,7 @@ async function signUpWithEmail(name, email, password) {
 // ============================================
 async function signInWithDiscord() {
     try {
-        var { data, error } = await supabase.auth.signInWithOAuth({
+        var { error } = await supabase.auth.signInWithOAuth({
             provider: 'discord',
             options: {
                 redirectTo: window.location.origin + '/index.html'
@@ -70,7 +79,7 @@ async function signInWithDiscord() {
 }
 
 // ============================================
-// FORGOT PASSWORD
+// RESTABLECER CONTRASEÑA
 // ============================================
 async function resetPassword(email) {
     try {
@@ -81,7 +90,7 @@ async function resetPassword(email) {
         
         if (error) throw error;
         
-        showMessage('Se ha enviado un enlace a tu correo para restablecer la contraseña.', 'success');
+        showMessage('Se ha enviado un enlace a tu correo.', 'success');
         showLoading(false);
     } catch (error) {
         showMessage(error.message, 'error');
@@ -90,23 +99,15 @@ async function resetPassword(email) {
 }
 
 // ============================================
-// CERRAR SESIÓN
-// ============================================
-async function signOut() {
-    await supabase.auth.signOut();
-    window.location.href = 'index.html';
-}
-
-// ============================================
 // MOSTRAR MENSAJES
 // ============================================
 function showMessage(message, type) {
-    var messageElement = document.getElementById('authMessage');
-    if (messageElement) {
-        messageElement.textContent = message;
-        messageElement.className = 'auth-message ' + type;
+    var msgEl = document.getElementById('authMessage');
+    if (msgEl) {
+        msgEl.textContent = message;
+        msgEl.className = 'auth-message ' + type;
         setTimeout(function() {
-            messageElement.className = 'auth-message';
+            msgEl.className = 'auth-message';
         }, 5000);
     }
 }
@@ -134,12 +135,14 @@ function setupTogglePassword() {
     document.querySelectorAll('.toggle-password').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
-            if (target.type === 'password') {
-                target.type = 'text';
-                this.textContent = 'visibility';
-            } else {
-                target.type = 'password';
-                this.textContent = 'visibility_off';
+            if (target) {
+                if (target.type === 'password') {
+                    target.type = 'text';
+                    this.textContent = 'visibility';
+                } else {
+                    target.type = 'password';
+                    this.textContent = 'visibility_off';
+                }
             }
         });
     });
@@ -207,11 +210,17 @@ function setupPasswordStrength() {
 // INIT
 // ============================================
 document.addEventListener('DOMContentLoaded', async function() {
+    console.log('Auth JS - DOM cargado');
+    
     // Verificar sesión existente
-    var { data: { session } } = await supabase.auth.getSession();
-    if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
-        window.location.href = 'index.html';
-        return;
+    try {
+        var { data: { session } } = await supabase.auth.getSession();
+        if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+            window.location.href = 'index.html';
+            return;
+        }
+    } catch (e) {
+        console.log('No hay sesión activa');
     }
     
     // Guardar HTML original de botones
@@ -224,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            var email = document.getElementById('loginEmail').value;
+            var email = document.getElementById('loginEmail').value.trim();
             var password = document.getElementById('loginPassword').value;
             signInWithEmail(email, password);
         });
@@ -235,8 +244,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            var name = document.getElementById('registerName').value;
-            var email = document.getElementById('registerEmail').value;
+            var name = document.getElementById('registerName').value.trim();
+            var email = document.getElementById('registerEmail').value.trim();
             var password = document.getElementById('registerPassword').value;
             signUpWithEmail(name, email, password);
         });
@@ -247,7 +256,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (forgotForm) {
         forgotForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            var email = document.getElementById('resetEmail').value;
+            var email = document.getElementById('resetEmail').value.trim();
             resetPassword(email);
         });
     }
@@ -258,15 +267,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (discordLogin) discordLogin.addEventListener('click', signInWithDiscord);
     if (discordRegister) discordRegister.addEventListener('click', signInWithDiscord);
     
-    // Setup toggle password
+    // Setup
     setupTogglePassword();
-    
-    // Setup forgot password
     setupForgotPassword();
-    
-    // Setup password strength
     setupPasswordStrength();
 });
-
-// Exportar signOut para usar en otras páginas
-window.signOut = signOut;
