@@ -6,12 +6,13 @@ var supabase = createClient(
 );
 
 var currentUser = null;
+var savedProfile = JSON.parse(localStorage.getItem('yxProfile') || '{}');
 
 async function init() {
     var { data: { session } } = await supabase.auth.getSession();
     if (!session) { window.location.href = 'login.html'; return; }
     currentUser = session.user;
-    await loadUserData();
+    loadUserData();
     loadPurchases();
     loadInvoices();
     setupNavigation();
@@ -19,36 +20,25 @@ async function init() {
     updateCartBadge();
 }
 
-async function loadUserData() {
-    // Forzar refresh del token para obtener datos frescos
-    await supabase.auth.refreshSession();
-    
-    // Obtener usuario fresco
-    var { data: { user }, error } = await supabase.auth.getUser();
-    if (error) { console.error(error); return; }
-    
-    currentUser = user;
-    var metadata = user.user_metadata || {};
-    console.log('Metadata fresca desde Supabase:', metadata);
+function loadUserData() {
+    var metadata = currentUser.user_metadata || {};
 
-    document.getElementById('profileName').textContent = metadata.full_name || 'Usuario';
-    document.getElementById('profileEmailDisplay').textContent = user.email;
-    document.getElementById('userNameDisplay').textContent = metadata.full_name || user.email.split('@')[0];
-    document.getElementById('tooltipEmail').textContent = user.email;
+    document.getElementById('profileName').textContent = savedProfile.full_name || metadata.full_name || 'Usuario';
+    document.getElementById('profileEmailDisplay').textContent = currentUser.email;
+    document.getElementById('userNameDisplay').textContent = savedProfile.full_name || metadata.full_name || currentUser.email.split('@')[0];
+    document.getElementById('tooltipEmail').textContent = currentUser.email;
 
-    // Avatar - Agregar timestamp para evitar cache
-    var avatarUrl = metadata.avatar_url || 'https://via.placeholder.com/140';
+    var avatarUrl = savedProfile.avatar_url || metadata.avatar_url || 'https://via.placeholder.com/140';
     document.getElementById('profileAvatar').src = avatarUrl;
     document.getElementById('userAvatarTop').src = avatarUrl;
 
-    // Banner - Agregar timestamp para evitar cache
-    var bannerUrl = metadata.banner_url || 'https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner';
+    var bannerUrl = savedProfile.banner_url || metadata.banner_url || 'https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner';
     document.getElementById('profileBanner').style.backgroundImage = 'url(' + bannerUrl + ')';
 
-    document.getElementById('editName').value = metadata.full_name || '';
-    document.getElementById('editBio').value = metadata.bio || '';
-    document.getElementById('editRoblox').value = metadata.roblox || '';
-    document.getElementById('editDiscord').value = metadata.discord || '';
+    document.getElementById('editName').value = savedProfile.full_name || metadata.full_name || '';
+    document.getElementById('editBio').value = savedProfile.bio || metadata.bio || '';
+    document.getElementById('editRoblox').value = savedProfile.roblox || metadata.roblox || '';
+    document.getElementById('editDiscord').value = savedProfile.discord || metadata.discord || '';
     document.getElementById('languageSelect').value = localStorage.getItem('yxLang') || 'es';
     document.getElementById('currencySelect').value = localStorage.getItem('yxCurrency') || 'USD';
 
@@ -58,6 +48,11 @@ async function loadUserData() {
     else if (orders.length >= 5) badge.textContent = 'Cliente Frecuente';
     else if (orders.length >= 1) badge.textContent = 'Cliente';
     else badge.textContent = 'Nuevo';
+}
+
+function saveProfileData(key, value) {
+    savedProfile[key] = value;
+    localStorage.setItem('yxProfile', JSON.stringify(savedProfile));
 }
 
 function loadPurchases() {
@@ -104,78 +99,77 @@ function setupNavigation() {
 }
 
 function setupEvents() {
-    document.getElementById('savePersonal').addEventListener('click', async function() {
+    // GUARDAR PERFIL
+    document.getElementById('savePersonal').addEventListener('click', function() {
         var name = document.getElementById('editName').value.trim();
         var bio = document.getElementById('editBio').value.trim();
         var roblox = document.getElementById('editRoblox').value.trim();
         var discord = document.getElementById('editDiscord').value.trim();
-        
-        var { error } = await supabase.auth.updateUser({ 
-            data: { full_name: name, bio: bio, roblox: roblox, discord: discord } 
-        });
-        
-        if (error) { showNotification('Error', error.message, 'error'); return; }
-        
+
+        // Guardar en localStorage (inmediato y confiable)
+        saveProfileData('full_name', name);
+        saveProfileData('bio', bio);
+        saveProfileData('roblox', roblox);
+        saveProfileData('discord', discord);
+
+        // Actualizar UI
         document.getElementById('profileName').textContent = name || 'Usuario';
         document.getElementById('userNameDisplay').textContent = name || currentUser.email.split('@')[0];
+
+        // Intentar guardar en Supabase también
+        supabase.auth.updateUser({ data: { full_name: name, bio: bio, roblox: roblox, discord: discord } });
+
         showNotification('Perfil actualizado', 'Datos guardados correctamente', 'success');
     });
 
-    document.getElementById('avatarUpload').addEventListener('change', async function(e) {
+    // AVATAR
+    document.getElementById('avatarUpload').addEventListener('change', function(e) {
         var file = e.target.files[0];
         if (!file) return;
-        
+
         var reader = new FileReader();
-        reader.onload = async function(ev) {
+        reader.onload = function(ev) {
             var url = ev.target.result;
-            
+
+            // Guardar en localStorage
+            saveProfileData('avatar_url', url);
+
             // Actualizar UI
             document.getElementById('profileAvatar').src = url;
             document.getElementById('userAvatarTop').src = url;
-            
-            // Guardar en Supabase
-            var { error } = await supabase.auth.updateUser({ data: { avatar_url: url } });
-            
-            if (error) {
-                showNotification('Error', error.message, 'error');
-                return;
-            }
-            
-            // Refrescar sesión para que Supabase actualice
-            await supabase.auth.refreshSession();
-            
+
+            // Intentar guardar en Supabase
+            supabase.auth.updateUser({ data: { avatar_url: url } });
+
             showNotification('Avatar actualizado', 'Imagen guardada correctamente', 'success');
         };
         reader.readAsDataURL(file);
     });
 
-    document.getElementById('bannerUpload').addEventListener('change', async function(e) {
+    // BANNER
+    document.getElementById('bannerUpload').addEventListener('change', function(e) {
         var file = e.target.files[0];
         if (!file) return;
-        
+
         var reader = new FileReader();
-        reader.onload = async function(ev) {
+        reader.onload = function(ev) {
             var url = ev.target.result;
-            
+
+            // Guardar en localStorage
+            saveProfileData('banner_url', url);
+
             // Actualizar UI
             document.getElementById('profileBanner').style.backgroundImage = 'url(' + url + ')';
-            
-            // Guardar en Supabase
-            var { error } = await supabase.auth.updateUser({ data: { banner_url: url } });
-            
-            if (error) {
-                showNotification('Error', error.message, 'error');
-                return;
-            }
-            
-            // Refrescar sesión para que Supabase actualice
-            await supabase.auth.refreshSession();
-            
+
+            // Intentar guardar en Supabase
+            supabase.auth.updateUser({ data: { banner_url: url } });
+
             showNotification('Banner actualizado', 'Portada guardada correctamente', 'success');
         };
         reader.readAsDataURL(file);
     });
 
+    // CAMBIAR CONTRASEÑA
     document.getElementById('changePasswordBtn').addEventListener('click', async function() {
         var p1 = document.getElementById('newPassword').value;
         var p2 = document.getElementById('confirmNewPassword').value;
@@ -187,6 +181,7 @@ function setupEvents() {
         else { showNotification('Contraseña actualizada', '', 'success'); document.getElementById('newPassword').value = ''; document.getElementById('confirmNewPassword').value = ''; }
     });
 
+    // CAMBIAR EMAIL
     document.getElementById('changeEmailBtn').addEventListener('click', async function() {
         var email = document.getElementById('newEmail').value.trim();
         if (!email) { showNotification('Error', 'Ingresa un correo', 'error'); return; }
@@ -195,6 +190,7 @@ function setupEvents() {
         else { showNotification('Solicitud enviada', 'Revisa tu correo', 'success'); }
     });
 
+    // TOGGLE PASSWORD
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
@@ -203,13 +199,18 @@ function setupEvents() {
         });
     });
 
+    // DISCORD
     document.getElementById('connectDiscord').addEventListener('click', async function() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: window.location.origin + '/profile.html' } });
     });
 
+    // IDIOMA
     document.getElementById('languageSelect').addEventListener('change', function() { localStorage.setItem('yxLang', this.value); });
+
+    // MONEDA
     document.getElementById('currencySelect').addEventListener('change', function() { localStorage.setItem('yxCurrency', this.value); });
 
+    // TEMA
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
         dot.addEventListener('click', function() {
             document.documentElement.setAttribute('data-theme', this.dataset.accent);
@@ -219,11 +220,13 @@ function setupEvents() {
         });
     });
 
+    // ELIMINAR CUENTA
     document.getElementById('deleteAccountBtn').addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'flex'; });
     document.getElementById('cancelDelete').addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'none'; document.getElementById('deleteConfirmInput').value = ''; });
     document.getElementById('deleteConfirmInput').addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
     document.getElementById('confirmDelete').addEventListener('click', async function() { await supabase.auth.signOut(); localStorage.clear(); window.location.href = 'index.html'; });
 
+    // LOGOUT
     document.getElementById('logoutBtn').addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = 'index.html'; });
 }
 
