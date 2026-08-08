@@ -47,43 +47,45 @@ async function checkUserSession() {
     const guestMenu = document.getElementById('guestMenu');
     const userMenu = document.getElementById('userMenu');
 
-    // Por defecto mostrar menú invitado
-    if (guestMenu) guestMenu.style.display = 'flex';
-    if (userMenu) userMenu.style.display = 'none';
+    if (!guestMenu || !userMenu) return;
 
-    if (!supabase) return;
+    // Por defecto mostrar invitado
+    guestMenu.style.display = 'flex';
+    userMenu.style.display = 'none';
 
     try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session && session.user) {
             console.log('Usuario logueado:', session.user.email);
+            
+            guestMenu.style.display = 'none';
+            userMenu.style.display = 'flex';
 
-            // Ocultar menú invitado
-            if (guestMenu) guestMenu.style.display = 'none';
-
-            // Mostrar menú usuario
-            if (userMenu) {
-                userMenu.style.display = 'flex';
-
-                // Nombre de usuario
-                const userNameDisplay = document.getElementById('userNameDisplay');
-                if (userNameDisplay) {
-                    const fullName = session.user.user_metadata?.full_name;
-                    const email = session.user.email;
-                    userNameDisplay.textContent = fullName || email.split('@')[0] || 'Usuario';
-                }
-
-                // Avatar
-                const userAvatar = document.getElementById('userAvatar');
-                if (userAvatar) {
-                    const avatarUrl = session.user.user_metadata?.avatar_url;
-                    userAvatar.src = avatarUrl || 'https://via.placeholder.com/32';
-                }
+            const userNameDisplay = document.getElementById('userNameDisplay');
+            if (userNameDisplay) {
+                userNameDisplay.textContent = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
             }
 
-            // Configurar botón logout
-            setupLogout();
+            const userAvatar = document.getElementById('userAvatar');
+            if (userAvatar) {
+                userAvatar.src = session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
+            }
+
+            // Logout
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                const newBtn = logoutBtn.cloneNode(true);
+                logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
+                newBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await supabaseClient.auth.signOut();
+                    window.location.href = 'index.html';
+                });
+            }
         }
     } catch (e) {
         console.error('Error al verificar sesión:', e);
