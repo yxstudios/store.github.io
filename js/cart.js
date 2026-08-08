@@ -3,7 +3,10 @@
 // ============================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-var supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var supabaseClient = createClient(
+    'https://qfgofnlvfxcmzexwuzou.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
+);
 
 // ============================================
 // TABLA DE CUPONES DE DESCUENTO
