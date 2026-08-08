@@ -2,16 +2,16 @@
 // YX STUDIOS - MAIN JS
 // ============================================
 
-// Productos (puedes agregar más)
+// Productos
 const products = [
-    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Anti-exploit'], rating: 4.8, sales: 234, reviews: [] },
-    { id: 2, name: 'Economy System', description: 'Sistema económico con tiendas.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Trading', 'Monedas'], rating: 4.6, sales: 189, reviews: [] },
-    { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes', 'Combos', 'Efectos'], rating: 4.9, sales: 312, reviews: [] },
-    { id: 4, name: 'Build System', description: 'Construcción intuitiva.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D'], rating: 4.5, sales: 156, reviews: [] },
-    { id: 5, name: 'VIP System', description: 'Sistema VIP exclusivo.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks', 'Salas VIP'], rating: 4.7, sales: 278, reviews: [] },
-    { id: 6, name: 'Data Store Manager', description: 'Gestión de datos.', price: 2200, category: 'economy', icon: 'fa-database', features: ['Auto-save', 'Backups'], rating: 4.4, sales: 145, reviews: [] },
-    { id: 7, name: 'Anti-Cheat', description: 'Protección contra hackers.', price: 3500, category: 'admin', icon: 'fa-shield-virus', features: ['Detección', 'Auto-ban'], rating: 4.9, sales: 198, reviews: [] },
-    { id: 8, name: 'Trading System', description: 'Intercambio seguro.', price: 2800, category: 'economy', icon: 'fa-arrow-right-arrow-left', features: ['Seguro', 'Historial'], rating: 4.7, sales: 167, reviews: [] }
+    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Anti-exploit'], rating: 4.8, sales: 234, reviews: [] },
+    { id: 2, name: 'Economy System', description: 'Sistema económico con tiendas, inventario y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Trading', 'Monedas'], rating: 4.6, sales: 189, reviews: [] },
+    { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado con hitboxes y habilidades especiales.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes', 'Combos', 'Efectos'], rating: 4.9, sales: 312, reviews: [] },
+    { id: 4, name: 'Build System', description: 'Sistema de construcción intuitivo con grid snapping.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D'], rating: 4.5, sales: 156, reviews: [] },
+    { id: 5, name: 'VIP System', description: 'Sistema VIP con perks exclusivos y beneficios especiales.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks', 'Salas VIP'], rating: 4.7, sales: 278, reviews: [] },
+    { id: 6, name: 'Data Store Manager', description: 'Sistema de guardado de datos con respaldo automático.', price: 2200, category: 'economy', icon: 'fa-database', features: ['Auto-save', 'Backups'], rating: 4.4, sales: 145, reviews: [] },
+    { id: 7, name: 'Anti-Cheat System', description: 'Protección avanzada contra hackers y exploits.', price: 3500, category: 'admin', icon: 'fa-shield-virus', features: ['Detección', 'Auto-ban'], rating: 4.9, sales: 198, reviews: [] },
+    { id: 8, name: 'Trading System', description: 'Sistema de intercambio seguro entre jugadores.', price: 2800, category: 'economy', icon: 'fa-arrow-right-arrow-left', features: ['Seguro', 'Historial'], rating: 4.7, sales: 167, reviews: [] }
 ];
 
 const ITEMS_PER_PAGE = 6;
@@ -24,6 +24,7 @@ let currentSearch = '';
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
     await checkUserSession();
+    renderFeaturedProducts();
     renderProducts();
     updateCartCount();
     setupSearchAndFilters();
@@ -67,7 +68,33 @@ function setupLogout(supabase) {
 }
 
 // ============================================
-// PRODUCTOS Y PAGINACIÓN
+// PRODUCTOS DESTACADOS
+// ============================================
+function renderFeaturedProducts() {
+    const featured = products.filter(p => p.rating >= 4.8 || p.sales >= 250).slice(0, 3);
+    const grid = document.getElementById('featuredGrid');
+    if (!grid || !featured.length) return;
+    grid.innerHTML = featured.map(p => `
+        <div class="product-card featured-product">
+            <div class="product-image"><i class="fas ${p.icon}"></i><span class="product-rating"><i class="fas fa-star"></i> ${p.rating}</span><span class="product-badge">Destacado</span></div>
+            <div class="product-info">
+                <span class="product-category">${p.category}</span>
+                <h3>${p.name}</h3>
+                <p>${p.description.substring(0, 70)}...</p>
+                <div class="product-footer">
+                    <div class="product-price"><span class="price-value">${p.price.toLocaleString()}</span> Robux</div>
+                    <div class="product-actions">
+                        <button class="btn-add-cart" onclick="addToCart(${p.id})"><span class="material-icons">add_shopping_cart</span></button>
+                        <button class="btn-view-details" onclick="showDetails(${p.id})"><span class="material-icons">visibility</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ============================================
+// PRODUCTOS CON PAGINACIÓN
 // ============================================
 function getFilteredProducts() {
     let filtered = products;
@@ -86,10 +113,7 @@ function renderProducts() {
     const grid = document.getElementById('productsGrid');
     grid.innerHTML = pageItems.map(product => `
         <div class="product-card">
-            <div class="product-image">
-                <i class="fas ${product.icon}"></i>
-                <span class="product-rating"><i class="fas fa-star"></i> ${product.rating}</span>
-            </div>
+            <div class="product-image"><i class="fas ${product.icon}"></i><span class="product-rating"><i class="fas fa-star"></i> ${product.rating}</span></div>
             <div class="product-info">
                 <span class="product-category">${product.category}</span>
                 <h3>${product.name}</h3>
@@ -190,20 +214,20 @@ window.showDetails = function(productId) {
                     <span class="product-category">${product.category}</span>
                     <h2>${product.name}</h2>
                     <div class="modal-rating"><i class="fas fa-star"></i> ${product.rating} (${product.sales} ventas)</div>
-                    <p>${product.description}</p>
-                    <div class="modal-features"><h4>Características:</h4><ul>${product.features.map(f => `<li><span class="material-icons">check</span>${f}</li>`).join('')}</ul></div>
-                    <div class="modal-price">${product.price.toLocaleString()} Robux</div>
+                    <p class="modal-description">${product.description}</p>
+                    <div class="modal-features"><h4>Características:</h4><ul>${product.features.map(f => `<li><span class="material-icons">check</span> ${f}</li>`).join('')}</ul></div>
+                    <div class="modal-price"><span>${product.price.toLocaleString()}</span> Robux</div>
                     <div class="modal-actions">
-                        <button class="btn-primary" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar</button>
+                        <button class="btn-primary" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar al Carrito</button>
                         <button class="btn-outline" id="modalBuyNow"><span class="material-icons">bolt</span> Comprar Ahora</button>
                     </div>
                     <div class="review-section">
-                        <h4>Reseñas</h4>
-                        <div id="reviewsList">${(product.reviews || []).map(r => `<div class="review-item"><strong>${r.user}</strong> - ${'★'.repeat(r.stars)}<p>${r.comment}</p></div>`).join('') || '<p>Sin reseñas aún.</p>'}</div>
+                        <h4>Reseñas de clientes</h4>
+                        <div id="reviewsList">${(product.reviews || []).map(r => `<div class="review-item"><strong>${r.user}</strong> ${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}<p>${r.comment}</p></div>`).join('') || '<p class="text-muted">Sé el primero en dejar una reseña</p>'}</div>
                         <div class="add-review">
                             <h5>Deja tu reseña</h5>
                             <div class="star-selector">${[5,4,3,2,1].map(s => `<span class="star" data-stars="${s}">☆</span>`).join('')}</div>
-                            <textarea id="reviewComment" placeholder="Tu comentario..."></textarea>
+                            <textarea id="reviewComment" placeholder="Escribe tu experiencia con este sistema..."></textarea>
                             <button class="btn-primary" id="submitReview">Enviar reseña</button>
                         </div>
                     </div>
@@ -212,40 +236,67 @@ window.showDetails = function(productId) {
         </div>
     `;
     document.body.appendChild(modal);
+    
+    // Cerrar
     modal.querySelector('.modal-close').onclick = () => modal.remove();
     modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
+    
+    // Acciones
     modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); modal.remove(); };
     modal.querySelector('#modalBuyNow').onclick = () => { addToCart(productId); window.location.href = 'cart.html'; };
     
-    // Estrellas interactivas
+    // Estrellas
     let selectedStars = 0;
     modal.querySelectorAll('.star').forEach(star => {
         star.addEventListener('click', function() {
             selectedStars = parseInt(this.dataset.stars);
             modal.querySelectorAll('.star').forEach((s, idx) => {
                 s.textContent = idx < selectedStars ? '★' : '☆';
+                s.style.color = idx < selectedStars ? '#ffd600' : 'var(--text-muted)';
             });
         });
     });
+    
+    // Enviar reseña
     modal.querySelector('#submitReview').onclick = () => {
-        const comment = modal.querySelector('#reviewComment').value;
-        if (!selectedStars) return alert('Selecciona estrellas');
+        const comment = modal.querySelector('#reviewComment').value.trim();
+        if (!selectedStars) return alert('Selecciona una calificación');
+        if (!comment) return alert('Escribe un comentario');
         product.reviews = product.reviews || [];
-        product.reviews.push({ user: 'Tú', stars: selectedStars, comment });
-        modal.querySelector('#reviewsList').innerHTML = product.reviews.map(r => `<div class="review-item"><strong>${r.user}</strong> - ${'★'.repeat(r.stars)}<p>${r.comment}</p></div>`).join('');
+        product.reviews.unshift({ user: 'Tú', stars: selectedStars, comment });
+        // Actualizar rating
+        const totalStars = product.reviews.reduce((s, r) => s + r.stars, 0);
+        product.rating = Math.round((totalStars / product.reviews.length) * 10) / 10;
+        // Refrescar reviews
+        modal.querySelector('#reviewsList').innerHTML = product.reviews.map(r => `<div class="review-item"><strong>${r.user}</strong> ${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}<p>${r.comment}</p></div>`).join('');
+        modal.querySelector('.modal-rating').innerHTML = `<i class="fas fa-star"></i> ${product.rating} (${product.sales} ventas)`;
         updateHeroStats();
+        showNotification('Reseña publicada correctamente', 'success');
     };
 };
 
 // ============================================
-// ACTUALIZAR STATS DEL HERO
+// HERO STATS (EN TIEMPO REAL)
 // ============================================
 function updateHeroStats() {
-    document.getElementById('totalSystems').textContent = `${products.length}+`;
-    const totalSales = products.reduce((s, p) => s + p.sales, 0);
-    document.getElementById('totalClients').textContent = `${(totalSales / 1000).toFixed(1)}k+`;
-    const avg = (products.reduce((s, p) => s + p.rating, 0) / products.length).toFixed(1);
-    document.getElementById('avgRating').textContent = avg;
+    // Contar sistemas (productos)
+    document.getElementById('totalSystems').textContent = products.length;
+    
+    // Contar clientes (de órdenes guardadas)
+    const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+    const uniqueBuyers = new Set(orders.map(o => o.paypalOrderId)).size;
+    const totalClients = uniqueBuyers + 1250; // Base + reales
+    document.getElementById('totalClients').textContent = totalClients >= 1000 ? `${(totalClients/1000).toFixed(1)}k+` : totalClients;
+    
+    // Calificación promedio
+    const productsWithReviews = products.filter(p => p.reviews && p.reviews.length > 0);
+    let avgRating = 4.5; // Base
+    if (productsWithReviews.length > 0) {
+        const allRatings = products.reduce((sum, p) => sum + (p.rating || 0), 0);
+        avgRating = allRatings / products.length;
+    }
+    document.getElementById('avgRating').textContent = avgRating.toFixed(1);
 }
 
 // ============================================
