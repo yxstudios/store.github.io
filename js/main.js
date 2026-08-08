@@ -198,55 +198,107 @@ function updateCartCount() {
 }
 
 // ============================================
-// DETALLES (MODAL) CON RESEÑAS
+// DETALLES (MODAL RECTANGULAR SIN SCROLL BLANCO)
 // ============================================
 window.showDetails = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
+    
+    // Eliminar modal anterior si existe
+    const existingModal = document.querySelector('.product-modal-overlay');
+    if (existingModal) existingModal.remove();
+    
     const modal = document.createElement('div');
     modal.className = 'product-modal-overlay';
     modal.innerHTML = `
         <div class="product-modal">
-            <button class="modal-close"><span class="material-icons">close</span></button>
-            <div class="modal-content">
-                <div class="modal-image"><i class="fas ${product.icon}"></i></div>
-                <div class="modal-info">
+            <button class="modal-close-btn"><span class="material-icons">close</span></button>
+            <div class="modal-grid">
+                <div class="modal-left">
+                    <div class="modal-icon-wrapper">
+                        <i class="fas ${product.icon}"></i>
+                    </div>
+                    <div class="modal-price-tag">
+                        <span class="price-big">${product.price.toLocaleString()}</span>
+                        <span class="price-label">Robux</span>
+                    </div>
+                    <div class="modal-actions-side">
+                        <button class="btn-primary btn-full" id="modalAddToCart">
+                            <span class="material-icons">add_shopping_cart</span> Agregar al Carrito
+                        </button>
+                        <button class="btn-outline btn-full" id="modalBuyNow">
+                            <span class="material-icons">bolt</span> Comprar Ahora
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-right">
                     <span class="product-category">${product.category}</span>
                     <h2>${product.name}</h2>
-                    <div class="modal-rating"><i class="fas fa-star"></i> ${product.rating} (${product.sales} ventas)</div>
+                    <div class="modal-rating">
+                        <span class="stars">${'★'.repeat(Math.floor(product.rating))}${product.rating % 1 >= 0.5 ? '½' : ''}</span>
+                        <span>${product.rating}</span>
+                        <span class="sales-count">(${product.sales} ventas)</span>
+                    </div>
                     <p class="modal-description">${product.description}</p>
-                    <div class="modal-features"><h4>Características:</h4><ul>${product.features.map(f => `<li><span class="material-icons">check</span> ${f}</li>`).join('')}</ul></div>
-                    <div class="modal-price"><span>${product.price.toLocaleString()}</span> Robux</div>
-                    <div class="modal-actions">
-                        <button class="btn-primary" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar al Carrito</button>
-                        <button class="btn-outline" id="modalBuyNow"><span class="material-icons">bolt</span> Comprar Ahora</button>
+                    <div class="modal-features">
+                        <h4>Características</h4>
+                        <div class="features-grid-inline">
+                            ${product.features.map(f => `<div class="feature-item-inline"><span class="material-icons">check_circle</span><span>${f}</span></div>`).join('')}
+                        </div>
                     </div>
                     <div class="review-section">
                         <h4>Reseñas de clientes</h4>
-                        <div id="reviewsList">${(product.reviews || []).map(r => `<div class="review-item"><strong>${r.user}</strong> ${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}<p>${r.comment}</p></div>`).join('') || '<p class="text-muted">Sé el primero en dejar una reseña</p>'}</div>
+                        <div class="reviews-container" id="reviewsList">
+                            ${(product.reviews || []).length > 0 
+                                ? product.reviews.map(r => `
+                                    <div class="review-item">
+                                        <div class="review-header">
+                                            <strong>${r.user}</strong>
+                                            <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
+                                        </div>
+                                        <p>${r.comment}</p>
+                                    </div>
+                                `).join('') 
+                                : '<p class="no-reviews">Sé el primero en dejar una reseña</p>'
+                            }
+                        </div>
                         <div class="add-review">
                             <h5>Deja tu reseña</h5>
                             <div class="star-selector">${[5,4,3,2,1].map(s => `<span class="star" data-stars="${s}">☆</span>`).join('')}</div>
-                            <textarea id="reviewComment" placeholder="Escribe tu experiencia con este sistema..."></textarea>
-                            <button class="btn-primary" id="submitReview">Enviar reseña</button>
+                            <textarea id="reviewComment" placeholder="Escribe tu experiencia..."></textarea>
+                            <button class="btn-primary btn-sm" id="submitReview">Enviar reseña</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     `;
-    document.body.appendChild(modal);
     
-    // Cerrar
-    modal.querySelector('.modal-close').onclick = () => modal.remove();
-    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', esc); } });
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // Cerrar modal
+    const closeModal = () => {
+        modal.remove();
+        document.body.style.overflow = '';
+    };
+    
+    modal.querySelector('.modal-close-btn').onclick = closeModal;
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
     
     // Acciones
-    modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); modal.remove(); };
+    modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); closeModal(); };
     modal.querySelector('#modalBuyNow').onclick = () => { addToCart(productId); window.location.href = 'cart.html'; };
     
-    // Estrellas
+    // Estrellas interactivas
     let selectedStars = 0;
     modal.querySelectorAll('.star').forEach(star => {
         star.addEventListener('click', function() {
@@ -261,41 +313,49 @@ window.showDetails = function(productId) {
     // Enviar reseña
     modal.querySelector('#submitReview').onclick = () => {
         const comment = modal.querySelector('#reviewComment').value.trim();
-        if (!selectedStars) return alert('Selecciona una calificación');
-        if (!comment) return alert('Escribe un comentario');
+        if (!selectedStars) return showNotification('Selecciona una calificación', 'error');
+        if (!comment) return showNotification('Escribe un comentario', 'error');
+        
         product.reviews = product.reviews || [];
         product.reviews.unshift({ user: 'Tú', stars: selectedStars, comment });
-        // Actualizar rating
+        
         const totalStars = product.reviews.reduce((s, r) => s + r.stars, 0);
         product.rating = Math.round((totalStars / product.reviews.length) * 10) / 10;
-        // Refrescar reviews
-        modal.querySelector('#reviewsList').innerHTML = product.reviews.map(r => `<div class="review-item"><strong>${r.user}</strong> ${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}<p>${r.comment}</p></div>`).join('');
-        modal.querySelector('.modal-rating').innerHTML = `<i class="fas fa-star"></i> ${product.rating} (${product.sales} ventas)`;
+        
+        modal.querySelector('#reviewsList').innerHTML = product.reviews.map(r => `
+            <div class="review-item">
+                <div class="review-header">
+                    <strong>${r.user}</strong>
+                    <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
+                </div>
+                <p>${r.comment}</p>
+            </div>
+        `).join('');
+        
+        modal.querySelector('.modal-rating').innerHTML = `
+            <span class="stars">${'★'.repeat(Math.floor(product.rating))}</span>
+            <span>${product.rating}</span>
+            <span class="sales-count">(${product.sales} ventas)</span>
+        `;
+        
         updateHeroStats();
-        showNotification('Reseña publicada correctamente', 'success');
+        showNotification('Reseña publicada', 'success');
     };
 };
 
 // ============================================
-// HERO STATS (EN TIEMPO REAL)
+// HERO STATS
 // ============================================
 function updateHeroStats() {
-    // Contar sistemas (productos)
     document.getElementById('totalSystems').textContent = products.length;
     
-    // Contar clientes (de órdenes guardadas)
     const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
     const uniqueBuyers = new Set(orders.map(o => o.paypalOrderId)).size;
-    const totalClients = uniqueBuyers + 1250; // Base + reales
+    const totalClients = uniqueBuyers + 1250;
     document.getElementById('totalClients').textContent = totalClients >= 1000 ? `${(totalClients/1000).toFixed(1)}k+` : totalClients;
     
-    // Calificación promedio
-    const productsWithReviews = products.filter(p => p.reviews && p.reviews.length > 0);
-    let avgRating = 4.5; // Base
-    if (productsWithReviews.length > 0) {
-        const allRatings = products.reduce((sum, p) => sum + (p.rating || 0), 0);
-        avgRating = allRatings / products.length;
-    }
+    const allRatings = products.reduce((sum, p) => sum + (p.rating || 0), 0);
+    const avgRating = allRatings / products.length;
     document.getElementById('avgRating').textContent = avgRating.toFixed(1);
 }
 
@@ -307,7 +367,7 @@ function showNotification(msg, type) {
     if (existing) existing.remove();
     const toast = document.createElement('div');
     toast.className = `notification-toast notification-${type}`;
-    toast.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : 'info'}</span> ${msg}`;
+    toast.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}</span> ${msg}`;
     document.body.appendChild(toast);
     requestAnimationFrame(() => toast.classList.add('show'));
     setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
