@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <!-- Theme Switcher -->
     <div class="theme-switcher">
         <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
         <div class="theme-panel">
@@ -24,16 +23,14 @@
         </div>
     </div>
 
-    <!-- PROMO BAR -->
     <div class="promo-bar" id="promoBar">
         <div class="promo-bar-content">
             <span class="material-icons">local_offer</span>
-            <span id="promoText">🔥 Hasta 50% de descuento en sistemas seleccionados - Usa el código: VIP50</span>
+            <span>50% de descuento en sistemas seleccionados - Usa el código: VIP50</span>
             <button class="promo-close" onclick="document.getElementById('promoBar').style.display='none'"><span class="material-icons">close</span></button>
         </div>
     </div>
 
-    <!-- TOPBAR -->
     <nav class="topbar">
         <div class="topbar-container">
             <div class="topbar-brand">
@@ -77,22 +74,21 @@
         </div>
     </nav>
 
-    <!-- HERO SECTION -->
     <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-content">
             <div class="hero-text">
-                <span class="hero-badge">🔥 Más de 1000+ clientes satisfechos</span>
+                <span class="hero-badge">Más de 1000+ clientes satisfechos</span>
                 <h1>Sistemas Profesionales para <span class="highlight">Roblox</span></h1>
-                <p>Lleva tu juego al siguiente nivel con nuestros sistemas premium. Administración, economía, combate y mucho más.</p>
+                <p>Lleva tu juego al siguiente nivel con nuestros sistemas premium.</p>
                 <div class="hero-buttons">
                     <a href="#products" class="btn-primary"><span class="material-icons">store</span> Ver Productos</a>
                     <a href="#features" class="btn-outline"><span class="material-icons">info</span> Más Info</a>
                 </div>
                 <div class="hero-stats">
                     <div class="stat"><span class="stat-number" id="totalSystems">8</span><span class="stat-label">Sistemas</span></div>
-                    <div class="stat"><span class="stat-number" id="totalClients">0</span><span class="stat-label">Clientes</span></div>
-                    <div class="stat"><span class="stat-number" id="avgRating">0.0</span><span class="stat-label">Calificación</span></div>
+                    <div class="stat"><span class="stat-number" id="totalClients">1.2k+</span><span class="stat-label">Clientes</span></div>
+                    <div class="stat"><span class="stat-number" id="avgRating">4.7</span><span class="stat-label">Calificación</span></div>
                 </div>
             </div>
             <div class="hero-image">
@@ -104,26 +100,18 @@
         </div>
     </section>
 
-    <!-- FEATURES SECTION -->
     <section id="features" class="features">
         <div class="section-header"><h2>¿Por qué elegirnos?</h2><p>Ofrecemos los mejores sistemas para tu juego de Roblox</p></div>
         <div class="features-grid">
-            <div class="feature-card"><span class="material-icons">shield</span><h3>Seguridad Garantizada</h3><p>Sistemas anti-exploit y protección contra hackers</p></div>
-            <div class="feature-card"><span class="material-icons">bolt</span><h3>Alto Rendimiento</h3><p>Optimizados para no afectar el rendimiento</p></div>
-            <div class="feature-card"><span class="material-icons">support_agent</span><h3>Soporte 24/7</h3><p>Te ayudamos con la instalación y configuración</p></div>
-            <div class="feature-card"><span class="material-icons">sync</span><h3>Actualizaciones Gratis</h3><p>Recibe todas las actualizaciones sin costo</p></div>
+            <div class="feature-card"><span class="material-icons">shield</span><h3>Seguridad Garantizada</h3><p>Sistemas anti-exploit</p></div>
+            <div class="feature-card"><span class="material-icons">bolt</span><h3>Alto Rendimiento</h3><p>Optimizados</p></div>
+            <div class="feature-card"><span class="material-icons">support_agent</span><h3>Soporte 24/7</h3><p>Instalación y ayuda</p></div>
+            <div class="feature-card"><span class="material-icons">sync</span><h3>Actualizaciones Gratis</h3><p>Sin costo adicional</p></div>
         </div>
     </section>
 
-    <!-- FEATURED PRODUCTS -->
-    <section id="featured" class="featured-section">
-        <div class="section-header"><h2>Productos Destacados</h2><p>Los más vendidos y mejor valorados</p></div>
-        <div id="featuredGrid" class="products-grid featured-grid"></div>
-    </section>
-
-    <!-- PRODUCTS SECTION -->
     <section id="products" class="products-section">
-        <div class="section-header"><h2>Nuestros Sistemas</h2><p>Explora nuestra colección completa</p></div>
+        <div class="section-header"><h2>Nuestros Sistemas</h2><p>Explora nuestra colección</p></div>
         <div class="category-filters">
             <button class="filter-btn active" data-category="all" onclick="filterProducts('all')">Todos</button>
             <button class="filter-btn" data-category="admin" onclick="filterProducts('admin')"><span class="material-icons">shield</span> Admin</button>
@@ -135,14 +123,13 @@
         <div id="pagination" class="pagination-container"></div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-content">
-            <div class="footer-brand"><img src="https://user21990.na.imgto.link/public/20260808/chatgpt-image-8-ago-2026-01-30-31-a-m-1.avif" alt="YX Studios" class="footer-logo"><h3>YX Studios</h3><p>Sistemas profesionales para Roblox desde 2020</p></div>
+            <div class="footer-brand"><img src="https://user21990.na.imgto.link/public/20260808/chatgpt-image-8-ago-2026-01-30-31-a-m-1.avif" alt="YX Studios" class="footer-logo"><h3>YX Studios</h3><p>Sistemas para Roblox desde 2020</p></div>
             <div class="footer-links"><h4>Enlaces</h4><a href="index.html">Home</a><a href="#products">Productos</a><a href="cart.html">Carrito</a><a href="profile.html">Mi Cuenta</a></div>
             <div class="footer-links"><h4>Soporte</h4><a href="#">Discord</a><a href="#">FAQ</a><a href="#">Contacto</a><a href="#">Términos</a></div>
         </div>
-        <div class="footer-bottom"><p>&copy; 2024 YX Studios. Todos los derechos reservados.</p></div>
+        <div class="footer-bottom"><p>© 2024 YX Studios. Todos los derechos reservados.</p></div>
     </footer>
 
     <script src="js/config.js"></script>
