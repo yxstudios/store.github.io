@@ -1,193 +1,249 @@
 // ============================================
-// PRODUCTOS
+// YX STUDIOS - CARRITO DE COMPRAS
 // ============================================
-const products = [
-    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control. Incluye más de 50 comandos diferentes.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/ff2d2d/ffffff?text=Admin+System+Pro' },
-    { id: 2, name: 'Economy System', description: 'Sistema económico completo con tiendas, inventario, trading y monedas personalizables para tu juego.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/00c853/ffffff?text=Economy+System' },
-    { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado con hitboxes precisos, sistema de combos fluidos y habilidades especiales.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes precisos', 'Combos', 'Habilidades', 'Efectos'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/2196f3/ffffff?text=Combat+Engine' },
-    { id: 4, name: 'Build System', description: 'Sistema de construcción intuitivo con grid snapping, rotación 3D y múltiples materiales.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D', 'Materiales', 'Undo/Redo'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/ff9100/ffffff?text=Build+System' },
-    { id: 5, name: 'VIP System', description: 'Sistema VIP premium con perks exclusivos, salas privadas y beneficios especiales.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks exclusivos', 'Salas VIP', 'Comandos', 'Insignias'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/9c27b0/ffffff?text=VIP+System' },
-    { id: 6, name: 'Data Store Manager', description: 'Sistema avanzado de guardado de datos con respaldo automático y recuperación.', price: 2200, category: 'economy', icon: 'fa-database', features: ['Auto-save', 'Backups', 'Recuperación', 'Sincronización'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/607d8b/ffffff?text=Data+Store' },
-    { id: 7, name: 'Anti-Cheat System', description: 'Protección avanzada contra hackers y exploits con detección automática.', price: 3500, category: 'admin', icon: 'fa-shield-virus', features: ['Detección', 'Auto-ban', 'Logs', 'Protección'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/ff1744/ffffff?text=Anti+Cheat' },
-    { id: 8, name: 'Trading System', description: 'Sistema de intercambio seguro entre jugadores con historial y protección anti-scam.', price: 2800, category: 'economy', icon: 'fa-arrow-right-arrow-left', features: ['Seguro', 'Historial', 'Notificaciones', 'Anti-scam'], sales: 0, reviews: [], banner: 'https://via.placeholder.com/900x300/00bcd4/ffffff?text=Trading+System' }
-];
 
-const ITEMS_PER_PAGE = 6;
-let currentPage = 1;
-let currentCategory = 'all';
-let currentSearch = '';
+let cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
+let appliedDiscount = 0;
+const promoCodes = { 'WELCOME10': 0.10, 'ROBLOX20': 0.20, 'VIP50': 0.50 };
+const ROBUX_TO_USD = 0.0125;
+let paypalRendered = false;
 
 // ============================================
 // INICIALIZAR
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('YX Studios cargado');
-    renderFeaturedProducts();
-    renderProducts();
-    updateCartCount();
-    updateHeroStats();
+    console.log('Carrito cargado');
+    loadCart();
+    updateCartBadge();
+
+    // Event Listeners
+    document.getElementById('clearCart')?.addEventListener('click', () => {
+        if (cart.length === 0) return;
+        if (confirm('¿Estás seguro de vaciar el carrito?')) {
+            cart = [];
+            appliedDiscount = 0;
+            saveCart();
+            loadCart();
+        }
+    });
+
+    document.getElementById('applyPromo')?.addEventListener('click', () => {
+        const code = document.getElementById('promoInput').value.toUpperCase().trim();
+        const msgEl = document.getElementById('promoMessage');
+        
+        if (!code) {
+            if (msgEl) msgEl.innerHTML = '<span class="promo-error">Ingresa un código</span>';
+            return;
+        }
+        
+        if (promoCodes[code]) {
+            const subtotal = cart.reduce((s, i) => s + (i.price * (i.quantity || 1)), 0);
+            appliedDiscount = subtotal * ROBUX_TO_USD * promoCodes[code];
+            if (msgEl) msgEl.innerHTML = `<span class="promo-success">${promoCodes[code] * 100}% de descuento aplicado</span>`;
+        } else {
+            appliedDiscount = 0;
+            if (msgEl) msgEl.innerHTML = '<span class="promo-error">Código inválido</span>';
+        }
+        updateSummary();
+    });
 });
 
 // ============================================
-// PRODUCTOS DESTACADOS
+// CARGAR CARRITO
 // ============================================
-function renderFeaturedProducts() {
-    const grid = document.getElementById('featuredGrid');
-    if (!grid) return;
-    const featured = products.slice(0, 3);
-    grid.innerHTML = featured.map((p, i) => `
-        <div class="featured-product-card featured-anim-${i + 1}" onclick="showProductModal(${p.id})">
-            <div class="featured-glow"></div>
-            <div class="featured-badge">
-                <span class="material-icons">local_fire_department</span>
-                <span>Destacado</span>
-            </div>
-            <div class="featured-image">
-                <i class="fas ${p.icon}"></i>
-                <div class="featured-particles">
-                    <span class="particle"></span>
-                    <span class="particle"></span>
-                    <span class="particle"></span>
-                </div>
-            </div>
-            <div class="featured-info">
-                <span class="product-category">${p.category}</span>
-                <h3>${p.name}</h3>
-                <p>${p.description.substring(0, 60)}...</p>
-                <div class="featured-price-row">
-                    <span class="featured-price">${p.price.toLocaleString()} Robux</span>
-                    <button class="btn-featured-cart" onclick="event.stopPropagation(); addToCart(${p.id})">
-                        <span class="material-icons">add_shopping_cart</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-// ============================================
-// FILTROS
-// ============================================
-function getFilteredProducts() {
-    let filtered = products;
-    if (currentCategory !== 'all') {
-        filtered = filtered.filter(p => p.category === currentCategory);
-    }
-    if (currentSearch) {
-        filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(currentSearch) || 
-            p.description.toLowerCase().includes(currentSearch)
-        );
-    }
-    return filtered;
-}
-
-// ============================================
-// RENDERIZAR PRODUCTOS
-// ============================================
-function renderProducts() {
-    const filtered = getFilteredProducts();
-    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
-    if (currentPage > totalPages) currentPage = totalPages;
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
-    const grid = document.getElementById('productsGrid');
-    if (!grid) return;
-
-    if (pageItems.length === 0) {
-        grid.innerHTML = '<div class="no-products"><span class="material-icons">search_off</span><h3>No se encontraron productos</h3></div>';
+function loadCart() {
+    const itemsContainer = document.getElementById('cartItemsContainer');
+    const emptyMessage = document.getElementById('emptyCartMessage');
+    const summarySection = document.getElementById('cartSummarySection');
+    
+    updateCartBadge();
+    
+    if (!cart || cart.length === 0) {
+        if (itemsContainer) itemsContainer.innerHTML = '';
+        if (emptyMessage) emptyMessage.style.display = 'block';
+        if (summarySection) summarySection.style.display = 'none';
+        paypalRendered = false;
         return;
     }
-
-    grid.innerHTML = pageItems.map(p => `
-        <div class="product-card" onclick="showProductModal(${p.id})">
-            <div class="product-image">
-                <i class="fas ${p.icon}"></i>
-            </div>
-            <div class="product-info">
-                <span class="product-category">${p.category}</span>
-                <h3>${p.name}</h3>
-                <p>${p.description.substring(0, 70)}...</p>
-                <div class="product-footer">
-                    <div class="product-price">
-                        <span class="price-value">${p.price.toLocaleString()}</span>
-                        <span class="price-currency">Robux</span>
-                    </div>
-                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})">
-                        <span class="material-icons">add_shopping_cart</span> Agregar
-                    </button>
+    
+    if (emptyMessage) emptyMessage.style.display = 'none';
+    if (summarySection) summarySection.style.display = 'block';
+    
+    if (itemsContainer) {
+        itemsContainer.innerHTML = cart.map((item, index) => `
+            <div class="cart-item-card">
+                <div class="cart-item-icon">
+                    <span class="material-icons">${getIconForCategory(item.category)}</span>
                 </div>
+                <div class="cart-item-details">
+                    <h3>${item.name}</h3>
+                    <span class="cart-item-category">${item.category}</span>
+                </div>
+                <div class="cart-item-quantity">
+                    <button class="qty-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                    <span class="qty-value">${item.quantity || 1}</span>
+                    <button class="qty-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                </div>
+                <div class="cart-item-pricing">
+                    <div class="item-price">$${convertToUSD(item.price * (item.quantity || 1)).toFixed(2)}</div>
+                    <div class="item-robux">${(item.price * (item.quantity || 1)).toLocaleString()} Robux</div>
+                </div>
+                <button class="btn-remove-item" onclick="removeItem(${index})">
+                    <span class="material-icons">close</span>
+                </button>
             </div>
-        </div>
-    `).join('');
-
-    renderPagination(totalPages);
+        `).join('');
+    }
+    
+    updateSummary();
 }
 
 // ============================================
-// PAGINACIÓN
+// ACTUALIZAR CANTIDAD
 // ============================================
-function renderPagination(totalPages) {
-    const container = document.getElementById('pagination');
-    if (!container || totalPages <= 1) {
-        if (container) container.innerHTML = '';
+window.updateQuantity = function(index, change) {
+    const newQty = (cart[index].quantity || 1) + change;
+    
+    if (newQty <= 0) {
+        removeItem(index);
         return;
     }
-    let html = `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><span class="material-icons">chevron_left</span></button>`;
-    for (let i = 1; i <= totalPages; i++) {
-        html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    
+    cart[index].quantity = newQty;
+    saveCart();
+    loadCart();
+};
+
+// ============================================
+// ELIMINAR ITEM
+// ============================================
+window.removeItem = function(index) {
+    const item = cart[index];
+    cart.splice(index, 1);
+    saveCart();
+    loadCart();
+};
+
+// ============================================
+// ACTUALIZAR RESUMEN
+// ============================================
+function updateSummary() {
+    const subtotalRobux = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    const subtotalUSD = subtotalRobux * ROBUX_TO_USD;
+    const totalUSD = Math.max(0.01, subtotalUSD - appliedDiscount);
+    
+    const subtotalEl = document.getElementById('subtotal');
+    const discountEl = document.getElementById('discount');
+    const totalEl = document.getElementById('total');
+    const itemsList = document.getElementById('summaryItemsList');
+    
+    if (subtotalEl) subtotalEl.textContent = '$' + subtotalUSD.toFixed(2);
+    if (discountEl) discountEl.textContent = appliedDiscount > 0 ? '-$' + appliedDiscount.toFixed(2) : '$0.00';
+    if (totalEl) totalEl.textContent = '$' + totalUSD.toFixed(2);
+    
+    if (itemsList) {
+        itemsList.innerHTML = cart.map(item => `
+            <div class="summary-item">
+                <div class="summary-item-info">
+                    <span class="material-icons">${getIconForCategory(item.category)}</span>
+                    <span>${item.name} x${item.quantity || 1}</span>
+                </div>
+                <span>$${convertToUSD(item.price * (item.quantity || 1)).toFixed(2)}</span>
+            </div>
+        `).join('');
     }
-    html += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><span class="material-icons">chevron_right</span></button>`;
-    container.innerHTML = html;
+    
+    // Renderizar PayPal solo una vez
+    if (!paypalRendered && cart.length > 0 && totalUSD > 0) {
+        renderPayPalButton(totalUSD);
+        paypalRendered = true;
+    }
 }
 
 // ============================================
-// FUNCIONES GLOBALES
+// PAYPAL
 // ============================================
-window.goToPage = function(page) {
-    const totalPages = Math.ceil(getFilteredProducts().length / ITEMS_PER_PAGE) || 1;
-    if (page < 1 || page > totalPages) return;
-    currentPage = page;
-    renderProducts();
-    window.scrollTo({ top: document.getElementById('products').offsetTop - 80, behavior: 'smooth' });
-};
-
-window.filterProducts = function(category) {
-    currentCategory = category;
-    currentPage = 1;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.querySelector(`.filter-btn[data-category="${category}"]`);
-    if (btn) btn.classList.add('active');
-    renderProducts();
-};
-
-window.searchProducts = function() {
-    currentSearch = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
-    currentPage = 1;
-    renderProducts();
-};
+function renderPayPalButton(total) {
+    const container = document.getElementById('paypal-button-container');
+    if (!container || typeof paypal === 'undefined') return;
+    
+    container.innerHTML = '';
+    
+    paypal.Buttons({
+        style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'pill',
+            label: 'paypal'
+        },
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        currency_code: 'USD',
+                        value: total.toFixed(2)
+                    }
+                }]
+            });
+        },
+        onApprove: async function(data, actions) {
+            try {
+                const order = await actions.order.capture();
+                console.log('Pago exitoso:', order);
+                
+                // Guardar orden
+                const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+                orders.push({
+                    id: order.id,
+                    items: cart,
+                    total: total,
+                    date: new Date().toISOString(),
+                    status: 'completed'
+                });
+                localStorage.setItem('yxOrders', JSON.stringify(orders));
+                
+                // Limpiar carrito
+                cart = [];
+                appliedDiscount = 0;
+                saveCart();
+                paypalRendered = false;
+                loadCart();
+                
+                alert('¡Pago exitoso! Gracias por tu compra.');
+            } catch (error) {
+                console.error('Error al procesar pago:', error);
+                alert('Error al procesar el pago. Intenta de nuevo.');
+            }
+        },
+        onError: function(err) {
+            console.error('Error PayPal:', err);
+            alert('Error al conectar con PayPal. Verifica tu conexión.');
+        },
+        onCancel: function() {
+            console.log('Pago cancelado');
+        }
+    }).render('#paypal-button-container');
+}
 
 // ============================================
-// CARRITO
+// UTILIDADES
 // ============================================
-window.addToCart = function(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    let cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
-    const existing = cart.find(i => i.id === productId);
-    if (existing) {
-        existing.quantity++;
-    } else {
-        cart.push({ ...product, quantity: 1 });
-    }
-    localStorage.setItem('yxCart', JSON.stringify(cart));
-    updateCartCount();
-    alert(product.name + ' agregado al carrito!');
-};
+function convertToUSD(robux) {
+    return robux * ROBUX_TO_USD;
+}
 
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
-    const count = cart.reduce((s, i) => s + (i.quantity || 1), 0);
+function getIconForCategory(category) {
+    const icons = {
+        'admin': 'shield',
+        'economy': 'account_balance_wallet',
+        'combat': 'sports_martial_arts',
+        'building': 'construction'
+    };
+    return icons[category] || 'code';
+}
+
+function updateCartBadge() {
+    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     const badge = document.getElementById('cartCount');
     if (badge) {
         badge.textContent = count;
@@ -195,101 +251,7 @@ function updateCartCount() {
     }
 }
 
-// ============================================
-// MODAL DE PRODUCTO
-// ============================================
-window.showProductModal = function(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-
-    const existingModal = document.querySelector('.product-modal-overlay');
-    if (existingModal) existingModal.remove();
-
-    const modal = document.createElement('div');
-    modal.className = 'product-modal-overlay';
-    modal.innerHTML = `
-        <div class="product-modal">
-            <button class="modal-close-btn"><span class="material-icons">close</span></button>
-            <div class="modal-banner" style="background-image:url('${product.banner}')">
-                <div class="modal-banner-overlay"></div>
-                <div class="modal-banner-content">
-                    <span class="product-category">${product.category}</span>
-                    <h2>${product.name}</h2>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div class="modal-left-info">
-                    <p class="modal-description">${product.description}</p>
-                    <div class="modal-features">
-                        <h4>Características</h4>
-                        <div class="features-grid-inline">
-                            ${product.features.map(f => `
-                                <div class="feature-item-inline">
-                                    <span class="material-icons">check_circle</span>
-                                    <span>${f}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-right-actions">
-                    <div class="modal-price-box">
-                        <span class="modal-price-big">${product.price.toLocaleString()}</span>
-                        <span class="modal-price-label">Robux</span>
-                    </div>
-                    <button class="btn-primary btn-block" id="modalAddToCart">
-                        <span class="material-icons">add_shopping_cart</span> Agregar al Carrito
-                    </button>
-                    <button class="btn-outline btn-block" id="modalBuyNow">
-                        <span class="material-icons">bolt</span> Comprar Ahora
-                    </button>
-                    <div class="modal-extra-info">
-                        <div class="extra-item">
-                            <span class="material-icons">update</span> Actualizaciones gratis
-                        </div>
-                        <div class="extra-item">
-                            <span class="material-icons">support_agent</span> Soporte 24/7
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-
-    const closeModal = () => {
-        modal.remove();
-        document.body.style.overflow = '';
-    };
-
-    modal.querySelector('.modal-close-btn').onclick = closeModal;
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-    document.addEventListener('keydown', function escHandler(e) {
-        if (e.key === 'Escape') {
-            closeModal();
-            document.removeEventListener('keydown', escHandler);
-        }
-    });
-
-    modal.querySelector('#modalAddToCart').onclick = () => {
-        addToCart(productId);
-        closeModal();
-    };
-    modal.querySelector('#modalBuyNow').onclick = () => {
-        addToCart(productId);
-        window.location.href = 'cart.html';
-    };
-};
-
-// ============================================
-// HERO STATS
-// ============================================
-function updateHeroStats() {
-    document.getElementById('totalSystems').textContent = products.length;
-    document.getElementById('totalClients').textContent = '0';
-    document.getElementById('avgRating').textContent = 'Nuevo';
+function saveCart() {
+    localStorage.setItem('yxCart', JSON.stringify(cart));
+    updateCartBadge();
 }
