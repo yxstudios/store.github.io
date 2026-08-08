@@ -61,38 +61,90 @@
     <!-- CART CONTENT -->
     <main class="cart-page">
         <div class="cart-container">
+            
+            <!-- CART HEADER -->
             <div class="cart-header">
-                <h1><span class="material-icons">shopping_cart</span> Tu Carrito</h1>
-                <button id="clearCart" class="btn-clear"><span class="material-icons">delete_sweep</span> Vaciar Carrito</button>
-            </div>
-            <div id="cartItemsContainer" class="cart-items-container"></div>
-            <div id="emptyCartMessage" class="empty-cart-state" style="display:none;">
-                <span class="material-icons">shopping_cart_off</span>
-                <h2>Tu carrito está vacío</h2>
-                <p>Explora nuestros sistemas para Roblox</p>
-                <a href="index.html#products" class="btn-primary"><span class="material-icons">store</span> Ver Productos</a>
-            </div>
-            <div id="cartSummarySection" class="cart-summary-section" style="display:none;">
-                <div class="summary-card">
-                    <h3>Resumen de Compra</h3>
-                    <div class="summary-items" id="summaryItemsList"></div>
-                    <div class="summary-totals">
-                        <div class="summary-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
-                        <div class="summary-row discount-row"><span>Descuento</span><span id="discount">$0.00</span></div>
-                        <div class="summary-row total-row"><span>Total</span><span id="total">$0.00</span></div>
+                <div class="cart-header-left">
+                    <span class="material-icons cart-header-icon">shopping_cart</span>
+                    <div>
+                        <h1>Tu Carrito de Compras</h1>
+                        <p id="cartItemCount">0 productos</p>
                     </div>
-                    <div class="promo-section">
-                        <div class="promo-input-group">
-                            <span class="material-icons">discount</span>
-                            <input type="text" id="promoInput" placeholder="Código promocional">
-                            <button id="applyPromo" class="btn-promo">Aplicar</button>
+                </div>
+                <button id="clearCart" class="btn-clear">
+                    <span class="material-icons">delete_outline</span> Vaciar Carrito
+                </button>
+            </div>
+
+            <!-- CART CONTENT GRID -->
+            <div class="cart-content-grid">
+                
+                <!-- CART ITEMS -->
+                <div class="cart-items-section">
+                    <div id="cartItemsContainer" class="cart-items-container"></div>
+                    
+                    <div id="emptyCartMessage" class="empty-cart-state" style="display:none;">
+                        <div class="empty-cart-icon">
+                            <span class="material-icons">shopping_cart_off</span>
                         </div>
-                        <div id="promoMessage" class="promo-message"></div>
+                        <h2>Tu carrito está vacío</h2>
+                        <p>Explora nuestros sistemas profesionales para Roblox</p>
+                        <a href="index.html#products" class="btn-primary">
+                            <span class="material-icons">store</span> Explorar Productos
+                        </a>
                     </div>
-                    <div class="payment-section">
-                        <h4>Método de Pago</h4>
-                        <div id="paypal-button-container"></div>
-                        <div class="payment-info"><span class="material-icons">lock</span> Pago seguro procesado por PayPal</div>
+                </div>
+
+                <!-- CART SUMMARY -->
+                <div id="cartSummarySection" class="cart-summary-section" style="display:none;">
+                    <div class="summary-card">
+                        <h3>Resumen de Compra</h3>
+                        
+                        <div class="summary-items" id="summaryItemsList"></div>
+                        
+                        <div class="summary-divider"></div>
+                        
+                        <div class="summary-totals">
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span id="subtotal">$0.00</span>
+                            </div>
+                            <div class="summary-row discount-row">
+                                <span>Descuento</span>
+                                <span id="discount">$0.00</span>
+                            </div>
+                            <div class="summary-row total-row">
+                                <span>Total</span>
+                                <span id="total">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- PROMO CODE -->
+                        <div class="promo-section">
+                            <label class="promo-label">Código promocional</label>
+                            <div class="promo-input-group">
+                                <span class="material-icons">confirmation_number</span>
+                                <input type="text" id="promoInput" placeholder="Ingresa tu código">
+                                <button id="applyPromo" class="btn-promo">Aplicar</button>
+                            </div>
+                            <div id="promoMessage" class="promo-message"></div>
+                            <div class="promo-hints">
+                                <span>Prueba: WELCOME10, ROBLOX20, VIP50</span>
+                            </div>
+                        </div>
+
+                        <!-- PAYMENT -->
+                        <div class="payment-section">
+                            <div class="payment-header">
+                                <span class="material-icons">lock</span>
+                                <span>Pago Seguro</span>
+                            </div>
+                            <div id="paypal-button-container"></div>
+                            <div class="payment-trust">
+                                <span class="material-icons">verified_user</span>
+                                <span>Procesado por PayPal · Compra protegida</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
