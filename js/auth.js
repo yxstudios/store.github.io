@@ -64,16 +64,20 @@ async function signUpWithEmail(name, email, password) {
 // ============================================
 async function signInWithDiscord() {
     try {
-        var { error } = await supabase.auth.signInWithOAuth({
+        var { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'discord',
             options: {
                 redirectTo: window.location.origin + '/index.html'
             }
         });
         
-        if (error) throw error;
+        if (error) {
+            console.error('Error Discord:', error);
+            showMessage('Error al conectar con Discord: ' + error.message, 'error');
+        }
+        
     } catch (error) {
-        showMessage('Error al conectar con Discord: ' + error.message, 'error');
+        showMessage('Error: ' + error.message, 'error');
     }
 }
 
@@ -219,6 +223,7 @@ function setupPasswordStrength() {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Auth JS - DOM cargado');
     
+    // Verificar sesión existente
     try {
         var { data: { session } } = await supabase.auth.getSession();
         if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
@@ -229,10 +234,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('No hay sesión activa');
     }
     
+    // Guardar HTML original de botones
     document.querySelectorAll('.btn-primary[type="submit"]').forEach(function(btn) {
         btn.dataset.originalHtml = btn.innerHTML;
     });
     
+    // Login form
     var loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -243,6 +250,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
+    // Register form
     var registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
@@ -254,6 +262,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
+    // Forgot password form
     var forgotForm = document.getElementById('forgotPasswordForm');
     if (forgotForm) {
         forgotForm.addEventListener('submit', function(e) {
@@ -263,14 +272,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
+    // Discord buttons
     var discordLogin = document.getElementById('discordLogin');
     var discordRegister = document.getElementById('discordRegister');
     if (discordLogin) discordLogin.addEventListener('click', signInWithDiscord);
     if (discordRegister) discordRegister.addEventListener('click', signInWithDiscord);
     
+    // Setup
     setupTogglePassword();
     setupForgotPassword();
     setupPasswordStrength();
 });
 
+// Exportar signOut para usar en otras páginas
 window.signOut = signOut;
