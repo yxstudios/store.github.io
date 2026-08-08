@@ -1,7 +1,3 @@
-// ============================================
-// YX STUDIOS - MAIN JS
-// ============================================
-
 const products = [
     { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 234, reviews: [], banner: 'https://via.placeholder.com/800x400/ff2d2d/ffffff?text=Admin+System+Pro' },
     { id: 2, name: 'Economy System', description: 'Sistema económico con tiendas, inventario y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 189, reviews: [], banner: 'https://via.placeholder.com/800x400/00c853/ffffff?text=Economy+System' },
@@ -19,12 +15,7 @@ let currentCategory = 'all';
 let currentSearch = '';
 let supabase = null;
 
-// ============================================
-// INICIALIZAR
-// ============================================
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 YX Studios - Inicializando...');
-
     try {
         const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
         supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -38,18 +29,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateHeroStats();
 });
 
-// ============================================
-// AUTENTICACIÓN
-// ============================================
 async function checkUserSession() {
     const guestMenu = document.getElementById('guestMenu');
     const userMenu = document.getElementById('userMenu');
-
     if (guestMenu) guestMenu.style.display = 'flex';
     if (userMenu) userMenu.style.display = 'none';
-
     if (!supabase) return;
-
     try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
@@ -66,13 +51,9 @@ async function checkUserSession() {
     } catch (e) {}
 }
 
-// ============================================
-// PRODUCTOS DESTACADOS CON ANIMACIONES
-// ============================================
 function renderFeaturedProducts() {
-    const featured = products.filter(p => p.sales >= 200 || (p.reviews && p.reviews.length >= 1)).slice(0, 3);
+    const featured = products.filter(p => p.sales >= 200).slice(0, 3);
     if (featured.length === 0) featured.push(...products.slice(0, 3));
-
     const grid = document.getElementById('featuredGrid');
     if (!grid) return;
 
@@ -96,7 +77,7 @@ function renderFeaturedProducts() {
                 <h3>${p.name}</h3>
                 <p>${p.description.substring(0, 60)}...</p>
                 <div class="featured-stats">
-                    <span><span class="material-icons">star</span> ${p.sales >= 200 ? 'Popular' : 'Nuevo'}</span>
+                    <span><span class="material-icons">star</span> Popular</span>
                     <span><span class="material-icons">download</span> ${p.sales} ventas</span>
                 </div>
                 <div class="featured-price-row">
@@ -110,9 +91,112 @@ function renderFeaturedProducts() {
     `).join('');
 }
 
-// ============================================
-// MODAL DE PRODUCTO
-// ============================================
+function renderProducts() {
+    const filtered = getFilteredProducts();
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+    const grid = document.getElementById('productsGrid');
+    if (!grid) return;
+
+    if (pageItems.length === 0) {
+        grid.innerHTML = '<div class="no-products"><span class="material-icons">search_off</span><h3>No se encontraron productos</h3></div>';
+        return;
+    }
+
+    grid.innerHTML = pageItems.map(p => `
+        <div class="product-card">
+            <div class="product-image" onclick="showProductModal(${p.id})">
+                <i class="fas ${p.icon}"></i>
+            </div>
+            <div class="product-info">
+                <span class="product-category">${p.category}</span>
+                <h3 onclick="showProductModal(${p.id})" style="cursor:pointer;">${p.name}</h3>
+                <p onclick="showProductModal(${p.id})" style="cursor:pointer;">${p.description.substring(0, 70)}...</p>
+                <div class="product-footer">
+                    <div class="product-price">
+                        <span class="price-value">${p.price.toLocaleString()}</span>
+                        <span class="price-currency">Robux</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn-view-details" onclick="showProductModal(${p.id})" title="Ver información">
+                            <span class="material-icons">info</span>
+                        </button>
+                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})" title="Agregar al carrito">
+                            <span class="material-icons">add_shopping_cart</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+    const container = document.getElementById('pagination');
+    if (!container || totalPages <= 1) { if (container) container.innerHTML = ''; return; }
+    let html = `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><span class="material-icons">chevron_left</span></button>`;
+    for (let i = 1; i <= totalPages; i++) html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    html += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><span class="material-icons">chevron_right</span></button>`;
+    container.innerHTML = html;
+}
+
+window.goToPage = function(page) {
+    const totalPages = Math.ceil(getFilteredProducts().length / ITEMS_PER_PAGE) || 1;
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderProducts();
+    window.scrollTo({ top: document.getElementById('products').offsetTop - 80, behavior: 'smooth' });
+};
+
+function getFilteredProducts() {
+    let filtered = products;
+    if (currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
+    if (currentSearch) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearch) || p.description.toLowerCase().includes(currentSearch));
+    return filtered;
+}
+
+window.filterProducts = function(category) {
+    currentCategory = category;
+    currentPage = 1;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.filter-btn[data-category="${category}"]`);
+    if (btn) btn.classList.add('active');
+    renderProducts();
+};
+
+window.searchProducts = function() {
+    currentSearch = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+    currentPage = 1;
+    renderProducts();
+};
+
+function setupSearchAndFilters() {
+    document.getElementById('searchInput')?.addEventListener('input', searchProducts);
+    document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => filterProducts(b.dataset.category)));
+}
+
+window.addToCart = function(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    let cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
+    const existing = cart.find(i => i.id === productId);
+    if (existing) existing.quantity++; else cart.push({ ...product, quantity: 1 });
+    localStorage.setItem('yxCart', JSON.stringify(cart));
+    updateCartCount();
+    showNotification(`${product.name} agregado al carrito`, 'success');
+};
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
+    const count = cart.reduce((s, i) => s + (i.quantity || 1), 0);
+    const badge = document.getElementById('cartCount');
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+}
+
 window.showProductModal = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -144,12 +228,8 @@ window.showProductModal = function(productId) {
                     <div class="modal-price-row">
                         <div class="modal-price"><span>${product.price.toLocaleString()}</span> Robux</div>
                         <div class="modal-actions">
-                            <button class="btn-primary" id="modalAddToCart">
-                                <span class="material-icons">add_shopping_cart</span> Agregar al Carrito
-                            </button>
-                            <button class="btn-outline" id="modalBuyNow">
-                                <span class="material-icons">bolt</span> Comprar Ahora
-                            </button>
+                            <button class="btn-primary" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar</button>
+                            <button class="btn-outline" id="modalBuyNow"><span class="material-icons">bolt</span> Comprar Ahora</button>
                         </div>
                     </div>
                 </div>
@@ -184,7 +264,6 @@ window.showProductModal = function(productId) {
 
     modal.querySelector('.modal-close-btn').onclick = closeModal;
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
     document.addEventListener('keydown', function escHandler(e) {
         if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escHandler); }
     });
@@ -206,134 +285,24 @@ window.showProductModal = function(productId) {
     modal.querySelector('#submitReview').onclick = () => {
         const comment = modal.querySelector('#reviewComment').value.trim();
         if (!selectedStars) { showNotification('Selecciona una calificación', 'error'); return; }
-        
         product.reviews = product.reviews || [];
         product.reviews.unshift({ user: 'Tú', stars: selectedStars, comment: comment || 'Sin comentario' });
-        
         modal.querySelector('#reviewsList').innerHTML = product.reviews.map(r => `
             <div class="review-item">
                 <div class="review-header"><strong>${r.user}</strong><span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span></div>
                 <p>${r.comment}</p>
             </div>
         `).join('');
-        
         modal.querySelector('.review-section h4').textContent = `Reseñas (${product.reviews.length})`;
         modal.querySelector('#reviewComment').value = '';
         modal.querySelectorAll('.star').forEach(s => { s.textContent = '☆'; s.style.color = 'var(--text-muted)'; });
         selectedStars = 0;
-        
         updateHeroStats();
         renderFeaturedProducts();
         showNotification('Reseña publicada', 'success');
     };
 };
 
-// ============================================
-// PRODUCTOS CON PAGINACIÓN
-// ============================================
-function getFilteredProducts() {
-    let filtered = products;
-    if (currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
-    if (currentSearch) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearch) || p.description.toLowerCase().includes(currentSearch));
-    return filtered;
-}
-
-function renderProducts() {
-    const filtered = getFilteredProducts();
-    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
-    if (currentPage > totalPages) currentPage = totalPages;
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
-    const grid = document.getElementById('productsGrid');
-    if (!grid) return;
-
-    if (pageItems.length === 0) {
-        grid.innerHTML = '<div class="no-products"><span class="material-icons">search_off</span><h3>No se encontraron productos</h3></div>';
-        return;
-    }
-
-    grid.innerHTML = pageItems.map(p => `
-        <div class="product-card" onclick="showProductModal(${p.id})">
-            <div class="product-image"><i class="fas ${p.icon}"></i></div>
-            <div class="product-info">
-                <span class="product-category">${p.category}</span>
-                <h3>${p.name}</h3>
-                <p>${p.description.substring(0, 70)}...</p>
-                <div class="product-footer">
-                    <div class="product-price"><span class="price-value">${p.price.toLocaleString()}</span><span class="price-currency">Robux</span></div>
-                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})"><span class="material-icons">add_shopping_cart</span> Agregar</button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
-    renderPagination(totalPages);
-}
-
-function renderPagination(totalPages) {
-    const container = document.getElementById('pagination');
-    if (!container || totalPages <= 1) { if (container) container.innerHTML = ''; return; }
-    let html = `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><span class="material-icons">chevron_left</span></button>`;
-    for (let i = 1; i <= totalPages; i++) html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-    html += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><span class="material-icons">chevron_right</span></button>`;
-    container.innerHTML = html;
-}
-
-window.goToPage = function(page) {
-    const totalPages = Math.ceil(getFilteredProducts().length / ITEMS_PER_PAGE) || 1;
-    if (page < 1 || page > totalPages) return;
-    currentPage = page;
-    renderProducts();
-    window.scrollTo({ top: document.getElementById('products').offsetTop - 80, behavior: 'smooth' });
-};
-
-// ============================================
-// FILTROS
-// ============================================
-window.filterProducts = function(category) {
-    currentCategory = category;
-    currentPage = 1;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.querySelector(`.filter-btn[data-category="${category}"]`);
-    if (btn) btn.classList.add('active');
-    renderProducts();
-};
-
-window.searchProducts = function() {
-    currentSearch = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
-    currentPage = 1;
-    renderProducts();
-};
-
-function setupSearchAndFilters() {
-    document.getElementById('searchInput')?.addEventListener('input', searchProducts);
-    document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => filterProducts(b.dataset.category)));
-}
-
-// ============================================
-// CARRITO
-// ============================================
-window.addToCart = function(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    let cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
-    const existing = cart.find(i => i.id === productId);
-    if (existing) existing.quantity++; else cart.push({ ...product, quantity: 1 });
-    localStorage.setItem('yxCart', JSON.stringify(cart));
-    updateCartCount();
-    showNotification(`${product.name} agregado al carrito`, 'success');
-};
-
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
-    const count = cart.reduce((s, i) => s + (i.quantity || 1), 0);
-    const badge = document.getElementById('cartCount');
-    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
-}
-
-// ============================================
-// HERO STATS
-// ============================================
 function updateHeroStats() {
     document.getElementById('totalSystems').textContent = products.length;
     const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
@@ -342,9 +311,6 @@ function updateHeroStats() {
     document.getElementById('avgRating').textContent = '4.7';
 }
 
-// ============================================
-// NOTIFICACIONES
-// ============================================
 function showNotification(msg, type) {
     const existing = document.querySelector('.notification-toast');
     if (existing) existing.remove();
