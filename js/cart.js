@@ -1,31 +1,33 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let cart = JSON.parse(localStorage.getItem('yxCart')) || [];
 let appliedDiscount = 0;
 const promoCodes = { 'WELCOME10': 0.10, 'ROBLOX20': 0.20, 'VIP50': 0.50 };
 const ROBUX_TO_USD = 0.0125;
+let paypalRendered = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
     await updateUserUI();
     loadCart();
-    document.getElementById('clearCart').addEventListener('click', () => { cart = []; saveCart(); loadCart(); });
-    document.getElementById('applyPromo').addEventListener('click', () => {
+    
+    document.getElementById('clearCart')?.addEventListener('click', () => { cart = []; saveCart(); loadCart(); });
+    document.getElementById('applyPromo')?.addEventListener('click', () => {
         const code = document.getElementById('promoInput').value.toUpperCase();
         if (promoCodes[code]) {
             appliedDiscount = cart.reduce((s, i) => s + (i.price * (i.quantity || 1)), 0) * ROBUX_TO_USD * promoCodes[code];
-            document.getElementById('promoMessage').innerHTML = `<span style="color:green">${promoCodes[code]*100}% descuento</span>`;
+            document.getElementById('promoMessage').innerHTML = `<span class="promo-success">${promoCodes[code]*100}% descuento</span>`;
         } else {
             appliedDiscount = 0;
-            document.getElementById('promoMessage').innerHTML = '<span style="color:red">Inválido</span>';
+            document.getElementById('promoMessage').innerHTML = '<span class="promo-error">Inválido</span>';
         }
         updateSummary();
-        renderPayPal();
     });
 });
 
 async function updateUserUI() {
     const guest = document.getElementById('guestMenu'), user = document.getElementById('userMenu');
     try {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
             guest.style.display = 'none'; user.style.display = 'flex';
@@ -42,7 +44,9 @@ function loadCart() {
     const summary = document.getElementById('cartSummarySection');
     updateCartBadge();
     if (!cart.length) {
-        container.innerHTML = ''; empty.style.display = 'block'; summary.style.display = 'none'; return;
+        container.innerHTML = ''; empty.style.display = 'block'; summary.style.display = 'none';
+        paypalRendered = false;
+        return;
     }
     empty.style.display = 'none'; summary.style.display = 'block';
     container.innerHTML = cart.map((item, idx) => `
@@ -55,7 +59,6 @@ function loadCart() {
         </div>
     `).join('');
     updateSummary();
-    renderPayPal();
 }
 
 window.updateQty = (idx, ch) => {
@@ -72,11 +75,21 @@ function updateSummary() {
     document.getElementById('discount').textContent = appliedDiscount ? `-$${appliedDiscount.toFixed(2)}` : '$0.00';
     document.getElementById('total').textContent = `$${Math.max(0,subtotalUSD-appliedDiscount).toFixed(2)}`;
     document.getElementById('summaryItemsList').innerHTML = cart.map(i => `<div class="summary-item"><span>${i.name} x${i.quantity}</span><span>$${(i.price*i.quantity*ROBUX_TO_USD).toFixed(2)}</span></div>`).join('');
+    
+    // Renderizar PayPal SOLO si no está ya renderizado
+    if (!paypalRendered && cart.length > 0) {
+        renderPayPal();
+        paypalRendered = true;
+    }
 }
 
 function renderPayPal() {
+    const container = document.getElementById('paypal-button-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
     const total = Math.max(0.01, cart.reduce((s,i)=>s+(i.price*(i.quantity||1)),0)*ROBUX_TO_USD - appliedDiscount);
-    if (!cart.length) return;
+    
     paypal.Buttons({
         createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { currency_code: 'USD', value: total.toFixed(2) } }] }),
         onApprove: async (data, actions) => {
@@ -84,10 +97,9 @@ function renderPayPal() {
             const orders = JSON.parse(localStorage.getItem('yxOrders')||'[]');
             orders.push({ id: data.orderID, items: cart, total, date: new Date().toISOString() });
             localStorage.setItem('yxOrders', JSON.stringify(orders));
-            cart = []; saveCart(); loadCart();
+            cart = []; saveCart(); loadCart(); paypalRendered = false;
             alert('Pago exitoso');
-        },
-        onError: err => alert('Error: ' + err)
+        }
     }).render('#paypal-button-container');
 }
 
