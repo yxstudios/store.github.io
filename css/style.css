@@ -1284,3 +1284,98 @@ img { max-width: 100%; }
     .modal-body { grid-template-columns: 1fr; }
     .featured-grid { grid-template-columns: 1fr; }
 }
+
+/* ============================================
+   NOTIFICACIONES MODERNAS
+   ============================================ */
+.notify-toast {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 340px;
+    max-width: 420px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10001;
+    overflow: hidden;
+}
+.notify-toast.show {
+    transform: translateX(0);
+}
+.notify-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.notify-icon .material-icons {
+    font-size: 1.5em;
+}
+.notify-success .notify-icon {
+    background: rgba(0, 200, 83, 0.15);
+    color: var(--success);
+}
+.notify-error .notify-icon {
+    background: rgba(255, 23, 68, 0.15);
+    color: var(--danger);
+}
+.notify-info .notify-icon {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+.notify-content {
+    flex: 1;
+}
+.notify-title {
+    font-weight: 600;
+    font-size: 0.9em;
+    margin-bottom: 3px;
+    color: var(--text-primary);
+}
+.notify-message {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+.notify-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.notify-close:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+}
+.notify-close .material-icons {
+    font-size: 1.1em;
+}
+.notify-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent);
+    animation: notifyProgress 4s linear forwards;
+}
+@keyframes notifyProgress {
+    from { width: 100%; }
+    to { width: 0%; }
+}
+.notify-success .notify-progress { background: var(--success); }
+.notify-error .notify-progress { background: var(--danger); }
