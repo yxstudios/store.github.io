@@ -16,16 +16,104 @@ const ITEMS_PER_PAGE = 6;
 let currentPage = 1;
 let currentCategory = 'all';
 let currentSearch = '';
+let supabase = null;
 
 // ============================================
 // INICIALIZAR
 // ============================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Inicializar Supabase
+    try {
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+        console.log('Supabase no disponible');
+    }
+
+    // Verificar sesión
+    await checkUserSession();
+
+    // Cargar contenido
     renderFeaturedProducts();
     renderProducts();
     updateCartCount();
     updateHeroStats();
 });
+
+// ============================================
+// AUTENTICACIÓN
+// ============================================
+async function checkUserSession() {
+    const guestMenu = document.getElementById('guestMenu');
+    const userMenu = document.getElementById('userMenu');
+
+    // Por defecto mostrar menú invitado
+    if (guestMenu) guestMenu.style.display = 'flex';
+    if (userMenu) userMenu.style.display = 'none';
+
+    if (!supabase) return;
+
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session && session.user) {
+            console.log('Usuario logueado:', session.user.email);
+
+            // Ocultar menú invitado
+            if (guestMenu) guestMenu.style.display = 'none';
+
+            // Mostrar menú usuario
+            if (userMenu) {
+                userMenu.style.display = 'flex';
+
+                // Nombre de usuario
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                if (userNameDisplay) {
+                    const fullName = session.user.user_metadata?.full_name;
+                    const email = session.user.email;
+                    userNameDisplay.textContent = fullName || email.split('@')[0] || 'Usuario';
+                }
+
+                // Avatar
+                const userAvatar = document.getElementById('userAvatar');
+                if (userAvatar) {
+                    const avatarUrl = session.user.user_metadata?.avatar_url;
+                    userAvatar.src = avatarUrl || 'https://via.placeholder.com/32';
+                }
+            }
+
+            // Configurar botón logout
+            setupLogout();
+        }
+    } catch (e) {
+        console.error('Error al verificar sesión:', e);
+    }
+}
+
+function setupLogout() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (!logoutBtn || !supabase) return;
+
+    // Eliminar listeners anteriores
+    const newLogoutBtn = logoutBtn.cloneNode(true);
+    logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
+
+    newLogoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        await supabase.auth.signOut();
+        window.location.href = 'index.html';
+    });
+}
+
+// Escuchar cambios de autenticación
+if (window.supabase) {
+    supabase?.auth?.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+            checkUserSession();
+        }
+    });
+}
 
 // ============================================
 // PRODUCTOS DESTACADOS
