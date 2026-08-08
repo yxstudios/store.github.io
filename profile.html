@@ -13,47 +13,24 @@
     <div class="theme-switcher">
         <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
         <div class="theme-panel">
-            <h4><i class="fas fa-paint-brush"></i> Personalizar Tema</h4>
+            <h4><i class="fas fa-paint-brush"></i> Temas</h4>
             <div class="theme-options">
-                <button class="theme-option active" data-theme="red"><span class="theme-color red-theme"></span><span>Red Passion</span></button>
-                <button class="theme-option" data-theme="dark-gray"><span class="theme-color dark-gray-theme"></span><span>Dark Steel</span></button>
-                <button class="theme-option" data-theme="blue"><span class="theme-color blue-theme"></span><span>Ocean Blue</span></button>
-                <button class="theme-option" data-theme="purple"><span class="theme-color purple-theme"></span><span>Royal Purple</span></button>
+                <button class="theme-option active" data-theme="red"><span class="theme-color red-theme"></span>Red</button>
+                <button class="theme-option" data-theme="dark-gray"><span class="theme-color dark-gray-theme"></span>Dark</button>
+                <button class="theme-option" data-theme="blue"><span class="theme-color blue-theme"></span>Blue</button>
+                <button class="theme-option" data-theme="purple"><span class="theme-color purple-theme"></span>Purple</button>
             </div>
         </div>
     </div>
 
     <nav class="topbar">
         <div class="topbar-container">
-            <div class="topbar-brand">
-                <a href="index.html">
-                    <span class="material-icons">sports_esports</span>
-                    <span>YX Studios</span>
-                </a>
-            </div>
+            <div class="topbar-brand"><a href="index.html"><span class="material-icons">sports_esports</span>YX Studios</a></div>
             <div class="topbar-nav">
-                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
-                <a href="index.html#products" class="nav-link"><span class="material-icons">store</span><span>Productos</span></a>
-                <a href="cart.html" class="nav-link cart-link">
-                    <span class="material-icons">shopping_cart</span><span>Carrito</span>
-                    <span id="cartCount" class="cart-badge">0</span>
-                </a>
-                <div class="user-menu" style="display: flex;">
-                    <div class="user-dropdown">
-                        <button class="user-dropdown-btn">
-                            <img id="userAvatar" src="https://via.placeholder.com/32" alt="Avatar" class="user-avatar">
-                            <span id="userNameDisplay">Usuario</span>
-                            <span class="material-icons">arrow_drop_down</span>
-                        </button>
-                        <div class="user-dropdown-content">
-                            <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
-                            <a href="profile.html#purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
-                            <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
-                        </div>
-                    </div>
-                </div>
+                <a href="index.html" class="nav-link"><span class="material-icons">home</span>Home</a>
+                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span>Carrito<span id="cartCount" class="cart-badge">0</span></a>
+                <a href="profile.html" class="nav-link active"><span class="material-icons">person</span>Perfil</a>
+                <a href="#" id="logoutBtn" class="btn-login"><span class="material-icons">logout</span>Salir</a>
             </div>
         </div>
     </nav>
@@ -61,59 +38,27 @@
     <main class="profile-container">
         <div class="profile-sidebar">
             <div class="profile-avatar-section">
-                <img id="profileAvatar" src="https://via.placeholder.com/120" alt="Avatar" class="profile-avatar">
+                <img id="profileAvatar" src="https://via.placeholder.com/120" class="profile-avatar">
                 <h2 id="profileName">Usuario</h2>
-                <p id="profileEmail">email@ejemplo.com</p>
+                <p id="profileEmail">email</p>
             </div>
             <nav class="profile-nav">
-                <a href="#" class="profile-nav-link active" data-section="info">
-                    <span class="material-icons">person</span> Información Personal
-                </a>
-                <a href="#" class="profile-nav-link" data-section="purchases">
-                    <span class="material-icons">shopping_bag</span> Mis Compras
-                </a>
-                <a href="#" class="profile-nav-link" data-section="settings">
-                    <span class="material-icons">settings</span> Configuración
-                </a>
+                <a href="#" class="profile-nav-link active" data-section="info"><span class="material-icons">person</span> Información</a>
+                <a href="#" class="profile-nav-link" data-section="purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
+                <a href="#" class="profile-nav-link" data-section="settings"><span class="material-icons">settings</span> Configuración</a>
             </nav>
         </div>
-        
         <div class="profile-content">
             <div id="infoSection" class="profile-section active">
                 <h3>Información Personal</h3>
                 <div class="profile-form">
-                    <div class="form-group">
-                        <label>Nombre completo</label>
-                        <input type="text" id="editName" class="profile-input" placeholder="Tu nombre">
-                    </div>
-                    <div class="form-group">
-                        <label>Correo electrónico</label>
-                        <input type="email" id="editEmail" class="profile-input" disabled>
-                    </div>
-                    <button class="btn-primary" id="saveProfile">
-                        <span class="material-icons">save</span> Guardar Cambios
-                    </button>
+                    <div class="form-group"><label>Nombre</label><input type="text" id="editName" class="profile-input"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="editEmail" class="profile-input" disabled></div>
+                    <button class="btn-primary" id="saveProfile"><span class="material-icons">save</span> Guardar</button>
                 </div>
             </div>
-            
-            <div id="purchasesSection" class="profile-section">
-                <h3>Mis Compras</h3>
-                <div id="purchasesList">
-                    <p class="text-muted">No tienes compras realizadas</p>
-                </div>
-            </div>
-            
-            <div id="settingsSection" class="profile-section">
-                <h3>Configuración</h3>
-                <div class="settings-options">
-                    <button class="btn-outline" id="changePasswordBtn">
-                        <span class="material-icons">lock</span> Cambiar Contraseña
-                    </button>
-                    <button class="btn-danger" id="deleteAccountBtn">
-                        <span class="material-icons">delete_forever</span> Eliminar Cuenta
-                    </button>
-                </div>
-            </div>
+            <div id="purchasesSection" class="profile-section"><h3>Mis Compras</h3><div id="purchasesList"><p class="text-muted">No tienes compras</p></div></div>
+            <div id="settingsSection" class="profile-section"><h3>Configuración</h3><div class="settings-options"><button class="btn-outline" id="changePasswordBtn"><span class="material-icons">lock</span> Cambiar Contraseña</button></div></div>
         </div>
     </main>
 
@@ -122,136 +67,63 @@
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // Cargar perfil
+
         async function loadProfile() {
             const { data: { session } } = await supabase.auth.getSession();
-            
-            if (!session) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
+            if (!session) { window.location.href = 'login.html'; return; }
             const user = session.user;
-            
             document.getElementById('profileName').textContent = user.user_metadata?.full_name || 'Usuario';
             document.getElementById('profileEmail').textContent = user.email;
             document.getElementById('editName').value = user.user_metadata?.full_name || '';
             document.getElementById('editEmail').value = user.email;
-            
-            if (user.user_metadata?.avatar_url) {
-                document.getElementById('profileAvatar').src = user.user_metadata.avatar_url;
-                document.getElementById('userAvatar').src = user.user_metadata.avatar_url;
-            }
-            
-            document.getElementById('userNameDisplay').textContent = 
-                user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario';
-            
-            // Cargar compras
+            if (user.user_metadata?.avatar_url) document.getElementById('profileAvatar').src = user.user_metadata.avatar_url;
             loadPurchases();
         }
-        
-        // Cargar historial de compras
+
         function loadPurchases() {
             const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-            const purchasesList = document.getElementById('purchasesList');
-            
-            if (orders.length === 0) {
-                purchasesList.innerHTML = '<p class="text-muted">No tienes compras realizadas</p>';
-                return;
-            }
-            
-            purchasesList.innerHTML = orders.map(order => `
-                <div class="purchase-card">
-                    <div class="purchase-header">
-                        <span class="purchase-id">Pedido: ${order.paypalOrderId?.substring(0, 10)}...</span>
-                        <span class="purchase-date">${new Date(order.date).toLocaleDateString()}</span>
-                    </div>
-                    <div class="purchase-items">
-                        ${order.items?.map(item => `
-                            <div class="purchase-item">
-                                <span>${item.name} x${item.quantity || 1}</span>
-                                <span>$${item.totalUSD?.toFixed(2) || '0.00'}</span>
-                            </div>
-                        `).join('') || ''}
-                    </div>
-                    <div class="purchase-total">
-                        <span>Total: $${order.totalUSD?.toFixed(2) || '0.00'}</span>
-                        <span class="purchase-status completed">Completado</span>
-                    </div>
-                </div>
-            `).join('');
+            const list = document.getElementById('purchasesList');
+            if (!orders.length) { list.innerHTML = '<p class="text-muted">No tienes compras</p>'; return; }
+            list.innerHTML = orders.map(o => '<div class="purchase-card"><div class="purchase-header"><span>Pedido: ' + o.id.substring(0, 10) + '...</span><span>' + new Date(o.date).toLocaleDateString() + '</span></div><div class="purchase-total"><span>Total: $' + o.total.toFixed(2) + '</span></div></div>').join('');
         }
-        
-        // Navegación entre secciones
+
         document.querySelectorAll('.profile-nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                
                 document.querySelectorAll('.profile-nav-link').forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
-                
                 document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
                 document.getElementById(link.dataset.section + 'Section').classList.add('active');
-                
-                // Si hace clic en compras, cargar compras
-                if (link.dataset.section === 'purchases') {
-                    loadPurchases();
-                }
             });
         });
-        
-        // Verificar hash en URL
-        if (window.location.hash === '#purchases') {
-            document.querySelector('[data-section="purchases"]')?.click();
-        } else if (window.location.hash === '#settings') {
-            document.querySelector('[data-section="settings"]')?.click();
-        }
-        
-        // Guardar cambios del perfil
-        document.getElementById('saveProfile')?.addEventListener('click', async () => {
+
+        if (window.location.hash === '#purchases') document.querySelector('[data-section="purchases"]').click();
+        if (window.location.hash === '#settings') document.querySelector('[data-section="settings"]').click();
+
+        document.getElementById('saveProfile').addEventListener('click', async () => {
             const name = document.getElementById('editName').value;
-            const { error } = await supabase.auth.updateUser({ data: { full_name: name } });
-            
-            if (!error) {
-                document.getElementById('profileName').textContent = name;
-                document.getElementById('userNameDisplay').textContent = name;
-                alert('Perfil actualizado correctamente');
-            } else {
-                alert('Error: ' + error.message);
-            }
+            await supabase.auth.updateUser({ data: { full_name: name } });
+            document.getElementById('profileName').textContent = name;
+            alert('Perfil actualizado');
         });
-        
-        // Cambiar contraseña
-        document.getElementById('changePasswordBtn')?.addEventListener('click', async () => {
+
+        document.getElementById('changePasswordBtn').addEventListener('click', async () => {
             const email = document.getElementById('editEmail').value;
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/reset-password.html'
-            });
-            
-            if (!error) {
-                alert('Se ha enviado un enlace a tu correo para cambiar la contraseña');
-            } else {
-                alert('Error: ' + error.message);
-            }
+            await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/reset-password.html' });
+            alert('Revisa tu correo');
         });
-        
-        // Cerrar sesión
-        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
             await supabase.auth.signOut();
             window.location.href = 'index.html';
         });
-        
-        // Actualizar badge del carrito
+
         const cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
-        const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        const count = cart.reduce((s, i) => s + (i.quantity || 1), 0);
         const badge = document.getElementById('cartCount');
-        if (badge) {
-            badge.textContent = count;
-            badge.style.display = count > 0 ? 'flex' : 'none';
-        }
-        
+        if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+
         loadProfile();
     </script>
 </body>
