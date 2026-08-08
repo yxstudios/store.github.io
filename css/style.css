@@ -2556,5 +2556,207 @@ img {
     font-size: 3em;
 }
 
+/* ============================================
+   LOGO EN TOPBAR
+   ============================================ */
+.site-logo {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.footer-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+/* ============================================
+   PROMO BAR
+   ============================================ */
+.promo-bar {
+    background: var(--accent-gradient);
+    color: white;
+    padding: 8px 0;
+    position: relative;
+    z-index: 101;
+}
+.promo-bar-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+.promo-close {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+}
+
+/* ============================================
+   SEARCH ICON FIX
+   ============================================ */
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1.2em;
+    pointer-events: none;
+}
+
+/* ============================================
+   HERO BACKGROUND
+   ============================================ */
+.hero {
+    position: relative;
+    overflow: hidden;
+}
+.hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--accent-gradient);
+    opacity: 0.05;
+    z-index: 0;
+}
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================
+   FEATURED PRODUCTS
+   ============================================ */
+.featured-section {
+    padding: 60px 0;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+}
+.featured-grid .product-card {
+    border: 2px solid var(--accent);
+    box-shadow: var(--accent-glow);
+    animation: featuredPulse 2s ease-in-out infinite;
+}
+@keyframes featuredPulse {
+    0%, 100% { box-shadow: 0 0 10px var(--accent-glow); }
+    50% { box-shadow: 0 0 25px var(--accent-glow); }
+}
+
+/* ============================================
+   PRODUCT MODAL ANIMATION
+   ============================================ */
+.product-modal-overlay {
+    animation: fadeInOverlay 0.3s ease;
+}
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.product-modal {
+    animation: slideUpModal 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideUpModal {
+    from { opacity: 0; transform: translateY(50px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ============================================
+   PAGINATION
+   ============================================ */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+.pagination-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pagination-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.pagination-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; background: var(--bg-tertiary); }
+.pagination-btn:disabled:hover { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+/* ============================================
+   REVIEW SECTION
+   ============================================ */
+.review-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+.review-section h4 { margin-bottom: 10px; }
+.review-item {
+    background: var(--bg-tertiary);
+    padding: 10px 15px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+}
+.review-item strong { color: var(--accent); }
+.add-review { margin-top: 15px; }
+.add-review h5 { margin-bottom: 8px; }
+.star-selector {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+.star {
+    font-size: 1.5em;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+.star:hover, .star.active { color: #ffd600; }
+.add-review textarea {
+    width: 100%;
+    padding: 10px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    resize: vertical;
+    min-height: 60px;
+    margin-bottom: 10px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .topbar-search input { padding-left: 35px; }
+    .hero-stats { flex-wrap: wrap; gap: 15px; }
+    .pagination-btn { width: 35px; height: 35px; font-size: 0.85em; }
+}
+
 /* Hero Stats Dinámicos */
 .stat-number { transition: all 0.3s ease; }
