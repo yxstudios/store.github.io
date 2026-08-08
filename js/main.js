@@ -84,10 +84,8 @@ function renderProducts() {
                 <h3>${p.name}</h3>
                 <p>${p.description.substring(0, 70)}...</p>
                 <div class="product-footer">
-                    <div class="product-price"><span class="price-value">${p.price.toLocaleString()}</span> Robux</div>
-                    <div class="product-actions">
-                        <button class="btn-add-cart" onclick="addToCart(${p.id})"><span class="material-icons">add_shopping_cart</span></button>
-                    </div>
+                    <div class="product-price"><span class="price-value">${p.price.toLocaleString()}</span><span class="price-currency">Robux</span></div>
+                    <button class="btn-add-cart" onclick="addToCart(${p.id})"><span class="material-icons">add_shopping_cart</span> Agregar</button>
                 </div>
             </div>
         </div>
@@ -153,7 +151,8 @@ function updateCartCount() {
 function updateHeroStats() {
     document.getElementById('totalSystems').textContent = products.length;
     const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-    document.getElementById('totalClients').textContent = (1250 + orders.length) >= 1000 ? ((1250 + orders.length) / 1000).toFixed(1) + 'k+' : 1250 + orders.length;
+    const totalClients = 1250 + orders.length;
+    document.getElementById('totalClients').textContent = totalClients >= 1000 ? (totalClients / 1000).toFixed(1) + 'k+' : totalClients;
     document.getElementById('avgRating').textContent = '4.7';
 }
 
