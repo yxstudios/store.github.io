@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             appliedDiscount = 0;
             saveCart();
             loadCart();
+            showNotification('Carrito vaciado', 'Todos los productos han sido eliminados', 'info');
         }
     });
 
@@ -40,9 +41,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (promoCodes[code]) {
             appliedDiscount = cart.reduce((s, i) => s + (i.price * (i.quantity || 1)), 0) * ROBUX_TO_USD * promoCodes[code];
             if (msgEl) msgEl.innerHTML = `<span class="promo-success">${promoCodes[code] * 100}% de descuento aplicado</span>`;
+            showNotification('Código aplicado', `${promoCodes[code] * 100}% de descuento`, 'success');
         } else {
             appliedDiscount = 0;
             if (msgEl) msgEl.innerHTML = '<span class="promo-error">Código inválido</span>';
+            showNotification('Código inválido', 'El código ingresado no es válido', 'error');
         }
         updateSummary();
     });
@@ -57,10 +60,7 @@ async function checkUserSession() {
     const guestMenu = document.getElementById('guestMenu');
     const userMenu = document.getElementById('userMenu');
     
-    if (!guestMenu || !userMenu) {
-        console.log('Menús no encontrados en carrito');
-        return;
-    }
+    if (!guestMenu || !userMenu) return;
     
     guestMenu.style.display = 'flex';
     userMenu.style.display = 'none';
@@ -93,8 +93,6 @@ async function checkUserSession() {
                     window.location.href = 'index.html';
                 });
             }
-        } else {
-            console.log('No hay usuario logueado en carrito');
         }
     } catch (e) {
         console.error('Error al verificar sesión en carrito:', e);
@@ -169,9 +167,11 @@ window.updateQuantity = function(index, change) {
 // ELIMINAR ITEM
 // ============================================
 window.removeItem = function(index) {
+    const item = cart[index];
     cart.splice(index, 1);
     saveCart();
     loadCart();
+    showNotification('Producto eliminado', `${item.name} fue eliminado del carrito`, 'info');
 };
 
 // ============================================
@@ -256,20 +256,50 @@ function renderPayPalButton(total) {
                 paypalRendered = false;
                 loadCart();
                 
-                alert('¡Pago exitoso! Gracias por tu compra.');
+                showNotification('¡Pago exitoso!', 'Gracias por tu compra. Recibirás tu producto pronto.', 'success');
             } catch (error) {
                 console.error('Error al procesar pago:', error);
-                alert('Error al procesar el pago. Intenta de nuevo.');
+                showNotification('Error', 'No se pudo procesar el pago. Intenta de nuevo.', 'error');
             }
         },
         onError: function(err) {
             console.error('Error PayPal:', err);
-            alert('Error al conectar con PayPal.');
+            showNotification('Error de conexión', 'No se pudo conectar con PayPal.', 'error');
         },
         onCancel: function() {
-            console.log('Pago cancelado');
+            showNotification('Pago cancelado', 'Has cancelado el proceso de pago.', 'info');
         }
     }).render('#paypal-button-container');
+}
+
+// ============================================
+// NOTIFICACIÓN MODERNA
+// ============================================
+function showNotification(title, message, type) {
+    const existing = document.querySelector('.notify-toast');
+    if (existing) existing.remove();
+    
+    const icons = { success: 'check_circle', error: 'error', info: 'info' };
+    
+    const toast = document.createElement('div');
+    toast.className = `notify-toast notify-${type}`;
+    toast.innerHTML = `
+        <div class="notify-icon"><span class="material-icons">${icons[type] || 'info'}</span></div>
+        <div class="notify-content">
+            <div class="notify-title">${title}</div>
+            <div class="notify-message">${message}</div>
+        </div>
+        <button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button>
+        <div class="notify-progress"></div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
+    }, 4000);
 }
 
 // ============================================
