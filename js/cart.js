@@ -3,12 +3,12 @@
 // ============================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================
 // TABLA DE CUPONES DE DESCUENTO
 // ============================================
-const discountCoupons = [
+var discountCoupons = [
     { code: 'WELCOME10', discount: 0.10, description: '10% de descuento - Bienvenida', minPurchase: 0, maxUses: 100, currentUses: 0, active: true },
     { code: 'ROBLOX20', discount: 0.20, description: '20% de descuento - Roblox', minPurchase: 2000, maxUses: 50, currentUses: 0, active: true },
     { code: 'VIP50', discount: 0.50, description: '50% de descuento - VIP', minPurchase: 5000, maxUses: 20, currentUses: 0, active: true },
@@ -17,21 +17,21 @@ const discountCoupons = [
     { code: 'BLACK50', discount: 0.50, description: '50% de descuento - Black Friday', minPurchase: 3000, maxUses: 30, currentUses: 0, active: true }
 ];
 
-let cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
-let appliedDiscount = 0;
-const ROBUX_TO_USD = 0.0125;
-let paypalRendered = false;
+var cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
+var appliedDiscount = 0;
+var ROBUX_TO_USD = 0.0125;
+var paypalRendered = false;
 
 // ============================================
 // INICIALIZAR
 // ============================================
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('Carrito - Iniciando...');
     await checkUserSession();
     loadCart();
     updateCartBadge();
 
-    document.getElementById('clearCart')?.addEventListener('click', () => {
+    document.getElementById('clearCart')?.addEventListener('click', function() {
         if (cart.length === 0) return;
         cart = [];
         appliedDiscount = 0;
@@ -40,28 +40,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         showNotification('Carrito vaciado', 'Todos los productos han sido eliminados', 'info');
     });
 
-    document.getElementById('applyPromo')?.addEventListener('click', () => {
-        const code = document.getElementById('promoInput').value.toUpperCase().trim();
-        const msgEl = document.getElementById('promoMessage');
+    document.getElementById('applyPromo')?.addEventListener('click', function() {
+        var code = document.getElementById('promoInput').value.toUpperCase().trim();
+        var msgEl = document.getElementById('promoMessage');
         
         if (!code) {
             if (msgEl) msgEl.innerHTML = '<span class="promo-error">Ingresa un código</span>';
             return;
         }
 
-        const coupon = discountCoupons.find(c => c.code === code);
+        var coupon = discountCoupons.find(function(c) { return c.code === code; });
         
         if (coupon) {
-            const subtotalRobux = cart.reduce((s, i) => s + (i.price * (i.quantity || 1)), 0);
+            var subtotalRobux = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0);
             
             if (subtotalRobux < coupon.minPurchase) {
-                if (msgEl) msgEl.innerHTML = `<span class="promo-error">Compra mínima: ${coupon.minPurchase.toLocaleString()} Robux</span>`;
+                if (msgEl) msgEl.innerHTML = '<span class="promo-error">Compra mínima: ' + coupon.minPurchase.toLocaleString() + ' Robux</span>';
                 return;
             }
             
             appliedDiscount = subtotalRobux * ROBUX_TO_USD * coupon.discount;
-            if (msgEl) msgEl.innerHTML = `<span class="promo-success">${coupon.description} (${coupon.discount * 100}%)</span>`;
-            showNotification('Cupón aplicado', `${coupon.discount * 100}% de descuento`, 'success');
+            if (msgEl) msgEl.innerHTML = '<span class="promo-success">' + coupon.description + ' (' + (coupon.discount * 100) + '%)</span>';
+            showNotification('Cupón aplicado', (coupon.discount * 100) + '% de descuento', 'success');
         } else {
             appliedDiscount = 0;
             if (msgEl) msgEl.innerHTML = '<span class="promo-error">Cupón no válido</span>';
@@ -77,8 +77,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 // AUTENTICACIÓN
 // ============================================
 async function checkUserSession() {
-    const guestMenu = document.getElementById('guestMenu');
-    const userMenu = document.getElementById('userMenu');
+    var guestMenu = document.getElementById('guestMenu');
+    var userMenu = document.getElementById('userMenu');
     
     if (!guestMenu || !userMenu) return;
     
@@ -86,28 +86,28 @@ async function checkUserSession() {
     userMenu.style.display = 'none';
 
     try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
+        var { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session && session.user) {
             console.log('Usuario logueado en carrito:', session.user.email);
             guestMenu.style.display = 'none';
             userMenu.style.display = 'flex';
             
-            const userNameDisplay = document.getElementById('userNameDisplay');
+            var userNameDisplay = document.getElementById('userNameDisplay');
             if (userNameDisplay) {
                 userNameDisplay.textContent = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
             }
             
-            const userAvatar = document.getElementById('userAvatar');
+            var userAvatar = document.getElementById('userAvatar');
             if (userAvatar) {
                 userAvatar.src = session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
             }
 
-            const logoutBtn = document.getElementById('logoutBtn');
+            var logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
-                const newBtn = logoutBtn.cloneNode(true);
+                var newBtn = logoutBtn.cloneNode(true);
                 logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
-                newBtn.addEventListener('click', async (e) => {
+                newBtn.addEventListener('click', async function(e) {
                     e.preventDefault();
                     await supabaseClient.auth.signOut();
                     window.location.href = 'index.html';
@@ -123,9 +123,9 @@ async function checkUserSession() {
 // CARGAR CARRITO
 // ============================================
 function loadCart() {
-    const itemsContainer = document.getElementById('cartItemsContainer');
-    const emptyMessage = document.getElementById('emptyCartMessage');
-    const summarySection = document.getElementById('cartSummarySection');
+    var itemsContainer = document.getElementById('cartItemsContainer');
+    var emptyMessage = document.getElementById('emptyCartMessage');
+    var summarySection = document.getElementById('cartSummarySection');
     
     updateCartBadge();
     
@@ -141,7 +141,8 @@ function loadCart() {
     if (summarySection) summarySection.style.display = 'block';
     
     if (itemsContainer) {
-        itemsContainer.innerHTML = cart.map((item, index) => `
+        itemsContainer.innerHTML = cart.map(function(item, index) {
+            return `
             <div class="cart-item-card">
                 <div class="cart-item-icon">
                     <span class="material-icons">${getIconForCategory(item.category)}</span>
@@ -163,7 +164,8 @@ function loadCart() {
                     <span class="material-icons">close</span>
                 </button>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
     
     updateSummary();
@@ -173,7 +175,7 @@ function loadCart() {
 // ACTUALIZAR CANTIDAD
 // ============================================
 window.updateQuantity = function(index, change) {
-    const newQty = (cart[index].quantity || 1) + change;
+    var newQty = (cart[index].quantity || 1) + change;
     if (newQty <= 0) {
         removeItem(index);
         return;
@@ -187,32 +189,33 @@ window.updateQuantity = function(index, change) {
 // ELIMINAR ITEM
 // ============================================
 window.removeItem = function(index) {
-    const item = cart[index];
+    var item = cart[index];
     cart.splice(index, 1);
     saveCart();
     loadCart();
-    showNotification('Producto eliminado', `${item.name} fue eliminado del carrito`, 'info');
+    showNotification('Producto eliminado', item.name + ' fue eliminado del carrito', 'info');
 };
 
 // ============================================
 // ACTUALIZAR RESUMEN
 // ============================================
 function updateSummary() {
-    const subtotalRobux = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    const subtotalUSD = subtotalRobux * ROBUX_TO_USD;
-    const totalUSD = Math.max(0.01, subtotalUSD - appliedDiscount);
+    var subtotalRobux = cart.reduce(function(sum, item) { return sum + (item.price * (item.quantity || 1)); }, 0);
+    var subtotalUSD = subtotalRobux * ROBUX_TO_USD;
+    var totalUSD = Math.max(0.01, subtotalUSD - appliedDiscount);
     
-    const subtotalEl = document.getElementById('subtotal');
-    const discountEl = document.getElementById('discount');
-    const totalEl = document.getElementById('total');
-    const itemsList = document.getElementById('summaryItemsList');
+    var subtotalEl = document.getElementById('subtotal');
+    var discountEl = document.getElementById('discount');
+    var totalEl = document.getElementById('total');
+    var itemsList = document.getElementById('summaryItemsList');
     
     if (subtotalEl) subtotalEl.textContent = '$' + subtotalUSD.toFixed(2);
     if (discountEl) discountEl.textContent = appliedDiscount > 0 ? '-$' + appliedDiscount.toFixed(2) : '$0.00';
     if (totalEl) totalEl.textContent = '$' + totalUSD.toFixed(2);
     
     if (itemsList) {
-        itemsList.innerHTML = cart.map(item => `
+        itemsList.innerHTML = cart.map(function(item) {
+            return `
             <div class="summary-item">
                 <div class="summary-item-info">
                     <span class="material-icons">${getIconForCategory(item.category)}</span>
@@ -220,7 +223,8 @@ function updateSummary() {
                 </div>
                 <span>$${convertToUSD(item.price * (item.quantity || 1)).toFixed(2)}</span>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
     
     if (!paypalRendered && cart.length > 0 && totalUSD > 0) {
@@ -233,7 +237,7 @@ function updateSummary() {
 // PAYPAL
 // ============================================
 function renderPayPalButton(total) {
-    const container = document.getElementById('paypal-button-container');
+    var container = document.getElementById('paypal-button-container');
     if (!container || typeof paypal === 'undefined') return;
     
     container.innerHTML = '';
@@ -257,10 +261,10 @@ function renderPayPalButton(total) {
         },
         onApprove: async function(data, actions) {
             try {
-                const order = await actions.order.capture();
+                var order = await actions.order.capture();
                 console.log('Pago exitoso:', order);
                 
-                const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+                var orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
                 orders.push({
                     id: order.id,
                     items: cart,
@@ -296,13 +300,13 @@ function renderPayPalButton(total) {
 // NOTIFICACIÓN MODERNA
 // ============================================
 function showNotification(title, message, type) {
-    const existing = document.querySelector('.notify-toast');
+    var existing = document.querySelector('.notify-toast');
     if (existing) existing.remove();
     
-    const icons = { success: 'check_circle', error: 'error', info: 'info' };
+    var icons = { success: 'check_circle', error: 'error', info: 'info' };
     
-    const toast = document.createElement('div');
-    toast.className = `notify-toast notify-${type}`;
+    var toast = document.createElement('div');
+    toast.className = 'notify-toast notify-' + type;
     toast.innerHTML = `
         <div class="notify-icon"><span class="material-icons">${icons[type] || 'info'}</span></div>
         <div class="notify-content">
@@ -314,11 +318,11 @@ function showNotification(title, message, type) {
     `;
     document.body.appendChild(toast);
     
-    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(function() { toast.classList.add('show'); }, 10);
     
-    setTimeout(() => {
+    setTimeout(function() {
         toast.classList.remove('show');
-        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
+        setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400);
     }, 4000);
 }
 
@@ -330,7 +334,7 @@ function convertToUSD(robux) {
 }
 
 function getIconForCategory(category) {
-    const icons = {
+    var icons = {
         'admin': 'shield',
         'economy': 'account_balance_wallet',
         'combat': 'sports_martial_arts',
@@ -340,8 +344,8 @@ function getIconForCategory(category) {
 }
 
 function updateCartBadge() {
-    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    const badge = document.getElementById('cartCount');
+    var count = cart.reduce(function(sum, item) { return sum + (item.quantity || 1); }, 0);
+    var badge = document.getElementById('cartCount');
     if (badge) {
         badge.textContent = count;
         badge.style.display = count > 0 ? 'flex' : 'none';
