@@ -14,16 +14,27 @@ async function signIn(email, password) {
         return;
     }
 
+    // Mostrar loading
+    const submitBtn = document.querySelector('#loginForm .btn-primary');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Iniciando...';
+    }
+
     try {
         const { data, error } = await supabaseAuth.auth.signInWithPassword({ email, password });
 
         if (error) {
-            if (error.message.includes('Email not confirmed')) {
-                showNotification('Email no verificado', 'Revisa tu bandeja de entrada y verifica tu correo', 'error');
-            } else if (error.message.includes('Invalid login')) {
+            if (error.message.includes('Invalid login credentials')) {
                 showNotification('Datos incorrectos', 'Email o contraseña inválidos', 'error');
+            } else if (error.message.includes('Email not confirmed')) {
+                showNotification('Email no verificado', 'Revisa tu correo para verificar tu cuenta', 'error');
             } else {
                 showNotification('Error', error.message, 'error');
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
             }
             return;
         }
@@ -32,10 +43,14 @@ async function signIn(email, password) {
             showNotification('Inicio exitoso', 'Bienvenido de vuelta', 'success');
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 1500);
+            }, 1000);
         }
     } catch (error) {
         showNotification('Error', 'Error al iniciar sesión', 'error');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
+        }
     }
 }
 
@@ -53,42 +68,60 @@ async function signUp(name, email, password) {
         return;
     }
 
+    // Mostrar loading
+    const submitBtn = document.querySelector('#registerForm .btn-primary');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
+    }
+
     try {
         const { data, error } = await supabaseAuth.auth.signUp({
             email,
             password,
             options: {
-                data: { full_name: name },
-                emailRedirectTo: window.location.origin + '/login.html'
+                data: { full_name: name }
             }
         });
 
         if (error) {
             if (error.message.includes('already registered')) {
-                showNotification('Ya registrado', 'Este email ya tiene una cuenta', 'error');
+                showNotification('Ya registrado', 'Este email ya tiene una cuenta. Inicia sesión.', 'error');
+            } else if (error.message.includes('password')) {
+                showNotification('Contraseña inválida', 'La contraseña debe ser más segura', 'error');
             } else {
                 showNotification('Error', error.message, 'error');
+            }
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-icons">person_add</span> Crear Cuenta';
             }
             return;
         }
 
         if (data.user) {
+            console.log('Usuario creado:', data.user);
+            
             showNotification(
-                'Registro exitoso',
-                'Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada y confirma tu email.',
+                'Cuenta creada exitosamente',
+                'Serás redirigido al inicio de sesión',
                 'success'
             );
             
             // Limpiar formulario
             document.getElementById('registerForm')?.reset();
             
-            // Redirigir al login después de 3 segundos
+            // Redirigir al login después de 2 segundos
             setTimeout(() => {
                 window.location.href = 'login.html';
-            }, 3000);
+            }, 2000);
         }
     } catch (error) {
-        showNotification('Error', 'Error al registrarse', 'error');
+        showNotification('Error', 'Error al crear la cuenta', 'error');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="material-icons">person_add</span> Crear Cuenta';
+        }
     }
 }
 
@@ -112,12 +145,12 @@ async function resetPassword(email) {
         }
 
         showNotification(
-            'Enlace enviado',
-            'Revisa tu correo para restablecer tu contraseña',
+            'Correo enviado',
+            'Revisa tu bandeja de entrada para restablecer tu contraseña',
             'success'
         );
     } catch (error) {
-        showNotification('Error', 'Error al enviar el enlace', 'error');
+        showNotification('Error', 'Error al enviar el correo', 'error');
     }
 }
 
@@ -142,7 +175,7 @@ async function signInWithDiscord() {
 }
 
 // ============================================
-// NOTIFICACIÓN MODERNA
+// NOTIFICACIÓN
 // ============================================
 function showNotification(title, message, type) {
     const existing = document.querySelector('.notify-toast');
@@ -172,14 +205,37 @@ function showNotification(title, message, type) {
 }
 
 // ============================================
+// SPINNER CSS (agrégalo a tu style.css)
+// ============================================
+const spinnerStyle = document.createElement('style');
+spinnerStyle.textContent = `
+    .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+`;
+document.head.appendChild(spinnerStyle);
+
+// ============================================
 // EVENT LISTENERS
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Auth JS cargado');
+
     // Verificar si ya hay sesión activa
     const { data: { session } } = await supabaseAuth.auth.getSession();
-    if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
-        window.location.href = 'index.html';
-        return;
+    if (session) {
+        console.log('Sesión activa, redirigiendo...');
+        if (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html')) {
+            window.location.href = 'index.html';
+            return;
+        }
     }
 
     // Login form
@@ -232,21 +288,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Discord login
-    const discordLogin = document.getElementById('discordLogin');
-    const discordRegister = document.getElementById('discordRegister');
-    if (discordLogin) discordLogin.addEventListener('click', signInWithDiscord);
-    if (discordRegister) discordRegister.addEventListener('click', signInWithDiscord);
+    document.getElementById('discordLogin')?.addEventListener('click', signInWithDiscord);
+    document.getElementById('discordRegister')?.addEventListener('click', signInWithDiscord);
 
-    // Toggle password visibility
+    // Toggle password
     document.querySelectorAll('.toggle-password').forEach(btn => {
         btn.addEventListener('click', function() {
             const target = document.getElementById(this.dataset.target);
-            if (target.type === 'password') {
-                target.type = 'text';
-                this.textContent = 'visibility';
-            } else {
-                target.type = 'password';
-                this.textContent = 'visibility_off';
+            if (target) {
+                if (target.type === 'password') {
+                    target.type = 'text';
+                    this.textContent = 'visibility';
+                } else {
+                    target.type = 'password';
+                    this.textContent = 'visibility_off';
+                }
             }
         });
     });
