@@ -8,22 +8,18 @@ var supabase = createClient(
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
 );
 
-var BASE_URL = 'https://yxstudios.github.io/store.github.io';
+var BASE_URL = window.location.origin + '/store.github.io';
 
-console.log('Auth JS - Supabase inicializado');
-console.log('Base URL:', BASE_URL);
+console.log('Auth JS - Base URL:', BASE_URL);
 
 async function signInWithEmail(email, password) {
     try {
         showLoading(true);
         var { data, error } = await supabase.auth.signInWithPassword({ email: email, password: password });
         if (error) throw error;
-        showMessage('Inicio de sesión exitoso. Redirigiendo...', 'success');
+        showMessage('Inicio de sesión exitoso.', 'success');
         setTimeout(function() { window.location.href = BASE_URL + '/index.html'; }, 1000);
-    } catch (error) {
-        showMessage(error.message, 'error');
-        showLoading(false);
-    }
+    } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
 
 async function signUpWithEmail(name, email, password) {
@@ -31,21 +27,21 @@ async function signUpWithEmail(name, email, password) {
         showLoading(true);
         var { data, error } = await supabase.auth.signUp({ email: email, password: password, options: { data: { full_name: name } } });
         if (error) throw error;
-        showMessage('Cuenta creada exitosamente. Redirigiendo...', 'success');
+        showMessage('Cuenta creada exitosamente.', 'success');
         setTimeout(function() { window.location.href = BASE_URL + '/index.html'; }, 1000);
-    } catch (error) {
-        showMessage(error.message, 'error');
-        showLoading(false);
-    }
+    } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
 
 async function signInWithDiscord() {
     try {
+        var redirectUrl = BASE_URL + '/index.html';
+        console.log('Discord redirect:', redirectUrl);
+        
         var { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'discord',
-            options: { redirectTo: BASE_URL + '/index.html' }
+            options: { redirectTo: redirectUrl }
         });
-        if (error) { showMessage('Error al conectar con Discord: ' + error.message, 'error'); }
+        if (error) { showMessage('Error Discord: ' + error.message, 'error'); }
     } catch (error) { showMessage('Error: ' + error.message, 'error'); }
 }
 
@@ -54,7 +50,7 @@ async function resetPassword(email) {
         showLoading(true);
         var { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: BASE_URL + '/reset-password.html' });
         if (error) throw error;
-        showMessage('Se ha enviado un enlace a tu correo.', 'success');
+        showMessage('Enlace enviado a tu correo.', 'success');
         showLoading(false);
     } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
