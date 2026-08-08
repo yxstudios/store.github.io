@@ -3,10 +3,9 @@
 // ============================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// Credenciales directas
 var supabase = createClient(
     'https://xzfytuasxmqxdcdwfbbl.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6Znl0dWFzeG1xeGRjZHdmYmJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNzkyMDcsImV4cCI6MjEwMTY1NTIwN30.QWM-EkPbQxTaWraKzUEQraJJLsgfjwNyxOc1Krh82tU'
+    'sb_publishable_sjdKZM4PVvfp5pA5sTlSbg_F-_UJLgX'
 );
 
 console.log('Auth JS - Supabase inicializado');
@@ -212,7 +211,6 @@ function setupPasswordStrength() {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('Auth JS - DOM cargado');
     
-    // Verificar sesión existente
     try {
         var { data: { session } } = await supabase.auth.getSession();
         if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
@@ -223,12 +221,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('No hay sesión activa');
     }
     
-    // Guardar HTML original de botones
     document.querySelectorAll('.btn-primary[type="submit"]').forEach(function(btn) {
         btn.dataset.originalHtml = btn.innerHTML;
     });
     
-    // Login form
     var loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
@@ -239,7 +235,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
-    // Register form
     var registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
@@ -251,7 +246,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
-    // Forgot password form
     var forgotForm = document.getElementById('forgotPasswordForm');
     if (forgotForm) {
         forgotForm.addEventListener('submit', function(e) {
@@ -261,13 +255,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
-    // Discord buttons
     var discordLogin = document.getElementById('discordLogin');
     var discordRegister = document.getElementById('discordRegister');
     if (discordLogin) discordLogin.addEventListener('click', signInWithDiscord);
     if (discordRegister) discordRegister.addEventListener('click', signInWithDiscord);
     
-    // Setup
     setupTogglePassword();
     setupForgotPassword();
     setupPasswordStrength();
