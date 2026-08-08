@@ -1,5 +1,5 @@
-var SUPABASE_URL = 'https://xzfytuasxmqxdcdwfbbl.supabase.co';
-var SUPABASE_ANON_KEY = 'sb_publishable_sjdKZM4PVvfp5pA5sTlSbg_F-_UJLgX';
+var SUPABASE_URL = 'https://qfgofnlvfxcmzexwuzou.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc';
 var PAYPAL_CLIENT_ID = 'Aa6KFjacVgqjs6vg9uBBD58-DAVVU1QPXJ_RIrDqUhVSXXs_n35A65NRxCcc3kN91D-pgZg6UsKBW05u';
 var PAYPAL_SECRET_KEY = 'EJvyhkZzM6SvqoVSGUksEf5_WmjmYia9SKuhOtJFHyUGEcGCnA9tUnRUOXW1nHk2v14KvAwN2CSonFJI';
 var THEME_LOGOS = {
