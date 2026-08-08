@@ -1,48 +1,41 @@
 // ============================================
 // YX STUDIOS - AUTENTICACIÓN
 // ============================================
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// Inicializar Supabase
-const supabase = window.supabase?.createClient?.(SUPABASE_URL, SUPABASE_ANON_KEY) || 
-                 (typeof createClient !== 'undefined' ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null);
-
-// Si no se pudo inicializar, intentar con import dinámico
-if (!supabase) {
-    import('https://esm.sh/@supabase/supabase-js@2').then(({ createClient }) => {
-        window.supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    });
-}
-
-function getSupabase() {
-    return supabase || window.supabaseClient;
-}
+const supabaseAuth = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================
 // INICIAR SESIÓN
 // ============================================
 async function signIn(email, password) {
-    const client = getSupabase();
-    if (!client) {
-        showMessage('Error de conexión. Recarga la página.', 'error');
+    if (!email || !password) {
+        showNotification('Campos vacíos', 'Completa todos los campos', 'error');
         return;
     }
 
     try {
-        const { data, error } = await client.auth.signInWithPassword({ email, password });
-        
+        const { data, error } = await supabaseAuth.auth.signInWithPassword({ email, password });
+
         if (error) {
-            showMessage(error.message, 'error');
+            if (error.message.includes('Email not confirmed')) {
+                showNotification('Email no verificado', 'Revisa tu bandeja de entrada y verifica tu correo', 'error');
+            } else if (error.message.includes('Invalid login')) {
+                showNotification('Datos incorrectos', 'Email o contraseña inválidos', 'error');
+            } else {
+                showNotification('Error', error.message, 'error');
+            }
             return;
         }
 
         if (data.session) {
-            showMessage('Inicio de sesión exitoso. Redirigiendo...', 'success');
+            showNotification('Inicio exitoso', 'Bienvenido de vuelta', 'success');
             setTimeout(() => {
                 window.location.href = 'index.html';
-            }, 1000);
+            }, 1500);
         }
     } catch (error) {
-        showMessage('Error al iniciar sesión: ' + error.message, 'error');
+        showNotification('Error', 'Error al iniciar sesión', 'error');
     }
 }
 
@@ -50,34 +43,52 @@ async function signIn(email, password) {
 // REGISTRARSE
 // ============================================
 async function signUp(name, email, password) {
-    const client = getSupabase();
-    if (!client) {
-        showMessage('Error de conexión. Recarga la página.', 'error');
+    if (!name || !email || !password) {
+        showNotification('Campos vacíos', 'Completa todos los campos', 'error');
+        return;
+    }
+
+    if (password.length < 6) {
+        showNotification('Contraseña débil', 'La contraseña debe tener al menos 6 caracteres', 'error');
         return;
     }
 
     try {
-        const { data, error } = await client.auth.signUp({
+        const { data, error } = await supabaseAuth.auth.signUp({
             email,
             password,
             options: {
-                data: { full_name: name }
+                data: { full_name: name },
+                emailRedirectTo: window.location.origin + '/login.html'
             }
         });
 
         if (error) {
-            showMessage(error.message, 'error');
+            if (error.message.includes('already registered')) {
+                showNotification('Ya registrado', 'Este email ya tiene una cuenta', 'error');
+            } else {
+                showNotification('Error', error.message, 'error');
+            }
             return;
         }
 
         if (data.user) {
-            showMessage('Cuenta creada exitosamente. Redirigiendo...', 'success');
+            showNotification(
+                'Registro exitoso',
+                'Te hemos enviado un correo de verificación. Revisa tu bandeja de entrada y confirma tu email.',
+                'success'
+            );
+            
+            // Limpiar formulario
+            document.getElementById('registerForm')?.reset();
+            
+            // Redirigir al login después de 3 segundos
             setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
+                window.location.href = 'login.html';
+            }, 3000);
         }
     } catch (error) {
-        showMessage('Error al registrarse: ' + error.message, 'error');
+        showNotification('Error', 'Error al registrarse', 'error');
     }
 }
 
@@ -85,25 +96,28 @@ async function signUp(name, email, password) {
 // RESTABLECER CONTRASEÑA
 // ============================================
 async function resetPassword(email) {
-    const client = getSupabase();
-    if (!client) {
-        showMessage('Error de conexión. Recarga la página.', 'error');
+    if (!email) {
+        showNotification('Campo vacío', 'Ingresa tu correo electrónico', 'error');
         return;
     }
 
     try {
-        const { error } = await client.auth.resetPasswordForEmail(email, {
+        const { error } = await supabaseAuth.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + '/reset-password.html'
         });
 
         if (error) {
-            showMessage(error.message, 'error');
+            showNotification('Error', error.message, 'error');
             return;
         }
 
-        showMessage('Se ha enviado un enlace a tu correo.', 'success');
+        showNotification(
+            'Enlace enviado',
+            'Revisa tu correo para restablecer tu contraseña',
+            'success'
+        );
     } catch (error) {
-        showMessage('Error: ' + error.message, 'error');
+        showNotification('Error', 'Error al enviar el enlace', 'error');
     }
 }
 
@@ -111,14 +125,8 @@ async function resetPassword(email) {
 // INICIAR SESIÓN CON DISCORD
 // ============================================
 async function signInWithDiscord() {
-    const client = getSupabase();
-    if (!client) {
-        showMessage('Error de conexión. Recarga la página.', 'error');
-        return;
-    }
-
     try {
-        const { error } = await client.auth.signInWithOAuth({
+        const { error } = await supabaseAuth.auth.signInWithOAuth({
             provider: 'discord',
             options: {
                 redirectTo: window.location.origin + '/index.html'
@@ -126,26 +134,40 @@ async function signInWithDiscord() {
         });
 
         if (error) {
-            showMessage(error.message, 'error');
+            showNotification('Error', error.message, 'error');
         }
     } catch (error) {
-        showMessage('Error: ' + error.message, 'error');
+        showNotification('Error', 'Error al conectar con Discord', 'error');
     }
 }
 
 // ============================================
-// MOSTRAR MENSAJES
+// NOTIFICACIÓN MODERNA
 // ============================================
-function showMessage(message, type) {
-    const msgEl = document.getElementById('authMessage');
-    if (!msgEl) return;
-    
-    msgEl.textContent = message;
-    msgEl.className = 'auth-message ' + type;
-    msgEl.style.display = 'block';
+function showNotification(title, message, type) {
+    const existing = document.querySelector('.notify-toast');
+    if (existing) existing.remove();
+
+    const icons = { success: 'check_circle', error: 'error', info: 'info' };
+
+    const toast = document.createElement('div');
+    toast.className = `notify-toast notify-${type}`;
+    toast.innerHTML = `
+        <div class="notify-icon"><span class="material-icons">${icons[type] || 'info'}</span></div>
+        <div class="notify-content">
+            <div class="notify-title">${title}</div>
+            <div class="notify-message">${message}</div>
+        </div>
+        <button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button>
+        <div class="notify-progress"></div>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 10);
 
     setTimeout(() => {
-        msgEl.style.display = 'none';
+        toast.classList.remove('show');
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
     }, 5000);
 }
 
@@ -153,14 +175,11 @@ function showMessage(message, type) {
 // EVENT LISTENERS
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Verificar si ya hay sesión
-    const client = getSupabase();
-    if (client) {
-        const { data: { session } } = await client.auth.getSession();
-        if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
-            window.location.href = 'index.html';
-            return;
-        }
+    // Verificar si ya hay sesión activa
+    const { data: { session } } = await supabaseAuth.auth.getSession();
+    if (session && (window.location.pathname.includes('login.html') || window.location.pathname.includes('register.html'))) {
+        window.location.href = 'index.html';
+        return;
     }
 
     // Login form
