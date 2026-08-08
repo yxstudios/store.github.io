@@ -1,6 +1,10 @@
 // ============================================
-// PRODUCTOS
+// YX STUDIOS - MAIN JS
 // ============================================
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const products = [
     { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 0, banner: 'https://via.placeholder.com/900x300/ff2d2d/ffffff?text=Admin+System+Pro' },
     { id: 2, name: 'Economy System', description: 'Sistema económico completo con tiendas, inventario y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 0, banner: 'https://via.placeholder.com/900x300/00c853/ffffff?text=Economy+System' },
@@ -41,8 +45,6 @@ async function checkUserSession() {
     userMenu.style.display = 'none';
 
     try {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session && session.user) {
@@ -85,26 +87,13 @@ function renderFeaturedProducts() {
     grid.innerHTML = featured.map((p, i) => `
         <div class="featured-product-card featured-anim-${i + 1}" onclick="showProductModal(${p.id})">
             <div class="featured-glow"></div>
-            <div class="featured-badge">
-                <span class="material-icons">local_fire_department</span>
-                <span>Destacado</span>
-            </div>
-            <div class="featured-image">
-                <i class="fas ${p.icon}"></i>
-                <div class="featured-particles">
-                    <span class="particle"></span><span class="particle"></span><span class="particle"></span>
-                </div>
-            </div>
+            <div class="featured-badge"><span class="material-icons">local_fire_department</span><span>Destacado</span></div>
+            <div class="featured-image"><i class="fas ${p.icon}"></i><div class="featured-particles"><span class="particle"></span><span class="particle"></span><span class="particle"></span></div></div>
             <div class="featured-info">
                 <span class="product-category">${p.category}</span>
                 <h3>${p.name}</h3>
                 <p>${p.description.substring(0, 60)}...</p>
-                <div class="featured-price-row">
-                    <span class="featured-price">${p.price.toLocaleString()} Robux</span>
-                    <button class="btn-featured-cart" onclick="event.stopPropagation(); addToCart(${p.id})">
-                        <span class="material-icons">add_shopping_cart</span>
-                    </button>
-                </div>
+                <div class="featured-price-row"><span class="featured-price">${p.price.toLocaleString()} Robux</span><button class="btn-featured-cart" onclick="event.stopPropagation(); addToCart(${p.id})"><span class="material-icons">add_shopping_cart</span></button></div>
             </div>
         </div>
     `).join('');
@@ -212,33 +201,18 @@ function updateCartCount() {
 }
 
 // ============================================
-// NOTIFICACIÓN MODERNA
+// NOTIFICACIÓN
 // ============================================
 function showNotification(title, message, type) {
     const existing = document.querySelector('.notify-toast');
     if (existing) existing.remove();
-
     const icons = { success: 'check_circle', error: 'error', info: 'info' };
-    
     const toast = document.createElement('div');
     toast.className = `notify-toast notify-${type}`;
-    toast.innerHTML = `
-        <div class="notify-icon"><span class="material-icons">${icons[type] || 'info'}</span></div>
-        <div class="notify-content">
-            <div class="notify-title">${title}</div>
-            <div class="notify-message">${message}</div>
-        </div>
-        <button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button>
-        <div class="notify-progress"></div>
-    `;
+    toast.innerHTML = `<div class="notify-icon"><span class="material-icons">${icons[type]}</span></div><div class="notify-content"><div class="notify-title">${title}</div><div class="notify-message">${message}</div></div><button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button><div class="notify-progress"></div>`;
     document.body.appendChild(toast);
-
-    setTimeout(() => { toast.classList.add('show'); }, 10);
-
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400);
-    }, 4000);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => { if (toast.parentNode) toast.remove(); }, 400); }, 4000);
 }
 
 // ============================================
@@ -249,35 +223,17 @@ window.showProductModal = function(productId) {
     if (!product) return;
     const old = document.querySelector('.product-modal-overlay');
     if (old) old.remove();
-
     const modal = document.createElement('div');
     modal.className = 'product-modal-overlay';
     modal.innerHTML = `
         <div class="product-modal">
             <button class="modal-close-btn"><span class="material-icons">close</span></button>
-            <div class="modal-banner" style="background-image:url('${product.banner}')">
-                <div class="modal-banner-overlay"></div>
-                <div class="modal-banner-content">
-                    <span class="product-category">${product.category}</span>
-                    <h2>${product.name}</h2>
-                </div>
-            </div>
+            <div class="modal-banner" style="background-image:url('${product.banner}')"><div class="modal-banner-overlay"></div><div class="modal-banner-content"><span class="product-category">${product.category}</span><h2>${product.name}</h2></div></div>
             <div class="modal-body">
-                <div class="modal-left-info">
-                    <p class="modal-description">${product.description}</p>
-                    <div class="modal-features">
-                        <h4>Características</h4>
-                        <div class="features-grid-inline">${product.features.map(f => `<div class="feature-item-inline"><span class="material-icons">check_circle</span><span>${f}</span></div>`).join('')}</div>
-                    </div>
-                </div>
-                <div class="modal-right-actions">
-                    <div class="modal-price-box"><span class="modal-price-big">${product.price.toLocaleString()}</span><span class="modal-price-label">Robux</span></div>
-                    <button class="btn-primary btn-block" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar al Carrito</button>
-                    <button class="btn-outline btn-block" id="modalBuyNow"><span class="material-icons">bolt</span> Comprar Ahora</button>
-                </div>
+                <div class="modal-left-info"><p class="modal-description">${product.description}</p><div class="modal-features"><h4>Características</h4><div class="features-grid-inline">${product.features.map(f => `<div class="feature-item-inline"><span class="material-icons">check_circle</span><span>${f}</span></div>`).join('')}</div></div></div>
+                <div class="modal-right-actions"><div class="modal-price-box"><span class="modal-price-big">${product.price.toLocaleString()}</span><span class="modal-price-label">Robux</span></div><button class="btn-primary btn-block" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar al Carrito</button><button class="btn-outline btn-block" id="modalBuyNow"><span class="material-icons">bolt</span> Comprar Ahora</button></div>
             </div>
-        </div>
-    `;
+        </div>`;
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     const close = () => { modal.remove(); document.body.style.overflow = ''; };
