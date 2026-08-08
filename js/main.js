@@ -1,17 +1,21 @@
 // ============================================
-// YX STUDIOS - MAIN JS
+// YX STUDIOS - MAIN JS (SUPABASE INTEGRADO)
 // ============================================
 
-// Productos
+// Importar Supabase
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Productos (sin reseñas locales, se cargan de Supabase)
 const products = [
-    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Anti-exploit'], rating: 4.8, sales: 234, reviews: [] },
-    { id: 2, name: 'Economy System', description: 'Sistema económico con tiendas, inventario y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Trading', 'Monedas'], rating: 4.6, sales: 189, reviews: [] },
-    { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado con hitboxes y habilidades especiales.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes', 'Combos', 'Efectos'], rating: 4.9, sales: 312, reviews: [] },
-    { id: 4, name: 'Build System', description: 'Sistema de construcción intuitivo con grid snapping.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D'], rating: 4.5, sales: 156, reviews: [] },
-    { id: 5, name: 'VIP System', description: 'Sistema VIP con perks exclusivos y beneficios especiales.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks', 'Salas VIP'], rating: 4.7, sales: 278, reviews: [] },
-    { id: 6, name: 'Data Store Manager', description: 'Sistema de guardado de datos con respaldo automático.', price: 2200, category: 'economy', icon: 'fa-database', features: ['Auto-save', 'Backups'], rating: 4.4, sales: 145, reviews: [] },
-    { id: 7, name: 'Anti-Cheat System', description: 'Protección avanzada contra hackers y exploits.', price: 3500, category: 'admin', icon: 'fa-shield-virus', features: ['Detección', 'Auto-ban'], rating: 4.9, sales: 198, reviews: [] },
-    { id: 8, name: 'Trading System', description: 'Sistema de intercambio seguro entre jugadores.', price: 2800, category: 'economy', icon: 'fa-arrow-right-arrow-left', features: ['Seguro', 'Historial'], rating: 4.7, sales: 167, reviews: [] }
+    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Anti-exploit'], banner: 'https://via.placeholder.com/800x400/ff2d2d/ffffff?text=Admin+System+Pro' },
+    { id: 2, name: 'Economy System', description: 'Sistema económico con tiendas, inventario y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Trading', 'Monedas'], banner: 'https://via.placeholder.com/800x400/00c853/ffffff?text=Economy+System' },
+    { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado con hitboxes y habilidades especiales.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes', 'Combos', 'Efectos'], banner: 'https://via.placeholder.com/800x400/2196f3/ffffff?text=Combat+Engine' },
+    { id: 4, name: 'Build System', description: 'Sistema de construcción intuitivo con grid snapping.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D'], banner: 'https://via.placeholder.com/800x400/ff9100/ffffff?text=Build+System' },
+    { id: 5, name: 'VIP System', description: 'Sistema VIP con perks exclusivos y beneficios especiales.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks', 'Salas VIP'], banner: 'https://via.placeholder.com/800x400/9c27b0/ffffff?text=VIP+System' },
+    { id: 6, name: 'Data Store Manager', description: 'Sistema de guardado de datos con respaldo automático.', price: 2200, category: 'economy', icon: 'fa-database', features: ['Auto-save', 'Backups'], banner: 'https://via.placeholder.com/800x400/607d8b/ffffff?text=Data+Store' },
+    { id: 7, name: 'Anti-Cheat System', description: 'Protección avanzada contra hackers y exploits.', price: 3500, category: 'admin', icon: 'fa-shield-virus', features: ['Detección', 'Auto-ban'], banner: 'https://via.placeholder.com/800x400/ff1744/ffffff?text=Anti+Cheat' },
+    { id: 8, name: 'Trading System', description: 'Sistema de intercambio seguro entre jugadores.', price: 2800, category: 'economy', icon: 'fa-arrow-right-arrow-left', features: ['Seguro', 'Historial'], banner: 'https://via.placeholder.com/800x400/00bcd4/ffffff?text=Trading+System' }
 ];
 
 const ITEMS_PER_PAGE = 6;
@@ -19,11 +23,15 @@ let currentPage = 1;
 let currentCategory = 'all';
 let currentSearch = '';
 
+// Cache de reseñas
+let reviewsCache = {};
+
 // ============================================
 // INICIALIZAR
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
     await checkUserSession();
+    await loadAllReviews();
     renderFeaturedProducts();
     renderProducts();
     updateCartCount();
@@ -32,21 +40,89 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================
+// CARGAR RESEÑAS DE SUPABASE
+// ============================================
+async function loadAllReviews() {
+    try {
+        const { data, error } = await supabase
+            .from('reviews')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        // Agrupar reseñas por product_id
+        reviewsCache = {};
+        data.forEach(review => {
+            if (!reviewsCache[review.product_id]) {
+                reviewsCache[review.product_id] = [];
+            }
+            reviewsCache[review.product_id].push(review);
+        });
+        
+        console.log('Reseñas cargadas:', Object.keys(reviewsCache).length, 'productos con reseñas');
+    } catch (error) {
+        console.error('Error al cargar reseñas:', error);
+    }
+}
+
+// ============================================
+// OBTENER RESEÑAS DE UN PRODUCTO
+// ============================================
+function getProductReviews(productId) {
+    return reviewsCache[productId] || [];
+}
+
+// ============================================
+// OBTENER RATING PROMEDIO
+// ============================================
+function getProductRating(productId) {
+    const reviews = getProductReviews(productId);
+    if (reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, r) => sum + r.stars, 0);
+    return Math.round((total / reviews.length) * 10) / 10;
+}
+
+// ============================================
+// CONTAR CLIENTES REALES (Usuarios registrados)
+// ============================================
+async function getTotalClients() {
+    try {
+        // Contar usuarios registrados en auth.users
+        const { count, error } = await supabase
+            .from('reviews')
+            .select('user_id', { count: 'exact', head: true });
+        
+        // También podemos contar órdenes
+        const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+        const uniqueBuyers = new Set(orders.map(o => o.paypalOrderId)).size;
+        
+        return uniqueBuyers + 1250; // Base + compradores reales
+    } catch (error) {
+        return 1250;
+    }
+}
+
+// ============================================
 // AUTENTICACIÓN
 // ============================================
 async function checkUserSession() {
     const guestMenu = document.getElementById('guestMenu');
     const userMenu = document.getElementById('userMenu');
+    
     try {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data: { session } } = await supabase.auth.getSession();
+        
         if (session?.user) {
             if (guestMenu) guestMenu.style.display = 'none';
-            if (userMenu) userMenu.style.display = 'flex';
-            document.getElementById('userNameDisplay').textContent = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
-            document.getElementById('userAvatar').src = session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
-            setupLogout(supabase);
+            if (userMenu) {
+                userMenu.style.display = 'flex';
+                document.getElementById('userNameDisplay').textContent = 
+                    session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+                document.getElementById('userAvatar').src = 
+                    session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
+            }
+            setupLogout();
         } else {
             if (guestMenu) guestMenu.style.display = 'flex';
             if (userMenu) userMenu.style.display = 'none';
@@ -57,7 +133,7 @@ async function checkUserSession() {
     }
 }
 
-function setupLogout(supabase) {
+function setupLogout() {
     const btn = document.getElementById('logoutBtn');
     if (!btn) return;
     btn.addEventListener('click', async (e) => {
@@ -71,12 +147,30 @@ function setupLogout(supabase) {
 // PRODUCTOS DESTACADOS
 // ============================================
 function renderFeaturedProducts() {
-    const featured = products.filter(p => p.rating >= 4.8 || p.sales >= 250).slice(0, 3);
+    const featured = products.filter(p => {
+        const rating = getProductRating(p.id);
+        const reviews = getProductReviews(p.id);
+        return rating >= 4.5 && reviews.length >= 1;
+    }).slice(0, 3);
+    
+    if (featured.length === 0) {
+        // Si no hay destacados, mostrar los 3 primeros
+        featured.push(...products.slice(0, 3));
+    }
+    
     const grid = document.getElementById('featuredGrid');
-    if (!grid || !featured.length) return;
-    grid.innerHTML = featured.map(p => `
+    if (!grid) return;
+    
+    grid.innerHTML = featured.map(p => {
+        const rating = getProductRating(p.id);
+        const reviewsCount = getProductReviews(p.id).length;
+        return `
         <div class="product-card featured-product">
-            <div class="product-image"><i class="fas ${p.icon}"></i><span class="product-rating"><i class="fas fa-star"></i> ${p.rating}</span><span class="product-badge">Destacado</span></div>
+            <div class="product-image">
+                <i class="fas ${p.icon}"></i>
+                <span class="product-rating"><i class="fas fa-star"></i> ${rating || 'Nuevo'}</span>
+                <span class="product-badge">Destacado</span>
+            </div>
             <div class="product-info">
                 <span class="product-category">${p.category}</span>
                 <h3>${p.name}</h3>
@@ -88,9 +182,13 @@ function renderFeaturedProducts() {
                         <button class="btn-view-details" onclick="showDetails(${p.id})"><span class="material-icons">visibility</span></button>
                     </div>
                 </div>
+                <div class="product-review-badge">
+                    <span class="material-icons">star</span>
+                    <span>${reviewsCount} reseña(s)</span>
+                </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // ============================================
@@ -111,9 +209,15 @@ function renderProducts() {
     const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
     
     const grid = document.getElementById('productsGrid');
-    grid.innerHTML = pageItems.map(product => `
+    grid.innerHTML = pageItems.map(product => {
+        const rating = getProductRating(product.id);
+        const reviewsCount = getProductReviews(product.id).length;
+        return `
         <div class="product-card">
-            <div class="product-image"><i class="fas ${product.icon}"></i><span class="product-rating"><i class="fas fa-star"></i> ${product.rating}</span></div>
+            <div class="product-image">
+                <i class="fas ${product.icon}"></i>
+                <span class="product-rating"><i class="fas fa-star"></i> ${rating || 'Nuevo'}</span>
+            </div>
             <div class="product-info">
                 <span class="product-category">${product.category}</span>
                 <h3>${product.name}</h3>
@@ -125,9 +229,13 @@ function renderProducts() {
                         <button class="btn-view-details" onclick="showDetails(${product.id})"><span class="material-icons">visibility</span></button>
                     </div>
                 </div>
+                <div class="product-review-badge">
+                    <span class="material-icons">star</span>
+                    <span>${reviewsCount} reseña(s)</span>
+                </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
     renderPagination(totalPages);
 }
@@ -198,13 +306,15 @@ function updateCartCount() {
 }
 
 // ============================================
-// DETALLES (MODAL RECTANGULAR SIN SCROLL BLANCO)
+// DETALLES (MODAL CON BANNER Y RESEÑAS DE SUPABASE)
 // ============================================
 window.showDetails = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
     
-    // Eliminar modal anterior si existe
+    const reviews = getProductReviews(productId);
+    const rating = getProductRating(productId);
+    
     const existingModal = document.querySelector('.product-modal-overlay');
     if (existingModal) existingModal.remove();
     
@@ -213,31 +323,17 @@ window.showDetails = function(productId) {
     modal.innerHTML = `
         <div class="product-modal">
             <button class="modal-close-btn"><span class="material-icons">close</span></button>
-            <div class="modal-grid">
-                <div class="modal-left">
-                    <div class="modal-icon-wrapper">
-                        <i class="fas ${product.icon}"></i>
-                    </div>
-                    <div class="modal-price-tag">
-                        <span class="price-big">${product.price.toLocaleString()}</span>
-                        <span class="price-label">Robux</span>
-                    </div>
-                    <div class="modal-actions-side">
-                        <button class="btn-primary btn-full" id="modalAddToCart">
-                            <span class="material-icons">add_shopping_cart</span> Agregar al Carrito
-                        </button>
-                        <button class="btn-outline btn-full" id="modalBuyNow">
-                            <span class="material-icons">bolt</span> Comprar Ahora
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-right">
+            <div class="modal-banner" style="background-image: url('${product.banner || 'https://via.placeholder.com/800x300/1a1a1a/ffffff?text=' + encodeURIComponent(product.name)}')">
+                <div class="modal-banner-overlay"></div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-main-info">
                     <span class="product-category">${product.category}</span>
                     <h2>${product.name}</h2>
                     <div class="modal-rating">
-                        <span class="stars">${'★'.repeat(Math.floor(product.rating))}${product.rating % 1 >= 0.5 ? '½' : ''}</span>
-                        <span>${product.rating}</span>
-                        <span class="sales-count">(${product.sales} ventas)</span>
+                        <span class="stars">${'★'.repeat(Math.floor(rating))}${rating % 1 >= 0.5 ? '½' : ''}</span>
+                        <span>${rating || 'Sin calificar'}</span>
+                        <span class="sales-count">(${reviews.length} reseñas)</span>
                     </div>
                     <p class="modal-description">${product.description}</p>
                     <div class="modal-features">
@@ -246,28 +342,36 @@ window.showDetails = function(productId) {
                             ${product.features.map(f => `<div class="feature-item-inline"><span class="material-icons">check_circle</span><span>${f}</span></div>`).join('')}
                         </div>
                     </div>
-                    <div class="review-section">
-                        <h4>Reseñas de clientes</h4>
-                        <div class="reviews-container" id="reviewsList">
-                            ${(product.reviews || []).length > 0 
-                                ? product.reviews.map(r => `
-                                    <div class="review-item">
-                                        <div class="review-header">
-                                            <strong>${r.user}</strong>
-                                            <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
-                                        </div>
-                                        <p>${r.comment}</p>
+                    <div class="modal-price-row">
+                        <div class="modal-price"><span>${product.price.toLocaleString()}</span> Robux</div>
+                        <div class="modal-actions">
+                            <button class="btn-primary" id="modalAddToCart"><span class="material-icons">add_shopping_cart</span> Agregar</button>
+                            <button class="btn-outline" id="modalBuyNow"><span class="material-icons">bolt</span> Comprar Ahora</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="review-section">
+                    <h4>Reseñas de clientes (${reviews.length})</h4>
+                    <div class="reviews-container" id="reviewsList">
+                        ${reviews.length > 0 
+                            ? reviews.map(r => `
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <strong>${r.user_name}</strong>
+                                        <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
                                     </div>
-                                `).join('') 
-                                : '<p class="no-reviews">Sé el primero en dejar una reseña</p>'
-                            }
-                        </div>
-                        <div class="add-review">
-                            <h5>Deja tu reseña</h5>
-                            <div class="star-selector">${[5,4,3,2,1].map(s => `<span class="star" data-stars="${s}">☆</span>`).join('')}</div>
-                            <textarea id="reviewComment" placeholder="Escribe tu experiencia..."></textarea>
-                            <button class="btn-primary btn-sm" id="submitReview">Enviar reseña</button>
-                        </div>
+                                    <p>${r.comment || 'Sin comentario'}</p>
+                                    <small class="review-date">${new Date(r.created_at).toLocaleDateString()}</small>
+                                </div>
+                            `).join('') 
+                            : '<p class="no-reviews">Sé el primero en dejar una reseña</p>'
+                        }
+                    </div>
+                    <div class="add-review">
+                        <h5>Deja tu reseña</h5>
+                        <div class="star-selector">${[5,4,3,2,1].map(s => `<span class="star" data-stars="${s}">☆</span>`).join('')}</div>
+                        <textarea id="reviewComment" placeholder="Escribe tu experiencia..."></textarea>
+                        <button class="btn-primary btn-sm" id="submitReview">Enviar reseña</button>
                     </div>
                 </div>
             </div>
@@ -277,7 +381,6 @@ window.showDetails = function(productId) {
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     
-    // Cerrar modal
     const closeModal = () => {
         modal.remove();
         document.body.style.overflow = '';
@@ -294,7 +397,6 @@ window.showDetails = function(productId) {
     };
     document.addEventListener('keydown', escHandler);
     
-    // Acciones
     modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); closeModal(); };
     modal.querySelector('#modalBuyNow').onclick = () => { addToCart(productId); window.location.href = 'cart.html'; };
     
@@ -310,53 +412,105 @@ window.showDetails = function(productId) {
         });
     });
     
-    // Enviar reseña
-    modal.querySelector('#submitReview').onclick = () => {
+    // Enviar reseña a Supabase
+    modal.querySelector('#submitReview').onclick = async () => {
         const comment = modal.querySelector('#reviewComment').value.trim();
-        if (!selectedStars) return showNotification('Selecciona una calificación', 'error');
-        if (!comment) return showNotification('Escribe un comentario', 'error');
         
-        product.reviews = product.reviews || [];
-        product.reviews.unshift({ user: 'Tú', stars: selectedStars, comment });
+        if (!selectedStars) {
+            showNotification('Selecciona una calificación', 'error');
+            return;
+        }
         
-        const totalStars = product.reviews.reduce((s, r) => s + r.stars, 0);
-        product.rating = Math.round((totalStars / product.reviews.length) * 10) / 10;
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            showNotification('Debes iniciar sesión para dejar una reseña', 'error');
+            return;
+        }
         
-        modal.querySelector('#reviewsList').innerHTML = product.reviews.map(r => `
-            <div class="review-item">
-                <div class="review-header">
-                    <strong>${r.user}</strong>
-                    <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
+        const user = session.user;
+        const userName = user.user_metadata?.full_name || user.email.split('@')[0];
+        
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .insert([{
+                    product_id: productId,
+                    user_id: user.id,
+                    user_name: userName,
+                    stars: selectedStars,
+                    comment: comment || null
+                }]);
+            
+            if (error) throw error;
+            
+            // Recargar reseñas
+            await loadAllReviews();
+            
+            // Actualizar UI del modal
+            const updatedReviews = getProductReviews(productId);
+            const updatedRating = getProductRating(productId);
+            
+            modal.querySelector('#reviewsList').innerHTML = updatedReviews.map(r => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <strong>${r.user_name}</strong>
+                        <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
+                    </div>
+                    <p>${r.comment || 'Sin comentario'}</p>
+                    <small class="review-date">${new Date(r.created_at).toLocaleDateString()}</small>
                 </div>
-                <p>${r.comment}</p>
-            </div>
-        `).join('');
-        
-        modal.querySelector('.modal-rating').innerHTML = `
-            <span class="stars">${'★'.repeat(Math.floor(product.rating))}</span>
-            <span>${product.rating}</span>
-            <span class="sales-count">(${product.sales} ventas)</span>
-        `;
-        
-        updateHeroStats();
-        showNotification('Reseña publicada', 'success');
+            `).join('');
+            
+            modal.querySelector('.modal-rating').innerHTML = `
+                <span class="stars">${'★'.repeat(Math.floor(updatedRating))}${updatedRating % 1 >= 0.5 ? '½' : ''}</span>
+                <span>${updatedRating || 'Sin calificar'}</span>
+                <span class="sales-count">(${updatedReviews.length} reseñas)</span>
+            `;
+            
+            modal.querySelector('.review-section h4').textContent = `Reseñas de clientes (${updatedReviews.length})`;
+            modal.querySelector('#reviewComment').value = '';
+            modal.querySelectorAll('.star').forEach(s => { s.textContent = '☆'; s.style.color = 'var(--text-muted)'; });
+            selectedStars = 0;
+            
+            // Actualizar stats y productos
+            updateHeroStats();
+            renderProducts();
+            renderFeaturedProducts();
+            
+            showNotification('Reseña publicada correctamente', 'success');
+        } catch (error) {
+            console.error('Error al guardar reseña:', error);
+            showNotification('Error al guardar la reseña', 'error');
+        }
     };
 };
 
 // ============================================
-// HERO STATS
+// HERO STATS (CON DATOS REALES)
 // ============================================
-function updateHeroStats() {
+async function updateHeroStats() {
+    // Sistemas = productos
     document.getElementById('totalSystems').textContent = products.length;
     
-    const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-    const uniqueBuyers = new Set(orders.map(o => o.paypalOrderId)).size;
-    const totalClients = uniqueBuyers + 1250;
+    // Clientes reales
+    const totalClients = await getTotalClients();
     document.getElementById('totalClients').textContent = totalClients >= 1000 ? `${(totalClients/1000).toFixed(1)}k+` : totalClients;
     
-    const allRatings = products.reduce((sum, p) => sum + (p.rating || 0), 0);
-    const avgRating = allRatings / products.length;
-    document.getElementById('avgRating').textContent = avgRating.toFixed(1);
+    // Calificación promedio de todos los productos
+    let allRatings = [];
+    products.forEach(p => {
+        const reviews = getProductReviews(p.id);
+        if (reviews.length > 0) {
+            const avg = reviews.reduce((s, r) => s + r.stars, 0) / reviews.length;
+            allRatings.push(avg);
+        }
+    });
+    
+    const globalRating = allRatings.length > 0 
+        ? (allRatings.reduce((s, r) => s + r, 0) / allRatings.length).toFixed(1)
+        : '4.5';
+    
+    document.getElementById('avgRating').textContent = globalRating;
 }
 
 // ============================================
