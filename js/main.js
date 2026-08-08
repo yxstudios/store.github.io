@@ -1,3 +1,6 @@
+// ============================================
+// PRODUCTOS
+// ============================================
 const products = [
     { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 234, reviews: [], banner: 'https://via.placeholder.com/800x400/ff2d2d/ffffff?text=Admin+System+Pro' },
     { id: 2, name: 'Economy System', description: 'Sistema económico con tiendas, inventario y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 189, reviews: [], banner: 'https://via.placeholder.com/800x400/00c853/ffffff?text=Economy+System' },
@@ -13,82 +16,25 @@ const ITEMS_PER_PAGE = 6;
 let currentPage = 1;
 let currentCategory = 'all';
 let currentSearch = '';
-let supabase = null;
 
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-        supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } catch (e) {}
-
-    await checkUserSession();
-    renderFeaturedProducts();
+// ============================================
+// INICIALIZAR
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Cargando productos...');
     renderProducts();
     updateCartCount();
-    setupSearchAndFilters();
     updateHeroStats();
 });
 
-async function checkUserSession() {
-    const guestMenu = document.getElementById('guestMenu');
-    const userMenu = document.getElementById('userMenu');
-    if (guestMenu) guestMenu.style.display = 'flex';
-    if (userMenu) userMenu.style.display = 'none';
-    if (!supabase) return;
-    try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-            if (guestMenu) guestMenu.style.display = 'none';
-            if (userMenu) userMenu.style.display = 'flex';
-            document.getElementById('userNameDisplay').textContent = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
-            document.getElementById('userAvatar').src = session.user.user_metadata?.avatar_url || 'https://via.placeholder.com/32';
-            document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-                e.preventDefault();
-                await supabase.auth.signOut();
-                window.location.href = 'index.html';
-            });
-        }
-    } catch (e) {}
-}
-
-function renderFeaturedProducts() {
-    const featured = products.filter(p => p.sales >= 200).slice(0, 3);
-    if (featured.length === 0) featured.push(...products.slice(0, 3));
-    const grid = document.getElementById('featuredGrid');
-    if (!grid) return;
-
-    grid.innerHTML = featured.map((p, index) => `
-        <div class="featured-product-card featured-anim-${index + 1}" onclick="showProductModal(${p.id})">
-            <div class="featured-glow"></div>
-            <div class="featured-badge">
-                <span class="material-icons">local_fire_department</span>
-                <span>Destacado</span>
-            </div>
-            <div class="featured-image">
-                <i class="fas ${p.icon}"></i>
-                <div class="featured-particles">
-                    <span class="particle"></span>
-                    <span class="particle"></span>
-                    <span class="particle"></span>
-                </div>
-            </div>
-            <div class="featured-info">
-                <span class="product-category">${p.category}</span>
-                <h3>${p.name}</h3>
-                <p>${p.description.substring(0, 60)}...</p>
-                <div class="featured-stats">
-                    <span><span class="material-icons">star</span> Popular</span>
-                    <span><span class="material-icons">download</span> ${p.sales} ventas</span>
-                </div>
-                <div class="featured-price-row">
-                    <span class="featured-price">${p.price.toLocaleString()} Robux</span>
-                    <button class="btn-featured-cart" onclick="event.stopPropagation(); addToCart(${p.id})">
-                        <span class="material-icons">add_shopping_cart</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
+// ============================================
+// RENDERIZAR PRODUCTOS
+// ============================================
+function getFilteredProducts() {
+    let filtered = products;
+    if (currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
+    if (currentSearch) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearch) || p.description.toLowerCase().includes(currentSearch));
+    return filtered;
 }
 
 function renderProducts() {
@@ -120,10 +66,10 @@ function renderProducts() {
                         <span class="price-currency">Robux</span>
                     </div>
                     <div class="product-actions">
-                        <button class="btn-view-details" onclick="showProductModal(${p.id})" title="Ver información">
+                        <button class="btn-view-details" onclick="showProductModal(${p.id})" title="Ver info">
                             <span class="material-icons">info</span>
                         </button>
-                        <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})" title="Agregar al carrito">
+                        <button class="btn-add-cart" onclick="addToCart(${p.id})" title="Agregar al carrito">
                             <span class="material-icons">add_shopping_cart</span>
                         </button>
                     </div>
@@ -152,13 +98,9 @@ window.goToPage = function(page) {
     window.scrollTo({ top: document.getElementById('products').offsetTop - 80, behavior: 'smooth' });
 };
 
-function getFilteredProducts() {
-    let filtered = products;
-    if (currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
-    if (currentSearch) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearch) || p.description.toLowerCase().includes(currentSearch));
-    return filtered;
-}
-
+// ============================================
+// FILTROS
+// ============================================
 window.filterProducts = function(category) {
     currentCategory = category;
     currentPage = 1;
@@ -174,11 +116,9 @@ window.searchProducts = function() {
     renderProducts();
 };
 
-function setupSearchAndFilters() {
-    document.getElementById('searchInput')?.addEventListener('input', searchProducts);
-    document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => filterProducts(b.dataset.category)));
-}
-
+// ============================================
+// CARRITO
+// ============================================
 window.addToCart = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -187,7 +127,7 @@ window.addToCart = function(productId) {
     if (existing) existing.quantity++; else cart.push({ ...product, quantity: 1 });
     localStorage.setItem('yxCart', JSON.stringify(cart));
     updateCartCount();
-    showNotification(`${product.name} agregado al carrito`, 'success');
+    alert(product.name + ' agregado al carrito');
 };
 
 function updateCartCount() {
@@ -197,6 +137,9 @@ function updateCartCount() {
     if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
 }
 
+// ============================================
+// MODAL DE PRODUCTO
+// ============================================
 window.showProductModal = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -233,23 +176,6 @@ window.showProductModal = function(productId) {
                         </div>
                     </div>
                 </div>
-                <div class="review-section">
-                    <h4>Reseñas (${(product.reviews || []).length})</h4>
-                    <div class="reviews-container" id="reviewsList">
-                        ${(product.reviews || []).length > 0 ? product.reviews.map(r => `
-                            <div class="review-item">
-                                <div class="review-header"><strong>${r.user}</strong><span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span></div>
-                                <p>${r.comment}</p>
-                            </div>
-                        `).join('') : '<p class="no-reviews">Sé el primero en dejar una reseña</p>'}
-                    </div>
-                    <div class="add-review">
-                        <h5>Deja tu reseña</h5>
-                        <div class="star-selector">${[5,4,3,2,1].map(s => `<span class="star" data-stars="${s}">☆</span>`).join('')}</div>
-                        <textarea id="reviewComment" placeholder="Escribe tu experiencia..."></textarea>
-                        <button class="btn-primary btn-sm" id="submitReview">Enviar reseña</button>
-                    </div>
-                </div>
             </div>
         </div>
     `;
@@ -264,60 +190,18 @@ window.showProductModal = function(productId) {
 
     modal.querySelector('.modal-close-btn').onclick = closeModal;
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    document.addEventListener('keydown', function escHandler(e) {
-        if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escHandler); }
-    });
 
     modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); closeModal(); };
     modal.querySelector('#modalBuyNow').onclick = () => { addToCart(productId); window.location.href = 'cart.html'; };
-
-    let selectedStars = 0;
-    modal.querySelectorAll('.star').forEach(star => {
-        star.addEventListener('click', function() {
-            selectedStars = parseInt(this.dataset.stars);
-            modal.querySelectorAll('.star').forEach((s, idx) => {
-                s.textContent = idx < selectedStars ? '★' : '☆';
-                s.style.color = idx < selectedStars ? '#ffd600' : 'var(--text-muted)';
-            });
-        });
-    });
-
-    modal.querySelector('#submitReview').onclick = () => {
-        const comment = modal.querySelector('#reviewComment').value.trim();
-        if (!selectedStars) { showNotification('Selecciona una calificación', 'error'); return; }
-        product.reviews = product.reviews || [];
-        product.reviews.unshift({ user: 'Tú', stars: selectedStars, comment: comment || 'Sin comentario' });
-        modal.querySelector('#reviewsList').innerHTML = product.reviews.map(r => `
-            <div class="review-item">
-                <div class="review-header"><strong>${r.user}</strong><span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span></div>
-                <p>${r.comment}</p>
-            </div>
-        `).join('');
-        modal.querySelector('.review-section h4').textContent = `Reseñas (${product.reviews.length})`;
-        modal.querySelector('#reviewComment').value = '';
-        modal.querySelectorAll('.star').forEach(s => { s.textContent = '☆'; s.style.color = 'var(--text-muted)'; });
-        selectedStars = 0;
-        updateHeroStats();
-        renderFeaturedProducts();
-        showNotification('Reseña publicada', 'success');
-    };
 };
 
+// ============================================
+// HERO STATS
+// ============================================
 function updateHeroStats() {
     document.getElementById('totalSystems').textContent = products.length;
     const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
     const total = 1250 + orders.length;
     document.getElementById('totalClients').textContent = total >= 1000 ? (total / 1000).toFixed(1) + 'k+' : total;
     document.getElementById('avgRating').textContent = '4.7';
-}
-
-function showNotification(msg, type) {
-    const existing = document.querySelector('.notification-toast');
-    if (existing) existing.remove();
-    const toast = document.createElement('div');
-    toast.className = `notification-toast notification-${type}`;
-    toast.innerHTML = `<span class="material-icons">${type === 'success' ? 'check_circle' : 'info'}</span> ${msg}`;
-    document.body.appendChild(toast);
-    requestAnimationFrame(() => toast.classList.add('show'));
-    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
