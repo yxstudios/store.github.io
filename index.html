@@ -26,7 +26,7 @@
     <div class="promo-bar" id="promoBar">
         <div class="promo-bar-content">
             <span class="material-icons">local_offer</span>
-            <span>50% de descuento en sistemas seleccionados - Usa el código: VIP50</span>
+            <span>50% de descuento - Usa el código: VIP50</span>
             <button class="promo-close" onclick="document.getElementById('promoBar').style.display='none'"><span class="material-icons">close</span></button>
         </div>
     </div>
@@ -132,8 +132,9 @@
         <div class="footer-bottom"><p>© 2024 YX Studios. Todos los derechos reservados.</p></div>
     </footer>
 
+    <!-- IMPORTANTE: main.js se carga como módulo -->
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
-    <script src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
