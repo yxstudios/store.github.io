@@ -6,19 +6,201 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================
-// PRODUCTOS
+// TABLA DE CUPONES DE DESCUENTO
 // ============================================
-const products = [
-    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control.', price: 2500, category: 'user', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 0, banner: 'https://i.ibb.co/PvLtgL34/Chat-GPT-Image-3-ago-2026-14-45-34.png' },
-    { id: 2, name: 'Economy System', description: 'Sistema económico completo con tiendas, inventario y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 0, banner: 'https://i.ibb.co/PvLtgL34/Chat-GPT-Image-3-ago-2026-14-45-34.png' },
-    { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado con hitboxes y habilidades especiales.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes', 'Combos', 'Habilidades', 'Efectos'], sales: 0, banner: 'https://i.ibb.co/PvLtgL34/Chat-GPT-Image-3-ago-2026-14-45-34.png' },
-    { id: 4, name: 'Build System', description: 'Sistema de construcción intuitivo con grid snapping.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D', 'Materiales', 'Undo/Redo'], sales: 0, banner: 'https://i.ibb.co/PvLtgL34/Chat-GPT-Image-3-ago-2026-14-45-34.png' },
-    { id: 5, name: 'VIP System', description: 'Sistema VIP con perks exclusivos y beneficios especiales.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks', 'Salas VIP', 'Comandos', 'Insignias'], sales: 0, banner: 'https://i.ibb.co/PvLtgL34/Chat-GPT-Image-3-ago-2026-14-45-34.png' },
-    { id: 6, name: 'Data Store Manager', description: 'Sistema de guardado de datos con respaldo automático.', price: 2200, category: 'economy', icon: 'fa-database', features: ['Auto-save', 'Backups', 'Recuperación', 'Sincronización'], sales: 0, banner: 'https://i.ibb.co/PvLtgL34/Chat-GPT-Image-3-ago-2026-14-45-34.png' },
-    { id: 7, name: 'Anti-Cheat System', description: 'Protección avanzada contra hackers y exploits.', price: 3500, category: 'admin', icon: 'fa-shield-virus', features: ['Detección', 'Auto-ban', 'Logs', 'Protección'], sales: 0, banner: 'https://i.ibb.co/PvLtgL34/Chat-GPT-Image-3-ago-2026-14-45-34.png' },
-    { id: 8, name: 'Trading System', description: 'Sistema de intercambio seguro entre jugadores.', price: 2800, category: 'economy', icon: 'fa-arrow-right-arrow-left', features: ['Seguro', 'Historial', 'Notificaciones', 'Anti-scam'], sales: 0, banner: 'https://i.ibb.co/PvLtgL34/Chat-GPT-Image-3-ago-2026-14-45-34.png' }
+const discountCoupons = [
+    { code: 'WELCOME10', discount: 0.10, description: '10% de descuento - Bienvenida', minPurchase: 0, maxUses: 100, currentUses: 0, active: true },
+    { code: 'ROBLOX20', discount: 0.20, description: '20% de descuento - Roblox', minPurchase: 2000, maxUses: 50, currentUses: 0, active: true },
+    { code: 'VIP50', discount: 0.50, description: '50% de descuento - VIP', minPurchase: 5000, maxUses: 20, currentUses: 0, active: true },
+    { code: 'YXSTUDIOS', discount: 0.15, description: '15% de descuento - YX Studios', minPurchase: 1000, maxUses: 200, currentUses: 0, active: true },
+    { code: 'SUMMER25', discount: 0.25, description: '25% de descuento - Verano', minPurchase: 1500, maxUses: 75, currentUses: 0, active: true },
+    { code: 'BLACK50', discount: 0.50, description: '50% de descuento - Black Friday', minPurchase: 3000, maxUses: 30, currentUses: 0, active: true }
 ];
 
+// ============================================
+// TABLA DE PRODUCTOS
+// ============================================
+const products = [
+    // ──────────────────────────────────────────
+    // PRODUCTO 1 - Admin System Pro
+    // ──────────────────────────────────────────
+    {
+        id: 1,
+        name: 'Admin System Pro',
+        description: 'Sistema de administración completo con comandos avanzados y panel de control. Incluye más de 50 comandos diferentes, panel intuitivo y protección anti-exploit.',
+        price: 2500,
+        category: 'admin',
+        icon: 'fa-shield-halved',
+        features: [
+            'Comandos avanzados',
+            'Panel de control',
+            'Sistema de rangos',
+            'Anti-exploit'
+        ],
+        sales: 0,
+        reviews: [],
+        banner: 'https://via.placeholder.com/900x300/ff2d2d/ffffff?text=Admin+System+Pro',
+        featured: true
+    },
+    
+    // ──────────────────────────────────────────
+    // PRODUCTO 2 - Economy System
+    // ──────────────────────────────────────────
+    {
+        id: 2,
+        name: 'Economy System',
+        description: 'Sistema económico completo con tiendas, inventario, trading y monedas personalizables para tu juego.',
+        price: 1800,
+        category: 'economy',
+        icon: 'fa-coins',
+        features: [
+            'Tiendas',
+            'Inventario',
+            'Trading',
+            'Monedas personalizables'
+        ],
+        sales: 0,
+        reviews: [],
+        banner: 'https://via.placeholder.com/900x300/00c853/ffffff?text=Economy+System',
+        featured: true
+    },
+    
+    // ──────────────────────────────────────────
+    // PRODUCTO 3 - Combat Engine
+    // ──────────────────────────────────────────
+    {
+        id: 3,
+        name: 'Combat Engine',
+        description: 'Motor de combate avanzado con hitboxes precisos, sistema de combos fluidos y habilidades especiales.',
+        price: 3000,
+        category: 'combat',
+        icon: 'fa-hand-fist',
+        features: [
+            'Hitboxes precisos',
+            'Sistema de combos',
+            'Habilidades especiales',
+            'Efectos visuales'
+        ],
+        sales: 0,
+        reviews: [],
+        banner: 'https://via.placeholder.com/900x300/2196f3/ffffff?text=Combat+Engine',
+        featured: true
+    },
+    
+    // ──────────────────────────────────────────
+    // PRODUCTO 4 - Build System
+    // ──────────────────────────────────────────
+    {
+        id: 4,
+        name: 'Build System',
+        description: 'Sistema de construcción intuitivo con grid snapping, rotación 3D y múltiples materiales.',
+        price: 2000,
+        category: 'building',
+        icon: 'fa-hammer',
+        features: [
+            'Grid snapping',
+            'Rotación 3D',
+            'Múltiples materiales',
+            'Undo/Redo'
+        ],
+        sales: 0,
+        reviews: [],
+        banner: 'https://via.placeholder.com/900x300/ff9100/ffffff?text=Build+System',
+        featured: false
+    },
+    
+    // ──────────────────────────────────────────
+    // PRODUCTO 5 - VIP System
+    // ──────────────────────────────────────────
+    {
+        id: 5,
+        name: 'VIP System',
+        description: 'Sistema VIP premium con perks exclusivos, salas privadas y beneficios especiales.',
+        price: 1500,
+        category: 'admin',
+        icon: 'fa-crown',
+        features: [
+            'Perks exclusivos',
+            'Salas VIP',
+            'Comandos especiales',
+            'Insignias'
+        ],
+        sales: 0,
+        reviews: [],
+        banner: 'https://via.placeholder.com/900x300/9c27b0/ffffff?text=VIP+System',
+        featured: false
+    },
+    
+    // ──────────────────────────────────────────
+    // PRODUCTO 6 - Data Store Manager
+    // ──────────────────────────────────────────
+    {
+        id: 6,
+        name: 'Data Store Manager',
+        description: 'Sistema avanzado de guardado de datos con respaldo automático y recuperación.',
+        price: 2200,
+        category: 'economy',
+        icon: 'fa-database',
+        features: [
+            'Auto-save',
+            'Backups automáticos',
+            'Recuperación de datos',
+            'Sincronización'
+        ],
+        sales: 0,
+        reviews: [],
+        banner: 'https://via.placeholder.com/900x300/607d8b/ffffff?text=Data+Store+Manager',
+        featured: false
+    },
+    
+    // ──────────────────────────────────────────
+    // PRODUCTO 7 - Anti-Cheat System
+    // ──────────────────────────────────────────
+    {
+        id: 7,
+        name: 'Anti-Cheat System',
+        description: 'Protección avanzada contra hackers y exploits con detección automática y sistema de baneo.',
+        price: 3500,
+        category: 'admin',
+        icon: 'fa-shield-virus',
+        features: [
+            'Detección de exploits',
+            'Auto-ban',
+            'Logs detallados',
+            'Protección remota'
+        ],
+        sales: 0,
+        reviews: [],
+        banner: 'https://via.placeholder.com/900x300/ff1744/ffffff?text=Anti+Cheat+System',
+        featured: false
+    },
+    
+    // ──────────────────────────────────────────
+    // PRODUCTO 8 - Trading System
+    // ──────────────────────────────────────────
+    {
+        id: 8,
+        name: 'Trading System',
+        description: 'Sistema de intercambio seguro entre jugadores con historial y protección anti-scam.',
+        price: 2800,
+        category: 'economy',
+        icon: 'fa-arrow-right-arrow-left',
+        features: [
+            'Intercambio seguro',
+            'Historial de trades',
+            'Notificaciones',
+            'Protección anti-scam'
+        ],
+        sales: 0,
+        reviews: [],
+        banner: 'https://via.placeholder.com/900x300/00bcd4/ffffff?text=Trading+System',
+        featured: false
+    }
+];
+
+// ============================================
+// CONFIGURACIÓN
+// ============================================
 const ITEMS_PER_PAGE = 6;
 let currentPage = 1;
 let currentCategory = 'all';
@@ -53,7 +235,6 @@ async function checkUserSession() {
         const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session && session.user) {
-            console.log('Usuario logueado:', session.user.email);
             guestMenu.style.display = 'none';
             userMenu.style.display = 'flex';
 
@@ -89,7 +270,10 @@ async function checkUserSession() {
 function renderFeaturedProducts() {
     const grid = document.getElementById('featuredGrid');
     if (!grid) return;
-    const featured = products.slice(0, 3);
+    
+    // Obtener productos marcados como destacados
+    const featured = products.filter(p => p.featured === true).slice(0, 3);
+    
     grid.innerHTML = featured.map((p, i) => `
         <div class="featured-product-card featured-anim-${i + 1}" onclick="showProductModal(${p.id})">
             <div class="featured-glow"></div>
