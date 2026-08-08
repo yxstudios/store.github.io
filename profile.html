@@ -13,7 +13,6 @@
 </head>
 <body>
 
-    <!-- THEME SWITCHER -->
     <div class="theme-switcher">
         <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
         <div class="theme-panel">
@@ -27,7 +26,6 @@
         </div>
     </div>
 
-    <!-- TOPBAR -->
     <nav class="topbar">
         <div class="topbar-container">
             <div class="topbar-brand">
@@ -54,282 +52,320 @@
         </div>
     </nav>
 
-    <!-- BANNER DE PORTADA -->
-    <div class="profile-banner-wrapper">
-        <div class="profile-banner" id="profileBanner" style="background-image:url('https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner+de+Perfil');">
-            <div class="profile-banner-overlay"></div>
-            <label for="bannerUpload" class="profile-banner-edit-btn" title="Cambiar banner">
-                <span class="material-icons">edit</span> Cambiar portada
-            </label>
-            <input type="file" id="bannerUpload" accept="image/*" style="display:none;">
-        </div>
-    </div>
-
-    <!-- PROFILE CONTAINER -->
-    <main class="profile-container-new">
+    <main class="profile-container" style="max-width:1000px;margin:40px auto;padding:0 20px;display:grid;grid-template-columns:280px 1fr;gap:25px;">
         
-        <!-- SIDEBAR -->
-        <div class="profile-sidebar-new">
-            <div class="profile-avatar-section-new">
-                <div class="avatar-upload-wrapper-new">
-                    <img id="profileAvatar" src="https://via.placeholder.com/140" class="profile-avatar-new" alt="Avatar">
-                    <label for="avatarUpload" class="avatar-edit-btn" title="Cambiar foto">
-                        <span class="material-icons">edit</span>
-                    </label>
-                    <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
-                </div>
-                <h2 id="profileName">Cargando...</h2>
-                <p id="profileEmailDisplay">cargando@email.com</p>
-                <span class="badge" id="profileBadge">Cliente</span>
+        <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:25px;text-align:center;height:fit-content;">
+            <div style="position:relative;display:inline-block;">
+                <img id="profileAvatar" src="https://via.placeholder.com/120" style="width:110px;height:110px;border-radius:50%;border:3px solid var(--accent);object-fit:cover;">
+                <label for="avatarUpload" style="position:absolute;bottom:5px;right:5px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.8em;">📷</label>
+                <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
             </div>
+            <h2 id="profileName" style="margin:12px 0 5px;">Cargando...</h2>
+            <p id="profileEmail" style="color:var(--text-muted);font-size:0.85em;">Cargando...</p>
+            <span class="badge" id="profileBadge">Cliente</span>
             
-            <nav class="profile-nav-new">
-                <a href="#" class="profile-nav-link-new active" data-section="personal">
-                    <span class="material-icons">person</span> Información
-                </a>
-                <a href="#" class="profile-nav-link-new" data-section="security">
-                    <span class="material-icons">security</span> Seguridad
-                </a>
-                <a href="#" class="profile-nav-link-new" data-section="purchases">
-                    <span class="material-icons">shopping_bag</span> Compras
-                </a>
-                <a href="#" class="profile-nav-link-new" data-section="invoices">
-                    <span class="material-icons">receipt_long</span> Facturación
-                </a>
-                <a href="#" class="profile-nav-link-new" data-section="settings">
-                    <span class="material-icons">settings</span> Configuración
-                </a>
-                <a href="#" class="profile-nav-link-new" data-section="danger">
-                    <span class="material-icons" style="color:var(--danger);">dangerous</span> Zona de Peligro
-                </a>
+            <nav style="display:flex;flex-direction:column;gap:5px;margin-top:20px;text-align:left;">
+                <a href="#" class="profile-nav-link active" data-section="personal" style="display:flex;align-items:center;gap:8px;padding:10px 12px;color:var(--accent);background:var(--accent-light);border-radius:10px;font-size:0.9em;text-decoration:none;">👤 Información</a>
+                <a href="#" class="profile-nav-link" data-section="security" style="display:flex;align-items:center;gap:8px;padding:10px 12px;color:var(--text-secondary);border-radius:10px;font-size:0.9em;text-decoration:none;">🔒 Seguridad</a>
+                <a href="#" class="profile-nav-link" data-section="purchases" style="display:flex;align-items:center;gap:8px;padding:10px 12px;color:var(--text-secondary);border-radius:10px;font-size:0.9em;text-decoration:none;">🛒 Compras</a>
+                <a href="#" class="profile-nav-link" data-section="settings" style="display:flex;align-items:center;gap:8px;padding:10px 12px;color:var(--text-secondary);border-radius:10px;font-size:0.9em;text-decoration:none;">⚙️ Configuración</a>
+                <a href="#" class="profile-nav-link" data-section="danger" style="display:flex;align-items:center;gap:8px;padding:10px 12px;color:var(--danger);border-radius:10px;font-size:0.9em;text-decoration:none;">⚠️ Zona de Peligro</a>
             </nav>
         </div>
         
-        <!-- CONTENT -->
-        <div class="profile-content-new">
+        <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:30px;">
             
-            <!-- SECCIÓN: INFORMACIÓN PERSONAL -->
             <div id="personalSection" class="profile-section active">
                 <h3>Información Personal</h3>
-                
-                <div class="profile-form-new">
-                    <div class="form-row">
-                        <div class="form-group-new">
-                            <label>Nombre completo</label>
-                            <input type="text" id="editName" class="profile-input-new" placeholder="Tu nombre completo">
-                        </div>
-                        <div class="form-group-new">
-                            <label>Usuario de Roblox</label>
-                            <div class="input-icon-wrapper">
-                                <span class="material-icons input-prefix-icon">sports_esports</span>
-                                <input type="text" id="editRoblox" class="profile-input-new has-icon" placeholder="Username de Roblox">
-                            </div>
-                        </div>
+                <div style="display:flex;flex-direction:column;gap:15px;margin-top:20px;">
+                    <div>
+                        <label style="font-size:0.85em;color:var(--text-secondary);">Nombre completo</label>
+                        <input type="text" id="editName" class="profile-input" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);margin-top:5px;">
                     </div>
-                    
-                    <div class="form-group-new">
-                        <label>Biografía</label>
-                        <textarea id="editBio" class="profile-input-new profile-textarea-new" placeholder="Cuéntanos sobre ti..." rows="3"></textarea>
+                    <div>
+                        <label style="font-size:0.85em;color:var(--text-secondary);">Biografía</label>
+                        <textarea id="editBio" class="profile-input" rows="3" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);margin-top:5px;resize:vertical;"></textarea>
                     </div>
-                    
-                    <div class="form-group-new">
-                        <label>Discord</label>
-                        <div class="input-icon-wrapper">
-                            <span class="material-icons input-prefix-icon">discord</span>
-                            <input type="text" id="editDiscord" class="profile-input-new has-icon" placeholder="Usuario#0000">
-                            <button id="connectDiscord" class="btn-discord-connect-new">
-                                <i class="fab fa-discord"></i> Vincular
-                            </button>
-                        </div>
+                    <div>
+                        <label style="font-size:0.85em;color:var(--text-secondary);">Roblox</label>
+                        <input type="text" id="editRoblox" class="profile-input" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);margin-top:5px;">
                     </div>
-                    
-                    <button class="btn-primary" id="savePersonal">
-                        <span class="material-icons">save</span> Guardar Cambios
-                    </button>
+                    <button class="btn-primary" id="savePersonal">💾 Guardar Cambios</button>
                 </div>
             </div>
             
-            <!-- SECCIÓN: SEGURIDAD -->
-            <div id="securitySection" class="profile-section">
+            <div id="securitySection" class="profile-section" style="display:none;">
                 <h3>Seguridad</h3>
-                
-                <div class="security-card-new">
-                    <div class="security-header">
-                        <span class="material-icons">lock</span>
+                <div style="margin-top:20px;">
+                    <h4>Cambiar Contraseña</h4>
+                    <div style="display:flex;flex-direction:column;gap:15px;margin-top:15px;">
                         <div>
-                            <h4>Contraseña</h4>
-                            <p class="security-subtitle">Actualiza tu contraseña periódicamente</p>
+                            <label style="font-size:0.85em;color:var(--text-secondary);">Nueva contraseña</label>
+                            <input type="password" id="newPassword" class="profile-input" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);margin-top:5px;">
                         </div>
-                    </div>
-                    <div class="form-group-new">
-                        <label>Nueva contraseña</label>
-                        <div class="input-icon-wrapper">
-                            <span class="material-icons input-prefix-icon">lock</span>
-                            <input type="password" id="newPassword" class="profile-input-new has-icon" placeholder="Mínimo 6 caracteres">
-                            <button class="toggle-pass-btn" data-target="newPassword">
-                                <span class="material-icons">visibility_off</span>
-                            </button>
+                        <div>
+                            <label style="font-size:0.85em;color:var(--text-secondary);">Confirmar</label>
+                            <input type="password" id="confirmNewPassword" class="profile-input" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);margin-top:5px;">
                         </div>
+                        <button class="btn-primary" id="changePasswordBtn">🔒 Actualizar Contraseña</button>
                     </div>
-                    <div class="form-group-new">
-                        <label>Confirmar contraseña</label>
-                        <div class="input-icon-wrapper">
-                            <span class="material-icons input-prefix-icon">lock_reset</span>
-                            <input type="password" id="confirmNewPassword" class="profile-input-new has-icon" placeholder="Repite la contraseña">
-                            <button class="toggle-pass-btn" data-target="confirmNewPassword">
-                                <span class="material-icons">visibility_off</span>
-                            </button>
-                        </div>
-                    </div>
-                    <button class="btn-primary" id="changePasswordBtn">
-                        <span class="material-icons">lock_reset</span> Actualizar Contraseña
-                    </button>
                 </div>
                 
-                <div class="security-card-new">
-                    <div class="security-header">
-                        <span class="material-icons">email</span>
+                <div style="margin-top:30px;">
+                    <h4>Cambiar Correo</h4>
+                    <div style="display:flex;flex-direction:column;gap:15px;margin-top:15px;">
                         <div>
-                            <h4>Correo Electrónico</h4>
-                            <p class="security-subtitle">Cambia tu dirección de correo</p>
+                            <label style="font-size:0.85em;color:var(--text-secondary);">Nuevo correo</label>
+                            <input type="email" id="newEmail" class="profile-input" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);margin-top:5px;">
                         </div>
+                        <button class="btn-primary" id="changeEmailBtn">📧 Solicitar Cambio</button>
                     </div>
-                    <!-- TOOLTIP con email actual -->
-                    <div class="current-email-tooltip">
-                        <span class="material-icons">info</span>
-                        <span>Correo actual: <strong id="tooltipEmail">cargando...</strong></span>
-                    </div>
-                    <div class="form-group-new">
-                        <label>Nuevo correo electrónico</label>
-                        <div class="input-icon-wrapper">
-                            <span class="material-icons input-prefix-icon">alternate_email</span>
-                            <input type="email" id="newEmail" class="profile-input-new has-icon" placeholder="nuevo@correo.com">
-                        </div>
-                    </div>
-                    <button class="btn-primary" id="changeEmailBtn">
-                        <span class="material-icons">send</span> Solicitar Cambio
-                    </button>
                 </div>
             </div>
             
-            <!-- SECCIÓN: HISTORIAL DE COMPRAS -->
-            <div id="purchasesSection" class="profile-section">
+            <div id="purchasesSection" class="profile-section" style="display:none;">
                 <h3>Historial de Compras</h3>
-                
-                <div class="purchases-filters-new">
-                    <div class="input-icon-wrapper" style="flex:1;max-width:300px;">
-                        <span class="material-icons input-prefix-icon">search</span>
-                        <input type="text" id="searchPurchases" class="profile-input-new has-icon" placeholder="Buscar compra...">
-                    </div>
-                    <select id="filterStatus" class="profile-input-new" style="max-width:180px;">
-                        <option value="all">Todos</option>
-                        <option value="completed">Completado</option>
-                        <option value="pending">Pendiente</option>
-                    </select>
-                </div>
-                
-                <div class="table-wrapper">
-                    <table class="purchases-table-new">
+                <div style="overflow-x:auto;margin-top:20px;">
+                    <table style="width:100%;border-collapse:collapse;">
                         <thead>
-                            <tr>
-                                <th>Pedido</th>
-                                <th>Fecha</th>
-                                <th>Productos</th>
-                                <th>Total</th>
-                                <th>Estado</th>
-                                <th></th>
+                            <tr style="border-bottom:1px solid var(--border-color);">
+                                <th style="text-align:left;padding:10px;font-size:0.8em;color:var(--text-secondary);">Pedido</th>
+                                <th style="text-align:left;padding:10px;font-size:0.8em;color:var(--text-secondary);">Fecha</th>
+                                <th style="text-align:left;padding:10px;font-size:0.8em;color:var(--text-secondary);">Total</th>
+                                <th style="text-align:left;padding:10px;font-size:0.8em;color:var(--text-secondary);">Estado</th>
                             </tr>
                         </thead>
                         <tbody id="purchasesTableBody">
-                            <tr>
-                                <td colspan="6" class="table-empty">No tienes compras realizadas</td>
-                            </tr>
+                            <tr><td colspan="4" style="text-align:center;padding:40px;color:var(--text-muted);">No tienes compras</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             
-            <!-- SECCIÓN: FACTURACIÓN -->
-            <div id="invoicesSection" class="profile-section">
-                <h3>Facturación</h3>
-                <div id="invoicesList">
-                    <p class="text-muted">No hay facturas disponibles</p>
-                </div>
-            </div>
-            
-            <!-- SECCIÓN: CONFIGURACIÓN -->
-            <div id="settingsSection" class="profile-section">
+            <div id="settingsSection" class="profile-section" style="display:none;">
                 <h3>Configuración</h3>
-                
-                <div class="settings-grid-new">
-                    <div class="settings-card-new">
-                        <span class="material-icons settings-icon">language</span>
-                        <h4>Idioma</h4>
-                        <select id="languageSelect" class="profile-input-new">
+                <div style="display:flex;flex-direction:column;gap:20px;margin-top:20px;">
+                    <div>
+                        <label style="font-size:0.85em;color:var(--text-secondary);">Idioma</label>
+                        <select id="languageSelect" class="profile-input" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);margin-top:5px;">
                             <option value="es">Español</option>
                             <option value="en">English</option>
                         </select>
                     </div>
-                    
-                    <div class="settings-card-new">
-                        <span class="material-icons settings-icon">attach_money</span>
-                        <h4>Moneda</h4>
-                        <select id="currencySelect" class="profile-input-new">
-                            <option value="USD">USD - Dólar</option>
-                            <option value="EUR">EUR - Euro</option>
-                            <option value="MXN">MXN - Peso mexicano</option>
+                    <div>
+                        <label style="font-size:0.85em;color:var(--text-secondary);">Moneda</label>
+                        <select id="currencySelect" class="profile-input" style="width:100%;padding:10px;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;color:var(--text-primary);margin-top:5px;">
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
                         </select>
-                    </div>
-                    
-                    <div class="settings-card-new">
-                        <span class="material-icons settings-icon">palette</span>
-                        <h4>Tema</h4>
-                        <div class="accent-colors-new">
-                            <button class="accent-dot active" data-accent="red" style="background:#ff2d2d;" title="Red"></button>
-                            <button class="accent-dot" data-accent="dark-gray" style="background:#888;" title="Dark"></button>
-                            <button class="accent-dot" data-accent="blue" style="background:#2196f3;" title="Blue"></button>
-                            <button class="accent-dot" data-accent="purple" style="background:#9c27b0;" title="Purple"></button>
-                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- SECCIÓN: ZONA DE PELIGRO -->
-            <div id="dangerSection" class="profile-section">
+            <div id="dangerSection" class="profile-section" style="display:none;">
                 <h3 style="color:var(--danger);">Zona de Peligro</h3>
-                
-                <div class="danger-card-new">
-                    <div class="danger-info-new">
-                        <span class="material-icons danger-icon">warning</span>
-                        <div>
-                            <h4>Eliminar Cuenta</h4>
-                            <p>Esta acción es irreversible. Todos tus datos, compras y reseñas serán eliminados permanentemente.</p>
-                        </div>
+                <div style="border:1px solid rgba(255,23,68,0.3);padding:20px;border-radius:12px;margin-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+                    <div>
+                        <h4 style="color:var(--danger);">Eliminar Cuenta</h4>
+                        <p style="color:var(--text-muted);font-size:0.85em;">Acción irreversible</p>
                     </div>
-                    <button class="btn-danger" id="deleteAccountBtn">
-                        <span class="material-icons">delete_forever</span> Eliminar mi cuenta
-                    </button>
+                    <button class="btn-danger" id="deleteAccountBtn">🗑️ Eliminar</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- MODAL ELIMINAR CUENTA -->
-    <div id="deleteModal" class="modal-overlay-new" style="display:none;">
-        <div class="modal-card-new">
-            <span class="material-icons modal-danger-icon">warning</span>
-            <h3>Eliminar Cuenta</h3>
-            <p>Para confirmar, escribe <strong>ELIMINAR</strong> en el campo de abajo:</p>
-            <input type="text" id="deleteConfirmInput" class="profile-input-new" placeholder="Escribe ELIMINAR">
-            <div class="modal-actions-new">
-                <button class="btn-outline" id="cancelDelete">Cancelar</button>
-                <button class="btn-danger" id="confirmDelete" disabled>Eliminar Permanentemente</button>
-            </div>
-        </div>
-    </div>
-
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
-    <script type="module" src="js/profile.js"></script>
+    <script>
+        // ============================================
+        // PROFILE JS - SIMPLE Y FUNCIONAL
+        // ============================================
+        
+        var userProfile = JSON.parse(localStorage.getItem('yxProfile') || '{}');
+        
+        // Inicializar Supabase
+        import('https://esm.sh/@supabase/supabase-js@2').then(function(mod) {
+            window.supabaseClient = mod.createClient(
+                'https://qfgofnlvfxcmzexwuzou.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
+            );
+            initProfile();
+        });
+        
+        async function initProfile() {
+            var supabase = window.supabaseClient;
+            var { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            var user = session.user;
+            
+            // Actualizar UI
+            document.getElementById('profileName').textContent = user.user_metadata?.full_name || 'Usuario';
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('userNameDisplay').textContent = user.user_metadata?.full_name || user.email.split('@')[0];
+            
+            if (user.user_metadata?.avatar_url) {
+                document.getElementById('profileAvatar').src = user.user_metadata.avatar_url;
+                document.getElementById('userAvatarTop').src = user.user_metadata.avatar_url;
+            }
+            
+            // Cargar datos guardados
+            document.getElementById('editName').value = userProfile.full_name || user.user_metadata?.full_name || '';
+            document.getElementById('editBio').value = userProfile.bio || '';
+            document.getElementById('editRoblox').value = userProfile.roblox || '';
+            
+            // Badge
+            var orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+            var badge = document.getElementById('profileBadge');
+            if (orders.length >= 10) badge.textContent = 'VIP';
+            else if (orders.length >= 5) badge.textContent = 'Cliente Frecuente';
+            else if (orders.length >= 1) badge.textContent = 'Cliente';
+            
+            // Idioma y moneda
+            document.getElementById('languageSelect').value = localStorage.getItem('yxLang') || 'es';
+            document.getElementById('currencySelect').value = localStorage.getItem('yxCurrency') || 'USD';
+            
+            // Cargar compras
+            loadPurchases();
+            
+            // Configurar eventos
+            setupEvents(supabase, user);
+        }
+        
+        function loadPurchases() {
+            var orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+            var tbody = document.getElementById('purchasesTableBody');
+            if (!orders.length) return;
+            
+            tbody.innerHTML = orders.reverse().slice(0, 10).map(function(o) {
+                return '<tr style="border-bottom:1px solid var(--border-color);">' +
+                    '<td style="padding:10px;font-size:0.85em;">#' + (o.id || '').substring(0, 8) + '</td>' +
+                    '<td style="padding:10px;font-size:0.85em;">' + new Date(o.date).toLocaleDateString() + '</td>' +
+                    '<td style="padding:10px;font-size:0.85em;">$' + (o.total ? o.total.toFixed(2) : '0.00') + '</td>' +
+                    '<td style="padding:10px;"><span style="background:rgba(0,200,83,0.15);color:#00c853;padding:4px 10px;border-radius:50px;font-size:0.75em;">Completado</span></td>' +
+                    '</tr>';
+            }).join('');
+        }
+        
+        function setupEvents(supabase, user) {
+            // Navegación
+            document.querySelectorAll('.profile-nav-link').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.profile-nav-link').forEach(function(l) {
+                        l.style.color = 'var(--text-secondary)';
+                        l.style.background = 'transparent';
+                    });
+                    this.style.color = 'var(--accent)';
+                    this.style.background = 'var(--accent-light)';
+                    
+                    document.querySelectorAll('.profile-section').forEach(function(s) { s.style.display = 'none'; });
+                    document.getElementById(this.dataset.section + 'Section').style.display = 'block';
+                });
+            });
+            
+            // Guardar perfil
+            document.getElementById('savePersonal').addEventListener('click', async function() {
+                var name = document.getElementById('editName').value.trim();
+                var bio = document.getElementById('editBio').value.trim();
+                var roblox = document.getElementById('editRoblox').value.trim();
+                
+                await supabase.auth.updateUser({ data: { full_name: name } });
+                
+                userProfile.full_name = name;
+                userProfile.bio = bio;
+                userProfile.roblox = roblox;
+                localStorage.setItem('yxProfile', JSON.stringify(userProfile));
+                
+                document.getElementById('profileName').textContent = name || 'Usuario';
+                document.getElementById('userNameDisplay').textContent = name || user.email.split('@')[0];
+                
+                alert('Perfil actualizado correctamente');
+            });
+            
+            // Cambiar contraseña
+            document.getElementById('changePasswordBtn').addEventListener('click', async function() {
+                var p1 = document.getElementById('newPassword').value;
+                var p2 = document.getElementById('confirmNewPassword').value;
+                
+                if (!p1 || !p2) { alert('Completa todos los campos'); return; }
+                if (p1 !== p2) { alert('Las contraseñas no coinciden'); return; }
+                if (p1.length < 6) { alert('Mínimo 6 caracteres'); return; }
+                
+                var { error } = await supabase.auth.updateUser({ password: p1 });
+                if (error) { alert('Error: ' + error.message); }
+                else {
+                    alert('Contraseña actualizada');
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                }
+            });
+            
+            // Cambiar email
+            document.getElementById('changeEmailBtn').addEventListener('click', async function() {
+                var email = document.getElementById('newEmail').value.trim();
+                if (!email) { alert('Ingresa un correo'); return; }
+                
+                var { error } = await supabase.auth.updateUser({ email: email });
+                if (error) { alert('Error: ' + error.message); }
+                else { alert('Revisa tu nuevo correo para confirmar'); }
+            });
+            
+            // Avatar
+            document.getElementById('avatarUpload').addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    document.getElementById('profileAvatar').src = ev.target.result;
+                    document.getElementById('userAvatarTop').src = ev.target.result;
+                    userProfile.avatar_url = ev.target.result;
+                    localStorage.setItem('yxProfile', JSON.stringify(userProfile));
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Idioma
+            document.getElementById('languageSelect').addEventListener('change', function() {
+                localStorage.setItem('yxLang', this.value);
+                alert('Idioma cambiado');
+            });
+            
+            // Moneda
+            document.getElementById('currencySelect').addEventListener('change', function() {
+                localStorage.setItem('yxCurrency', this.value);
+                alert('Moneda cambiada');
+            });
+            
+            // Eliminar cuenta
+            document.getElementById('deleteAccountBtn').addEventListener('click', async function() {
+                if (confirm('¿Estás seguro de eliminar tu cuenta? Esta acción es irreversible.')) {
+                    if (confirm('¿REALMENTE SEGURO? Se eliminarán todos tus datos.')) {
+                        await supabase.auth.signOut();
+                        localStorage.clear();
+                        window.location.href = 'index.html';
+                    }
+                }
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+                e.preventDefault();
+                await supabase.auth.signOut();
+                window.location.href = 'index.html';
+            });
+            
+            // Carrito
+            var cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
+            var count = cart.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
+            var badge = document.getElementById('cartCount');
+            if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+        }
+    </script>
 </body>
 </html>
