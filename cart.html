@@ -4,45 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrito - YX Studios</title>
-    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+    <!-- THEME SWITCHER -->
     <div class="theme-switcher">
         <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
         <div class="theme-panel">
-            <h4><i class="fas fa-paint-brush"></i> Temas</h4>
+            <h4><i class="fas fa-paint-brush"></i> Personalizar Tema</h4>
             <div class="theme-options">
-                <button class="theme-option active" data-theme="red"><span class="theme-color red-theme"></span>Red</button>
-                <button class="theme-option" data-theme="dark-gray"><span class="theme-color dark-gray-theme"></span>Dark</button>
-                <button class="theme-option" data-theme="blue"><span class="theme-color blue-theme"></span>Blue</button>
-                <button class="theme-option" data-theme="purple"><span class="theme-color purple-theme"></span>Purple</button>
+                <button class="theme-option active" data-theme="red"><span class="theme-color red-theme"></span><span>Red Passion</span></button>
+                <button class="theme-option" data-theme="dark-gray"><span class="theme-color dark-gray-theme"></span><span>Dark Steel</span></button>
+                <button class="theme-option" data-theme="blue"><span class="theme-color blue-theme"></span><span>Ocean Blue</span></button>
+                <button class="theme-option" data-theme="purple"><span class="theme-color purple-theme"></span><span>Royal Purple</span></button>
             </div>
         </div>
     </div>
 
+    <!-- TOPBAR -->
     <nav class="topbar">
         <div class="topbar-container">
-            <div class="topbar-brand"><a href="index.html"><span class="material-icons">sports_esports</span>YX Studios</a></div>
+            <div class="topbar-brand">
+                <a href="index.html">
+                    <img id="siteLogo" src="https://user21990.na.imgto.link/public/20260808/chatgpt-image-8-ago-2026-01-30-31-a-m-1.avif" alt="YX Studios" class="site-logo">
+                    <span>YX Studios</span>
+                </a>
+            </div>
             <div class="topbar-nav">
-                <a href="index.html" class="nav-link"><span class="material-icons">home</span>Home</a>
-                <a href="index.html#products" class="nav-link"><span class="material-icons">store</span>Productos</a>
-                <a href="cart.html" class="nav-link cart-link active"><span class="material-icons">shopping_cart</span>Carrito<span id="cartCount" class="cart-badge">0</span></a>
+                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+                <a href="index.html#products" class="nav-link"><span class="material-icons">store</span><span>Productos</span></a>
+                <a href="cart.html" class="nav-link cart-link active">
+                    <span class="material-icons">shopping_cart</span><span>Carrito</span>
+                    <span id="cartCount" class="cart-badge">0</span>
+                </a>
                 <div id="guestMenu" class="auth-buttons">
-                    <a href="login.html" class="btn-login"><span class="material-icons">login</span>Iniciar Sesión</a>
-                    <a href="register.html" class="btn-register"><span class="material-icons">person_add</span>Registrarse</a>
+                    <a href="login.html" class="btn-login"><span class="material-icons">login</span> Iniciar Sesión</a>
+                    <a href="register.html" class="btn-register"><span class="material-icons">person_add</span> Registrarse</a>
                 </div>
                 <div id="userMenu" class="user-menu" style="display:none;">
                     <div class="user-dropdown">
-                        <button class="user-dropdown-btn"><img id="userAvatar" src="https://via.placeholder.com/32" class="user-avatar"><span id="userNameDisplay">Usuario</span><span class="material-icons">arrow_drop_down</span></button>
+                        <button class="user-dropdown-btn">
+                            <img id="userAvatar" src="https://via.placeholder.com/32" class="user-avatar">
+                            <span id="userNameDisplay">Usuario</span>
+                            <span class="material-icons">arrow_drop_down</span>
+                        </button>
                         <div class="user-dropdown-content">
-                            <a href="profile.html"><span class="material-icons">person</span>Mi Perfil</a>
-                            <a href="profile.html#purchases"><span class="material-icons">shopping_bag</span>Mis Compras</a>
-                            <a href="cart.html"><span class="material-icons">shopping_cart</span>Carrito</a>
+                            <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
+                            <a href="profile.html#purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
+                            <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
                             <div class="dropdown-divider"></div>
-                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span>Cerrar Sesión</a>
+                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
                         </div>
                     </div>
                 </div>
@@ -50,23 +65,58 @@
         </div>
     </nav>
 
+    <!-- CART CONTENT -->
     <main class="cart-page">
         <div class="cart-container">
-            <div class="cart-header"><h1><span class="material-icons">shopping_cart</span> Tu Carrito</h1><button id="clearCart" class="btn-clear"><span class="material-icons">delete_sweep</span>Vaciar</button></div>
+            <div class="cart-header">
+                <h1><span class="material-icons">shopping_cart</span> Tu Carrito</h1>
+                <button id="clearCart" class="btn-clear">
+                    <span class="material-icons">delete_sweep</span> Vaciar Carrito
+                </button>
+            </div>
+
             <div id="cartItemsContainer" class="cart-items-container"></div>
-            <div id="emptyCartMessage" class="empty-cart-state" style="display:none;"><span class="material-icons">shopping_cart_off</span><h2>Vacío</h2><a href="index.html#products" class="btn-primary">Ver Productos</a></div>
+
+            <div id="emptyCartMessage" class="empty-cart-state" style="display:none;">
+                <span class="material-icons">shopping_cart_off</span>
+                <h2>Tu carrito está vacío</h2>
+                <p>Explora nuestros sistemas para Roblox</p>
+                <a href="index.html#products" class="btn-primary">
+                    <span class="material-icons">store</span> Ver Productos
+                </a>
+            </div>
+
             <div id="cartSummarySection" class="cart-summary-section" style="display:none;">
                 <div class="summary-card">
-                    <h3>Resumen</h3>
+                    <h3>Resumen de Compra</h3>
                     <div class="summary-items" id="summaryItemsList"></div>
-                    <div class="summary-totals"><div class="summary-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div><div class="summary-row"><span>Descuento</span><span id="discount">$0.00</span></div><div class="summary-row total-row"><span>Total</span><span id="total">$0.00</span></div></div>
-                    <div class="promo-section"><div class="promo-input-group"><span class="material-icons">discount</span><input type="text" id="promoInput" placeholder="Código"><button id="applyPromo" class="btn-promo">Aplicar</button></div><div id="promoMessage"></div></div>
-                    <div class="payment-section"><h4>Pago</h4><div id="paypal-button-container"></div><div class="payment-info"><span class="material-icons">lock</span> PayPal seguro</div></div>
+                    <div class="summary-totals">
+                        <div class="summary-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+                        <div class="summary-row discount-row"><span>Descuento</span><span id="discount">$0.00</span></div>
+                        <div class="summary-row total-row"><span>Total</span><span id="total">$0.00</span></div>
+                    </div>
+                    <div class="promo-section">
+                        <div class="promo-input-group">
+                            <span class="material-icons">discount</span>
+                            <input type="text" id="promoInput" placeholder="Código promocional">
+                            <button id="applyPromo" class="btn-promo">Aplicar</button>
+                        </div>
+                        <div id="promoMessage" class="promo-message"></div>
+                    </div>
+                    <div class="payment-section">
+                        <h4>Método de Pago</h4>
+                        <div id="paypal-button-container"></div>
+                        <div class="payment-info">
+                            <span class="material-icons">lock</span>
+                            Pago seguro procesado por PayPal
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- PayPal SDK -->
     <script src="https://www.paypal.com/sdk/js?client-id=Aa6KFjacVgqjs6vg9uBBD58-DAVVU1QPXJ_RIrDqUhVSXXs_n35A65NRxCcc3kN91D-pgZg6UsKBW05u&currency=USD&disable-funding=credit,card"></script>
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
