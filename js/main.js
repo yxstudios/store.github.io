@@ -107,14 +107,15 @@ function renderProducts() {
             <div class="product-info">
                 <span class="product-category">${p.category}</span>
                 <h3>${p.name}</h3>
-                <p>${p.description.substring(0, 70)}...</p>
+                <p>${p.description.substring(0, 60)}...</p>
                 <div class="product-footer">
                     <div class="product-price">
                         <span class="price-value">${p.price.toLocaleString()}</span>
                         <span class="price-currency">Robux</span>
                     </div>
                     <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})">
-                        <span class="material-icons">add_shopping_cart</span> Agregar
+                        <span class="material-icons">add_shopping_cart</span>
+                        Agregar
                     </button>
                 </div>
             </div>
