@@ -632,3 +632,56 @@ img { max-width: 100%; }
     .footer-content { grid-template-columns: 1fr; text-align: center; }
     .pagination-btn { width: 35px; height: 35px; font-size: 0.85em; }
 }
+
+/* ============================================
+   MODAL BANNER
+   ============================================ */
+.modal-banner {
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.modal-banner-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, transparent 0%, var(--bg-secondary) 100%);
+}
+.modal-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 30px;
+    max-height: calc(85vh - 200px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) transparent;
+}
+.modal-body::-webkit-scrollbar { width: 5px; }
+.modal-body::-webkit-scrollbar-track { background: transparent; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+.modal-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.review-date {
+    color: var(--text-muted);
+    font-size: 0.75em;
+    display: block;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .modal-body {
+        grid-template-columns: 1fr;
+    }
+    .modal-banner {
+        height: 150px;
+    }
+}
