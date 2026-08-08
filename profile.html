@@ -4,127 +4,297 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - YX Studios</title>
-    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+    <!-- THEME SWITCHER -->
     <div class="theme-switcher">
         <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
         <div class="theme-panel">
-            <h4><i class="fas fa-paint-brush"></i> Temas</h4>
+            <h4><i class="fas fa-paint-brush"></i> Personalizar Tema</h4>
             <div class="theme-options">
-                <button class="theme-option active" data-theme="red"><span class="theme-color red-theme"></span>Red</button>
-                <button class="theme-option" data-theme="dark-gray"><span class="theme-color dark-gray-theme"></span>Dark</button>
-                <button class="theme-option" data-theme="blue"><span class="theme-color blue-theme"></span>Blue</button>
-                <button class="theme-option" data-theme="purple"><span class="theme-color purple-theme"></span>Purple</button>
+                <button class="theme-option active" data-theme="red"><span class="theme-color red-theme"></span><span>Red Passion</span></button>
+                <button class="theme-option" data-theme="dark-gray"><span class="theme-color dark-gray-theme"></span><span>Dark Steel</span></button>
+                <button class="theme-option" data-theme="blue"><span class="theme-color blue-theme"></span><span>Ocean Blue</span></button>
+                <button class="theme-option" data-theme="purple"><span class="theme-color purple-theme"></span><span>Royal Purple</span></button>
             </div>
         </div>
     </div>
 
+    <!-- TOPBAR -->
     <nav class="topbar">
         <div class="topbar-container">
-            <div class="topbar-brand"><a href="index.html"><span class="material-icons">sports_esports</span>YX Studios</a></div>
+            <div class="topbar-brand">
+                <a href="index.html">
+                    <img id="siteLogo" src="https://user21990.na.imgto.link/public/20260808/chatgpt-image-8-ago-2026-01-30-31-a-m-1.avif" alt="YX Studios" class="site-logo">
+                    <span>YX Studios</span>
+                </a>
+            </div>
             <div class="topbar-nav">
-                <a href="index.html" class="nav-link"><span class="material-icons">home</span>Home</a>
-                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span>Carrito<span id="cartCount" class="cart-badge">0</span></a>
-                <a href="profile.html" class="nav-link active"><span class="material-icons">person</span>Perfil</a>
-                <a href="#" id="logoutBtn" class="btn-login"><span class="material-icons">logout</span>Salir</a>
+                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span><span>Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
+                <div class="user-menu" style="display:flex;">
+                    <div class="user-dropdown">
+                        <button class="user-dropdown-btn">
+                            <img id="userAvatarTop" src="https://via.placeholder.com/32" class="user-avatar">
+                            <span id="userNameDisplay">Usuario</span>
+                            <span class="material-icons">arrow_drop_down</span>
+                        </button>
+                        <div class="user-dropdown-content">
+                            <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
+                            <a href="profile.html#purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
+                            <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
+    <!-- PROFILE CONTAINER -->
     <main class="profile-container">
+        
+        <!-- SIDEBAR -->
         <div class="profile-sidebar">
             <div class="profile-avatar-section">
-                <img id="profileAvatar" src="https://via.placeholder.com/120" class="profile-avatar">
+                <div class="avatar-upload-wrapper">
+                    <img id="profileAvatar" src="https://via.placeholder.com/120" class="profile-avatar" alt="Avatar">
+                    <label for="avatarUpload" class="avatar-upload-btn" title="Cambiar foto">
+                        <span class="material-icons">camera_alt</span>
+                    </label>
+                    <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
+                </div>
                 <h2 id="profileName">Usuario</h2>
-                <p id="profileEmail">email</p>
+                <p id="profileEmail">email@ejemplo.com</p>
+                <span class="badge" id="profileBadge">Cliente</span>
             </div>
+            
             <nav class="profile-nav">
-                <a href="#" class="profile-nav-link active" data-section="info"><span class="material-icons">person</span> Información</a>
-                <a href="#" class="profile-nav-link" data-section="purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
-                <a href="#" class="profile-nav-link" data-section="settings"><span class="material-icons">settings</span> Configuración</a>
+                <a href="#" class="profile-nav-link active" data-section="personal">
+                    <span class="material-icons">person</span> Información Personal
+                </a>
+                <a href="#" class="profile-nav-link" data-section="security">
+                    <span class="material-icons">security</span> Seguridad
+                </a>
+                <a href="#" class="profile-nav-link" data-section="purchases">
+                    <span class="material-icons">shopping_bag</span> Historial de Compras
+                </a>
+                <a href="#" class="profile-nav-link" data-section="invoices">
+                    <span class="material-icons">receipt_long</span> Facturación
+                </a>
+                <a href="#" class="profile-nav-link" data-section="settings">
+                    <span class="material-icons">settings</span> Configuración
+                </a>
+                <a href="#" class="profile-nav-link" data-section="danger">
+                    <span class="material-icons" style="color:var(--danger);">dangerous</span> Zona de Peligro
+                </a>
             </nav>
         </div>
+        
+        <!-- CONTENT -->
         <div class="profile-content">
-            <div id="infoSection" class="profile-section active">
+            
+            <!-- SECCIÓN: INFORMACIÓN PERSONAL -->
+            <div id="personalSection" class="profile-section active">
                 <h3>Información Personal</h3>
+                
                 <div class="profile-form">
-                    <div class="form-group"><label>Nombre</label><input type="text" id="editName" class="profile-input"></div>
-                    <div class="form-group"><label>Email</label><input type="email" id="editEmail" class="profile-input" disabled></div>
-                    <button class="btn-primary" id="saveProfile"><span class="material-icons">save</span> Guardar</button>
+                    <div class="form-group">
+                        <label>Nombre completo</label>
+                        <input type="text" id="editName" class="profile-input" placeholder="Tu nombre completo">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Biografía</label>
+                        <textarea id="editBio" class="profile-input profile-textarea" placeholder="Cuéntanos sobre ti..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Usuario de Roblox</label>
+                        <div class="input-with-icon">
+                            <span class="material-icons input-prefix">sports_esports</span>
+                            <input type="text" id="editRoblox" class="profile-input" placeholder="Tu username de Roblox">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Cuenta de Discord</label>
+                        <div class="input-with-icon">
+                            <span class="material-icons input-prefix">discord</span>
+                            <input type="text" id="editDiscord" class="profile-input" placeholder="Usuario#0000">
+                            <button id="connectDiscord" class="btn-sm btn-discord-connect">
+                                <i class="fab fa-discord"></i> Conectar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Banner de perfil</label>
+                        <div class="banner-upload-wrapper">
+                            <div id="bannerPreview" class="banner-preview" style="background-image:url('https://via.placeholder.com/800x200/1a1a1a/ffffff?text=Banner');">
+                                <label for="bannerUpload" class="banner-upload-btn">
+                                    <span class="material-icons">add_photo_alternate</span> Cambiar banner
+                                </label>
+                                <input type="file" id="bannerUpload" accept="image/*" style="display:none;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" id="savePersonal">
+                        <span class="material-icons">save</span> Guardar Cambios
+                    </button>
                 </div>
             </div>
-            <div id="purchasesSection" class="profile-section"><h3>Mis Compras</h3><div id="purchasesList"><p class="text-muted">No tienes compras</p></div></div>
-            <div id="settingsSection" class="profile-section"><h3>Configuración</h3><div class="settings-options"><button class="btn-outline" id="changePasswordBtn"><span class="material-icons">lock</span> Cambiar Contraseña</button></div></div>
+            
+            <!-- SECCIÓN: SEGURIDAD -->
+            <div id="securitySection" class="profile-section">
+                <h3>Seguridad</h3>
+                
+                <div class="security-card">
+                    <h4>Cambiar Contraseña</h4>
+                    <div class="form-group">
+                        <label>Contraseña actual</label>
+                        <input type="password" id="currentPassword" class="profile-input" placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Nueva contraseña</label>
+                        <input type="password" id="newPassword" class="profile-input" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar nueva contraseña</label>
+                        <input type="password" id="confirmNewPassword" class="profile-input" placeholder="Repite la contraseña">
+                    </div>
+                    <button class="btn-primary" id="changePasswordBtn">
+                        <span class="material-icons">lock_reset</span> Cambiar Contraseña
+                    </button>
+                </div>
+                
+                <div class="security-card">
+                    <h4>Cambiar Correo Electrónico</h4>
+                    <p class="security-info">Se enviará un enlace de confirmación a tu nuevo correo.</p>
+                    <div class="form-group">
+                        <label>Nuevo correo electrónico</label>
+                        <input type="email" id="newEmail" class="profile-input" placeholder="nuevo@correo.com">
+                    </div>
+                    <button class="btn-primary" id="changeEmailBtn">
+                        <span class="material-icons">email</span> Solicitar Cambio
+                    </button>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN: HISTORIAL DE COMPRAS -->
+            <div id="purchasesSection" class="profile-section">
+                <h3>Historial de Compras</h3>
+                
+                <div class="purchases-filters">
+                    <input type="text" id="searchPurchases" class="profile-input" placeholder="Buscar compra..." style="max-width:300px;">
+                    <select id="filterStatus" class="profile-input" style="max-width:200px;">
+                        <option value="all">Todos</option>
+                        <option value="completed">Completado</option>
+                        <option value="pending">Pendiente</option>
+                    </select>
+                </div>
+                
+                <div class="purchases-table-wrapper">
+                    <table class="purchases-table">
+                        <thead>
+                            <tr>
+                                <th>Pedido</th>
+                                <th>Fecha</th>
+                                <th>Productos</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="purchasesTableBody">
+                            <tr>
+                                <td colspan="6" class="text-muted">No tienes compras realizadas</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN: FACTURACIÓN -->
+            <div id="invoicesSection" class="profile-section">
+                <h3>Facturación</h3>
+                
+                <div class="invoices-list" id="invoicesList">
+                    <p class="text-muted">No hay facturas disponibles</p>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN: CONFIGURACIÓN -->
+            <div id="settingsSection" class="profile-section">
+                <h3>Configuración</h3>
+                
+                <div class="settings-card">
+                    <h4>Idioma</h4>
+                    <select id="languageSelect" class="profile-input">
+                        <option value="es">Español</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                
+                <div class="settings-card">
+                    <h4>Moneda</h4>
+                    <select id="currencySelect" class="profile-input">
+                        <option value="USD">USD - Dólar estadounidense</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="MXN">MXN - Peso mexicano</option>
+                    </select>
+                </div>
+                
+                <div class="settings-card">
+                    <h4>Color de acento</h4>
+                    <div class="accent-colors">
+                        <button class="accent-color-btn active" data-accent="red" style="background:#ff2d2d;"></button>
+                        <button class="accent-color-btn" data-accent="dark-gray" style="background:#888888;"></button>
+                        <button class="accent-color-btn" data-accent="blue" style="background:#2196f3;"></button>
+                        <button class="accent-color-btn" data-accent="purple" style="background:#9c27b0;"></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN: ZONA DE PELIGRO -->
+            <div id="dangerSection" class="profile-section">
+                <h3 style="color:var(--danger);">Zona de Peligro</h3>
+                
+                <div class="danger-card">
+                    <div class="danger-info">
+                        <h4>Eliminar Cuenta</h4>
+                        <p>Esta acción es irreversible. Todos tus datos, compras y reseñas serán eliminados permanentemente.</p>
+                    </div>
+                    <button class="btn-danger" id="deleteAccountBtn">
+                        <span class="material-icons">delete_forever</span> Eliminar mi cuenta
+                    </button>
+                </div>
+            </div>
         </div>
     </main>
 
+    <!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR CUENTA -->
+    <div id="deleteModal" class="modal-overlay" style="display:none;">
+        <div class="modal-card">
+            <h3 style="color:var(--danger);">Eliminar Cuenta</h3>
+            <p>Para confirmar, escribe <strong>ELIMINAR</strong> en el campo de abajo:</p>
+            <input type="text" id="deleteConfirmInput" class="profile-input" placeholder="Escribe ELIMINAR">
+            <div class="modal-actions">
+                <button class="btn-outline" id="cancelDelete">Cancelar</button>
+                <button class="btn-danger" id="confirmDelete" disabled>Eliminar Permanentemente</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        async function loadProfile() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
-            const user = session.user;
-            document.getElementById('profileName').textContent = user.user_metadata?.full_name || 'Usuario';
-            document.getElementById('profileEmail').textContent = user.email;
-            document.getElementById('editName').value = user.user_metadata?.full_name || '';
-            document.getElementById('editEmail').value = user.email;
-            if (user.user_metadata?.avatar_url) document.getElementById('profileAvatar').src = user.user_metadata.avatar_url;
-            loadPurchases();
-        }
-
-        function loadPurchases() {
-            const orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-            const list = document.getElementById('purchasesList');
-            if (!orders.length) { list.innerHTML = '<p class="text-muted">No tienes compras</p>'; return; }
-            list.innerHTML = orders.map(o => '<div class="purchase-card"><div class="purchase-header"><span>Pedido: ' + o.id.substring(0, 10) + '...</span><span>' + new Date(o.date).toLocaleDateString() + '</span></div><div class="purchase-total"><span>Total: $' + o.total.toFixed(2) + '</span></div></div>').join('');
-        }
-
-        document.querySelectorAll('.profile-nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.querySelectorAll('.profile-nav-link').forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
-                document.getElementById(link.dataset.section + 'Section').classList.add('active');
-            });
-        });
-
-        if (window.location.hash === '#purchases') document.querySelector('[data-section="purchases"]').click();
-        if (window.location.hash === '#settings') document.querySelector('[data-section="settings"]').click();
-
-        document.getElementById('saveProfile').addEventListener('click', async () => {
-            const name = document.getElementById('editName').value;
-            await supabase.auth.updateUser({ data: { full_name: name } });
-            document.getElementById('profileName').textContent = name;
-            alert('Perfil actualizado');
-        });
-
-        document.getElementById('changePasswordBtn').addEventListener('click', async () => {
-            const email = document.getElementById('editEmail').value;
-            await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/reset-password.html' });
-            alert('Revisa tu correo');
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.href = 'index.html';
-        });
-
-        const cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
-        const count = cart.reduce((s, i) => s + (i.quantity || 1), 0);
-        const badge = document.getElementById('cartCount');
-        if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
-
-        loadProfile();
-    </script>
+    <script type="module" src="js/profile.js"></script>
 </body>
 </html>
