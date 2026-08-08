@@ -2,8 +2,8 @@
 // PRODUCTOS
 // ============================================
 const products = [
-    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control. Incluye más de 50 comandos, panel intuitivo y protección anti-exploit.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 234, reviews: [], banner: 'https://via.placeholder.com/900x300/ff2d2d/ffffff?text=Admin+System+Pro' },
-    { id: 2, name: 'Economy System', description: 'Sistema económico completo con tiendas, inventario, trading y monedas personalizables para tu juego.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 189, reviews: [], banner: 'https://via.placeholder.com/900x300/00c853/ffffff?text=Economy+System' },
+    { id: 1, name: 'Admin System Pro', description: 'Sistema de administración completo con comandos avanzados y panel de control. Incluye más de 50 comandos.', price: 2500, category: 'admin', icon: 'fa-shield-halved', features: ['Comandos avanzados', 'Panel de control', 'Sistema de rangos', 'Anti-exploit'], sales: 234, reviews: [], banner: 'https://via.placeholder.com/900x300/ff2d2d/ffffff?text=Admin+System+Pro' },
+    { id: 2, name: 'Economy System', description: 'Sistema económico completo con tiendas, inventario, trading y monedas personalizables.', price: 1800, category: 'economy', icon: 'fa-coins', features: ['Tiendas', 'Inventario', 'Trading', 'Monedas'], sales: 189, reviews: [], banner: 'https://via.placeholder.com/900x300/00c853/ffffff?text=Economy+System' },
     { id: 3, name: 'Combat Engine', description: 'Motor de combate avanzado con hitboxes precisos, sistema de combos fluidos y habilidades especiales.', price: 3000, category: 'combat', icon: 'fa-hand-fist', features: ['Hitboxes precisos', 'Combos', 'Habilidades', 'Efectos'], sales: 312, reviews: [], banner: 'https://via.placeholder.com/900x300/2196f3/ffffff?text=Combat+Engine' },
     { id: 4, name: 'Build System', description: 'Sistema de construcción intuitivo con grid snapping, rotación 3D y múltiples materiales.', price: 2000, category: 'building', icon: 'fa-hammer', features: ['Grid snapping', 'Rotación 3D', 'Materiales', 'Undo/Redo'], sales: 156, reviews: [], banner: 'https://via.placeholder.com/900x300/ff9100/ffffff?text=Build+System' },
     { id: 5, name: 'VIP System', description: 'Sistema VIP premium con perks exclusivos, salas privadas y beneficios especiales.', price: 1500, category: 'admin', icon: 'fa-crown', features: ['Perks exclusivos', 'Salas VIP', 'Comandos', 'Insignias'], sales: 278, reviews: [], banner: 'https://via.placeholder.com/900x300/9c27b0/ffffff?text=VIP+System' },
@@ -21,7 +21,7 @@ let currentSearch = '';
 // INICIALIZAR
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Cargando YX Studios...');
+    console.log('YX Studios cargado');
     renderFeaturedProducts();
     renderProducts();
     updateCartCount();
@@ -32,14 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // PRODUCTOS DESTACADOS
 // ============================================
 function renderFeaturedProducts() {
-    const featuredGrid = document.getElementById('featuredGrid');
-    if (!featuredGrid) return;
+    const grid = document.getElementById('featuredGrid');
+    if (!grid) return;
 
-    // Productos con más ventas son destacados
     const featured = [...products].sort((a, b) => b.sales - a.sales).slice(0, 3);
 
-    featuredGrid.innerHTML = featured.map((p, index) => `
-        <div class="featured-product-card featured-anim-${index + 1}">
+    grid.innerHTML = featured.map((p, i) => `
+        <div class="featured-product-card featured-anim-${i + 1}">
             <div class="featured-glow"></div>
             <div class="featured-badge">
                 <span class="material-icons">local_fire_department</span>
@@ -73,13 +72,13 @@ function renderFeaturedProducts() {
 }
 
 // ============================================
-// RENDERIZAR PRODUCTOS
+// PRODUCTOS
 // ============================================
 function getFilteredProducts() {
-    let filtered = products;
-    if (currentCategory !== 'all') filtered = filtered.filter(p => p.category === currentCategory);
-    if (currentSearch) filtered = filtered.filter(p => p.name.toLowerCase().includes(currentSearch) || p.description.toLowerCase().includes(currentSearch));
-    return filtered;
+    let f = products;
+    if (currentCategory !== 'all') f = f.filter(p => p.category === currentCategory);
+    if (currentSearch) f = f.filter(p => p.name.toLowerCase().includes(currentSearch) || p.description.toLowerCase().includes(currentSearch));
+    return f;
 }
 
 function renderProducts() {
@@ -111,7 +110,7 @@ function renderProducts() {
                         <span class="price-currency">Robux</span>
                     </div>
                     <div class="product-actions">
-                        <button class="btn-view-details" onclick="showProductModal(${p.id})" title="Ver información">
+                        <button class="btn-view-details" onclick="showProductModal(${p.id})" title="Ver info">
                             <span class="material-icons">info</span>
                         </button>
                         <button class="btn-add-cart" onclick="addToCart(${p.id})" title="Agregar al carrito">
@@ -127,30 +126,27 @@ function renderProducts() {
 }
 
 function renderPagination(totalPages) {
-    const container = document.getElementById('pagination');
-    if (!container || totalPages <= 1) { if (container) container.innerHTML = ''; return; }
-    let html = `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><span class="material-icons">chevron_left</span></button>`;
-    for (let i = 1; i <= totalPages; i++) html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
-    html += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><span class="material-icons">chevron_right</span></button>`;
-    container.innerHTML = html;
+    const c = document.getElementById('pagination');
+    if (!c || totalPages <= 1) { if (c) c.innerHTML = ''; return; }
+    let h = `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}><span class="material-icons">chevron_left</span></button>`;
+    for (let i = 1; i <= totalPages; i++) h += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+    h += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}><span class="material-icons">chevron_right</span></button>`;
+    c.innerHTML = h;
 }
 
 window.goToPage = function(page) {
-    const totalPages = Math.ceil(getFilteredProducts().length / ITEMS_PER_PAGE) || 1;
-    if (page < 1 || page > totalPages) return;
+    const tp = Math.ceil(getFilteredProducts().length / ITEMS_PER_PAGE) || 1;
+    if (page < 1 || page > tp) return;
     currentPage = page;
     renderProducts();
     window.scrollTo({ top: document.getElementById('products').offsetTop - 80, behavior: 'smooth' });
 };
 
-// ============================================
-// FILTROS
-// ============================================
-window.filterProducts = function(category) {
-    currentCategory = category;
+window.filterProducts = function(cat) {
+    currentCategory = cat;
     currentPage = 1;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.querySelector(`.filter-btn[data-category="${category}"]`);
+    const btn = document.querySelector(`.filter-btn[data-category="${cat}"]`);
     if (btn) btn.classList.add('active');
     renderProducts();
 };
@@ -183,22 +179,20 @@ function updateCartCount() {
 }
 
 // ============================================
-// MODAL DE PRODUCTO (BANNER ARRIBA + INFO IZQ + BOTONES DER)
+// MODAL
 // ============================================
 window.showProductModal = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    const existingModal = document.querySelector('.product-modal-overlay');
-    if (existingModal) existingModal.remove();
+    const old = document.querySelector('.product-modal-overlay');
+    if (old) old.remove();
 
     const modal = document.createElement('div');
     modal.className = 'product-modal-overlay';
     modal.innerHTML = `
         <div class="product-modal">
             <button class="modal-close-btn"><span class="material-icons">close</span></button>
-            
-            <!-- BANNER ARRIBA -->
             <div class="modal-banner" style="background-image: url('${product.banner}')">
                 <div class="modal-banner-overlay"></div>
                 <div class="modal-banner-content">
@@ -206,8 +200,6 @@ window.showProductModal = function(productId) {
                     <h2>${product.name}</h2>
                 </div>
             </div>
-            
-            <!-- CONTENIDO: IZQ INFO + DER BOTONES -->
             <div class="modal-body">
                 <div class="modal-left-info">
                     <p class="modal-description">${product.description}</p>
@@ -242,18 +234,12 @@ window.showProductModal = function(productId) {
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
 
-    const closeModal = () => {
-        modal.remove();
-        document.body.style.overflow = '';
-    };
+    const close = () => { modal.remove(); document.body.style.overflow = ''; };
+    modal.querySelector('.modal-close-btn').onclick = close;
+    modal.addEventListener('click', e => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); } });
 
-    modal.querySelector('.modal-close-btn').onclick = closeModal;
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    document.addEventListener('keydown', function escHandler(e) {
-        if (e.key === 'Escape') { closeModal(); document.removeEventListener('keydown', escHandler); }
-    });
-
-    modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); closeModal(); };
+    modal.querySelector('#modalAddToCart').onclick = () => { addToCart(productId); close(); };
     modal.querySelector('#modalBuyNow').onclick = () => { addToCart(productId); window.location.href = 'cart.html'; };
 };
 
