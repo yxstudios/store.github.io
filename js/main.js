@@ -221,7 +221,7 @@ function getFilteredProducts() {
 }
 
 // ============================================
-// RENDERIZAR PRODUCTOS
+// RENDERIZAR PRODUCTOS (con moneda)
 // ============================================
 function renderProducts() {
     var filtered = getFilteredProducts();
@@ -233,7 +233,7 @@ function renderProducts() {
     if (!grid) return;
 
     if (pageItems.length === 0) {
-        grid.innerHTML = '<div class="no-products"><span class="material-icons">search_off</span><h3>No se encontraron productos</h3></div>';
+        grid.innerHTML = '<div class="no-products"><span class="material-icons">search_off</span><h3>' + t('no_products') + '</h3></div>';
         return;
     }
 
@@ -242,14 +242,14 @@ function renderProducts() {
         <div class="product-card" onclick="showProductModal(${p.id})">
             <div class="product-image"><i class="fas ${p.icon}"></i></div>
             <div class="product-info">
-                <span class="product-category">${p.category}</span>
-                <h3>${p.name}</h3>
-                <p>${p.description.substring(0, 60)}...</p>
+                <span class="product-category">${t(p.category)}</span>
+                <h3>${t('product_' + p.id + '_name') || p.name}</h3>
+                <p>${(t('product_' + p.id + '_desc') || p.description).substring(0, 60)}...</p>
                 <div class="product-footer">
                     <div class="product-price">
                         <span class="price-value">${formatPrice(p.price)}</span>
                     </div>
-                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})" title="Agregar al carrito">
+                    <button class="btn-add-cart" onclick="event.stopPropagation(); addToCart(${p.id})" title="${t('add_to_cart')}">
                         <span class="material-icons">add_shopping_cart</span>
                     </button>
                 </div>
