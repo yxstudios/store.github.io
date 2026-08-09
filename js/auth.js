@@ -12,6 +12,9 @@ var BASE_URL = 'https://yxstore.linkpc.net';
 
 console.log('Auth JS - Base URL:', BASE_URL);
 
+// ============================================
+// INICIAR SESIÓN
+// ============================================
 async function signInWithEmail(email, password) {
     try {
         showLoading(true);
@@ -22,12 +25,14 @@ async function signInWithEmail(email, password) {
     } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
 
+// ============================================
+// REGISTRO CON CAPTCHA
+// ============================================
 async function signUpWithEmail(name, email, password) {
     try {
         showLoading(true);
         var captchaToken = window.captchaToken || null;
         if (!captchaToken) { showMessage('Completa la verificación de seguridad.', 'error'); showLoading(false); return; }
-        
         var { data, error } = await supabase.auth.signUp({
             email: email, password: password,
             options: { data: { full_name: name }, captchaToken: captchaToken }
@@ -38,15 +43,24 @@ async function signUpWithEmail(name, email, password) {
     } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
 
+// ============================================
+// LOGIN CON DISCORD - RUTA CORRECTA
+// ============================================
 async function signInWithDiscord() {
     try {
         var redirectUrl = BASE_URL + '/index.html';
         console.log('Discord redirect:', redirectUrl);
-        var { data, error } = await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: redirectUrl } });
+        var { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'discord',
+            options: { redirectTo: redirectUrl }
+        });
         if (error) { showMessage('Error Discord: ' + error.message, 'error'); }
     } catch (error) { showMessage('Error: ' + error.message, 'error'); }
 }
 
+// ============================================
+// RESTABLECER CONTRASEÑA
+// ============================================
 async function resetPassword(email) {
     try {
         showLoading(true);
