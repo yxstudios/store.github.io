@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="es" data-theme="red">
 <head>
@@ -49,34 +51,47 @@
                 <input type="text" id="searchInput" data-i18n="search" placeholder="Buscar sistemas..." oninput="searchProducts()">
             </div>
             
+            <!-- DROPDOWNS DE IDIOMA Y MONEDA -->
             <div class="topbar-controls">
-                <select id="langSelect" onchange="changeLanguage(this.value)" class="topbar-select">
-                    <option value="es">ES</option>
-                    <option value="en">EN</option>
-                    <option value="pt">PT</option>
-                    <option value="fr">FR</option>
-                    <option value="de">DE</option>
-                    <option value="it">IT</option>
-                    <option value="ja">JA</option>
-                    <option value="ko">KO</option>
-                    <option value="ru">RU</option>
-                    <option value="zh">ZH</option>
-                </select>
+                <div class="dropdown-wrapper" id="langDropdown">
+                    <button class="dropdown-btn" onclick="toggleDropdown('langDropdown')">
+                        <span>🌐</span> <span id="currentLang">ES</span>
+                        <span class="material-icons dropdown-arrow">expand_more</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item active" data-lang="es" onclick="selectLanguage('es')">🇪🇸 Español</button>
+                        <button class="dropdown-item" data-lang="en" onclick="selectLanguage('en')">🇺🇸 English</button>
+                        <button class="dropdown-item" data-lang="pt" onclick="selectLanguage('pt')">🇧🇷 Português</button>
+                        <button class="dropdown-item" data-lang="fr" onclick="selectLanguage('fr')">🇫🇷 Français</button>
+                        <button class="dropdown-item" data-lang="de" onclick="selectLanguage('de')">🇩🇪 Deutsch</button>
+                        <button class="dropdown-item" data-lang="it" onclick="selectLanguage('it')">🇮🇹 Italiano</button>
+                        <button class="dropdown-item" data-lang="ja" onclick="selectLanguage('ja')">🇯🇵 日本語</button>
+                        <button class="dropdown-item" data-lang="ko" onclick="selectLanguage('ko')">🇰🇷 한국어</button>
+                        <button class="dropdown-item" data-lang="ru" onclick="selectLanguage('ru')">🇷🇺 Русский</button>
+                        <button class="dropdown-item" data-lang="zh" onclick="selectLanguage('zh')">🇨🇳 中文</button>
+                    </div>
+                </div>
                 
-                <select id="currencySelect" onchange="changeCurrency(this.value)" class="topbar-select">
-                    <option value="USD">$ USD</option>
-                    <option value="EUR">€ EUR</option>
-                    <option value="PEN">S/ PEN</option>
-                    <option value="MXN">MX$ MXN</option>
-                    <option value="COP">CO$ COP</option>
-                    <option value="CLP">CL$ CLP</option>
-                    <option value="ARS">AR$ ARS</option>
-                    <option value="BRL">R$ BRL</option>
-                    <option value="GBP">£ GBP</option>
-                    <option value="JPY">¥ JPY</option>
-                    <option value="CAD">CA$ CAD</option>
-                    <option value="AUD">AU$ AUD</option>
-                </select>
+                <div class="dropdown-wrapper" id="currencyDropdown">
+                    <button class="dropdown-btn" onclick="toggleDropdown('currencyDropdown')">
+                        <span>💵</span> <span id="currentCurrency">USD</span>
+                        <span class="material-icons dropdown-arrow">expand_more</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item active" data-currency="USD" onclick="selectCurrency('USD')">$ USD - Dólar</button>
+                        <button class="dropdown-item" data-currency="EUR" onclick="selectCurrency('EUR')">€ EUR - Euro</button>
+                        <button class="dropdown-item" data-currency="PEN" onclick="selectCurrency('PEN')">S/ PEN - Sol</button>
+                        <button class="dropdown-item" data-currency="MXN" onclick="selectCurrency('MXN')">MX$ MXN - Peso MX</button>
+                        <button class="dropdown-item" data-currency="COP" onclick="selectCurrency('COP')">CO$ COP - Peso CO</button>
+                        <button class="dropdown-item" data-currency="CLP" onclick="selectCurrency('CLP')">CL$ CLP - Peso CL</button>
+                        <button class="dropdown-item" data-currency="ARS" onclick="selectCurrency('ARS')">AR$ ARS - Peso AR</button>
+                        <button class="dropdown-item" data-currency="BRL" onclick="selectCurrency('BRL')">R$ BRL - Real</button>
+                        <button class="dropdown-item" data-currency="GBP" onclick="selectCurrency('GBP')">£ GBP - Libra</button>
+                        <button class="dropdown-item" data-currency="JPY" onclick="selectCurrency('JPY')">¥ JPY - Yen</button>
+                        <button class="dropdown-item" data-currency="CAD" onclick="selectCurrency('CAD')">CA$ CAD - Canadiense</button>
+                        <button class="dropdown-item" data-currency="AUD" onclick="selectCurrency('AUD')">AU$ AUD - Australiano</button>
+                    </div>
+                </div>
             </div>
             
             <div class="topbar-nav">
@@ -132,11 +147,11 @@
         </div>
     </section>
 
-    <!-- FEATURED PRODUCTS CON ROTACIÓN -->
+    <!-- FEATURED PRODUCTS -->
     <section id="featured" class="featured-section">
         <div class="section-header">
             <h2 data-i18n="featured_title">Productos Destacados</h2>
-            <p id="featuredSetTitle" data-i18n="featured_subtitle">Los más populares</p>
+            <p id="featuredSetTitle">Más Populares</p>
         </div>
         <div class="featured-indicators">
             <span class="indicator active" data-index="0"></span>
@@ -165,10 +180,7 @@
 
     <!-- FEATURES -->
     <section id="features" class="features">
-        <div class="section-header">
-            <h2 data-i18n="why_us">¿Por qué elegirnos?</h2>
-            <p data-i18n="why_us_sub">Ofrecemos los mejores sistemas para tu juego de Roblox</p>
-        </div>
+        <div class="section-header"><h2 data-i18n="why_us">¿Por qué elegirnos?</h2><p data-i18n="why_us_sub">Ofrecemos los mejores sistemas para tu juego de Roblox</p></div>
         <div class="features-grid">
             <div class="feature-card"><span class="material-icons">shield</span><h3 data-i18n="security">Seguridad Garantizada</h3><p data-i18n="security_desc">Sistemas anti-exploit</p></div>
             <div class="feature-card"><span class="material-icons">bolt</span><h3 data-i18n="performance">Alto Rendimiento</h3><p data-i18n="performance_desc">Optimizados</p></div>
@@ -193,50 +205,82 @@
     <script type="module" src="js/main.js"></script>
     
     <script>
-        function changeLanguage(lang) {
+        // ============================================
+        // DROPDOWNS DE IDIOMA Y MONEDA
+        // ============================================
+        function toggleDropdown(id) {
+            var dropdown = document.getElementById(id);
+            var isOpen = dropdown.classList.contains('open');
+            document.querySelectorAll('.dropdown-wrapper').forEach(function(d) { d.classList.remove('open'); });
+            if (!isOpen) dropdown.classList.add('open');
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown-wrapper')) {
+                document.querySelectorAll('.dropdown-wrapper').forEach(function(d) { d.classList.remove('open'); });
+            }
+        });
+
+        function selectLanguage(lang) {
             localStorage.setItem('yxLang', lang);
-            applyTranslations();
-            updateFeaturedTitle();
-            updatePlaceholders();
-        }
-        
-        function changeCurrency(currency) {
-            localStorage.setItem('yxCurrency', currency);
-            renderProducts();
-            renderFeaturedProducts();
-            updateHeroStats();
-        }
-        
-        function updatePlaceholders() {
-            document.querySelectorAll('[data-i18n]').forEach(function(el) {
-                var key = el.dataset.i18n;
-                if (el.tagName === 'INPUT' && el.type === 'text') {
-                    el.placeholder = t(key);
-                }
+            document.getElementById('currentLang').textContent = lang.toUpperCase();
+            document.querySelectorAll('#langDropdown .dropdown-item').forEach(function(item) {
+                item.classList.toggle('active', item.dataset.lang === lang);
             });
+            document.getElementById('langDropdown').classList.remove('open');
+            applyTranslations();
+            updateFeaturedTitles();
+            renderFeaturedProducts();
         }
-        
-        function updateFeaturedTitle() {
+
+        function selectCurrency(currency) {
+            localStorage.setItem('yxCurrency', currency);
+            document.getElementById('currentCurrency').textContent = currency;
+            document.querySelectorAll('#currencyDropdown .dropdown-item').forEach(function(item) {
+                item.classList.toggle('active', item.dataset.currency === currency);
+            });
+            document.getElementById('currencyDropdown').classList.remove('open');
+            if (typeof renderProducts === 'function') renderProducts();
+            if (typeof renderFeaturedProducts === 'function') renderFeaturedProducts();
+        }
+
+        function updateFeaturedTitles() {
             var titles = {
-                'es': ['Más Populares', 'Exclusivos', 'Con Descuento'],
-                'en': ['Most Popular', 'Exclusive', 'On Sale'],
-                'pt': ['Mais Populares', 'Exclusivos', 'Com Desconto'],
-                'fr': ['Plus Populaires', 'Exclusifs', 'En Solde'],
-                'de': ['Beliebteste', 'Exklusiv', 'Im Angebot'],
-                'it': ['Più Popolari', 'Esclusivi', 'In Offerta'],
-                'ja': ['人気', '限定', 'セール'],
-                'ko': ['인기', '독점', '할인'],
-                'ru': ['Популярные', 'Эксклюзив', 'Скидка'],
-                'zh': ['最热门', '独家', '折扣']
+                es: ['Más Populares', 'Exclusivos', 'Con Descuento'],
+                en: ['Most Popular', 'Exclusive', 'On Sale'],
+                pt: ['Mais Populares', 'Exclusivos', 'Com Desconto'],
+                fr: ['Plus Populaires', 'Exclusifs', 'En Solde'],
+                de: ['Beliebteste', 'Exklusiv', 'Im Angebot'],
+                it: ['Più Popolari', 'Esclusivi', 'In Offerta'],
+                ja: ['人気', '限定', 'セール'],
+                ko: ['인기', '독점', '할인'],
+                ru: ['Популярные', 'Эксклюзив', 'Скидка'],
+                zh: ['最热门', '独家', '折扣']
             };
             var lang = getLang();
             var setTitles = titles[lang] || titles['es'];
-            document.getElementById('featuredSetTitle').textContent = setTitles[currentFeaturedSet] || setTitles[0];
+            if (typeof featuredSets !== 'undefined') {
+                featuredSets[0].title = setTitles[0];
+                featuredSets[1].title = setTitles[1];
+                featuredSets[2].title = setTitles[2];
+            }
+            document.getElementById('featuredSetTitle').textContent = setTitles[0];
         }
-        
+
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('langSelect').value = getLang();
-            document.getElementById('currencySelect').value = localStorage.getItem('yxCurrency') || 'USD';
+            var savedLang = getLang();
+            var savedCurrency = localStorage.getItem('yxCurrency') || 'USD';
+            document.getElementById('currentLang').textContent = savedLang.toUpperCase();
+            document.getElementById('currentCurrency').textContent = savedCurrency;
+            
+            document.querySelectorAll('#langDropdown .dropdown-item').forEach(function(item) {
+                item.classList.toggle('active', item.dataset.lang === savedLang);
+            });
+            document.querySelectorAll('#currencyDropdown .dropdown-item').forEach(function(item) {
+                item.classList.toggle('active', item.dataset.currency === savedCurrency);
+            });
+            
+            updateFeaturedTitles();
             applyTranslations();
         });
     </script>
