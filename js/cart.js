@@ -14,36 +14,32 @@ var ROBUX_TO_USD = 0.0125;
 var paypalRendered = false;
 
 // ============================================
-// SISTEMA DE MONEDAS
+// MONEDAS
 // ============================================
 var CURRENCIES = {
-    USD: { symbol: '$', rate: 1, name: 'US Dollar' },
-    EUR: { symbol: '€', rate: 0.92, name: 'Euro' },
-    PEN: { symbol: 'S/', rate: 3.75, name: 'Sol Peruano' },
-    MXN: { symbol: 'MX$', rate: 17.50, name: 'Peso Mexicano' },
-    COP: { symbol: 'CO$', rate: 4100, name: 'Peso Colombiano' },
-    CLP: { symbol: 'CL$', rate: 920, name: 'Peso Chileno' },
-    ARS: { symbol: 'AR$', rate: 850, name: 'Peso Argentino' },
-    BRL: { symbol: 'R$', rate: 5.05, name: 'Real Brasileño' },
-    GBP: { symbol: '£', rate: 0.79, name: 'Libra Esterlina' },
-    JPY: { symbol: '¥', rate: 148, name: 'Yen Japonés' },
-    CAD: { symbol: 'CA$', rate: 1.35, name: 'Dólar Canadiense' },
-    AUD: { symbol: 'AU$', rate: 1.53, name: 'Dólar Australiano' }
+    USD: { symbol: '$', rate: 1 },
+    EUR: { symbol: '€', rate: 0.92 },
+    PEN: { symbol: 'S/', rate: 3.75 },
+    MXN: { symbol: 'MX$', rate: 17.50 },
+    COP: { symbol: 'CO$', rate: 4100 },
+    CLP: { symbol: 'CL$', rate: 920 },
+    ARS: { symbol: 'AR$', rate: 850 },
+    BRL: { symbol: 'R$', rate: 5.05 },
+    GBP: { symbol: '£', rate: 0.79 },
+    JPY: { symbol: '¥', rate: 148 },
+    CAD: { symbol: 'CA$', rate: 1.35 },
+    AUD: { symbol: 'AU$', rate: 1.53 }
 };
 
-function getCurrencySymbol() {
-    var currency = localStorage.getItem('yxCurrency') || 'USD';
-    return CURRENCIES[currency] ? CURRENCIES[currency].symbol : '$';
-}
+function getCurrency() { return localStorage.getItem('yxCurrency') || 'USD'; }
+function getCurrencySymbol() { var c = getCurrency(); return CURRENCIES[c] ? CURRENCIES[c].symbol : '$'; }
 function convertPrice(robux) {
-    var currency = localStorage.getItem('yxCurrency') || 'USD';
+    var currency = getCurrency();
     var usd = robux * ROBUX_TO_USD;
     var rate = CURRENCIES[currency] ? CURRENCIES[currency].rate : 1;
     return (usd * rate).toFixed(2);
 }
-function formatPrice(robux) {
-    return getCurrencySymbol() + convertPrice(robux);
-}
+function formatPrice(robux) { return getCurrencySymbol() + convertPrice(robux); }
 
 // ============================================
 // INICIALIZAR
@@ -57,18 +53,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('clearCart').addEventListener('click', function() {
         if (cart.length === 0) return;
         cart = []; appliedDiscount = 0; currentPromoCode = null; saveCart(); loadCart();
-        showNotification(t('notif_cart_cleared'), t('notif_cart_cleared_desc'), 'info');
     });
 
     document.getElementById('applyPromo').addEventListener('click', function() {
         var code = document.getElementById('promoInput').value.toUpperCase().trim();
         var msgEl = document.getElementById('promoMessage');
-        if (!code) { if (msgEl) msgEl.innerHTML = '<span class="promo-error">' + t('promo_invalid') + '</span>'; return; }
+        if (!code) { if (msgEl) msgEl.innerHTML = '<span class="promo-error">Código inválido</span>'; return; }
         if (promoCodes[code]) {
             currentPromoCode = code;
-            appliedDiscount = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0) * ROBUX_TO_USD * promoCodes[code];
-            if (msgEl) msgEl.innerHTML = '<span class="promo-success">' + (promoCodes[code] * 100) + '% ' + t('promo_applied') + '</span>';
-        } else { appliedDiscount = 0; currentPromoCode = null; if (msgEl) msgEl.innerHTML = '<span class="promo-error">' + t('promo_invalid') + '</span>'; }
+            var subtotalRobux = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0);
+            appliedDiscount = subtotalRobux * ROBUX_TO_USD * promoCodes[code];
+            if (msgEl) msgEl.innerHTML = '<span class="promo-success">' + (promoCodes[code] * 100) + '% descuento aplicado</span>';
+        } else { appliedDiscount = 0; currentPromoCode = null; if (msgEl) msgEl.innerHTML = '<span class="promo-error">Código inválido</span>'; }
         updateSummary();
     });
 });
@@ -104,14 +100,27 @@ function loadCart() {
     }
     if (empty) empty.style.display = 'none'; 
     if (summary) summary.style.display = 'block';
+    
     if (container) {
         container.innerHTML = cart.map(function(item, idx) {
             var itemTotal = item.price * (item.quantity || 1);
+            var itemDiscount = 0;
+            if (currentPromoCode && appliedDiscount > 0) {
+                var totalRobux = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0);
+                var itemProportion = itemTotal / totalRobux;
+                itemDiscount = appliedDiscount * itemProportion;
+            }
+            var finalPrice = convertPrice(itemTotal);
+            var discountDisplay = itemDiscount > 0 ? '<div class="item-discount">-' + getCurrencySymbol() + itemDiscount.toFixed(2) + '</div>' : '';
+            
             return '<div class="cart-item-card">' +
                 '<div class="cart-item-icon"><span class="material-icons">' + getIcon(item.category) + '</span></div>' +
                 '<div class="cart-item-details"><h3>' + item.name + '</h3><span class="cart-item-category">' + item.category + '</span></div>' +
                 '<div class="cart-item-quantity"><button class="qty-btn" onclick="updateQty(' + idx + ',-1)">-</button><span class="qty-value">' + (item.quantity || 1) + '</span><button class="qty-btn" onclick="updateQty(' + idx + ',1)">+</button></div>' +
-                '<div class="cart-item-pricing"><div class="item-price">' + formatPrice(itemTotal) + '</div></div>' +
+                '<div class="cart-item-pricing">' +
+                    '<div class="item-price">' + getCurrencySymbol() + finalPrice + '</div>' +
+                    discountDisplay +
+                '</div>' +
                 '<button class="btn-remove-item" onclick="removeItem(' + idx + ')"><span class="material-icons">close</span></button>' +
                 '</div>';
         }).join('');
@@ -124,25 +133,24 @@ window.updateQty = function(idx, ch) {
     if (cart[idx].quantity <= 0) cart.splice(idx, 1); 
     saveCart(); loadCart(); 
 };
-window.removeItem = function(idx) { 
-    var item = cart[idx];
-    cart.splice(idx, 1); saveCart(); loadCart(); 
-    showNotification(t('notif_removed'), item.name + ' ' + t('notif_removed_desc'), 'info');
-};
+window.removeItem = function(idx) { cart.splice(idx, 1); saveCart(); loadCart(); };
 
 function updateSummary() {
     var subtotalRobux = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0);
-    var subtotalUSD = subtotalRobux * ROBUX_TO_USD;
-    var totalUSD = Math.max(0.01, subtotalUSD - appliedDiscount);
+    var subtotalConverted = convertPrice(subtotalRobux);
+    var discountConverted = appliedDiscount > 0 ? convertPrice(subtotalRobux * (promoCodes[currentPromoCode] || 0)) : '0.00';
+    var totalConverted = (parseFloat(subtotalConverted) - parseFloat(discountConverted)).toFixed(2);
+    if (totalConverted < 0.01) totalConverted = '0.01';
     
-    document.getElementById('subtotal').textContent = formatPrice(subtotalRobux);
-    document.getElementById('discount').textContent = appliedDiscount > 0 ? '-' + getCurrencySymbol() + convertPrice(subtotalRobux * (appliedDiscount / subtotalUSD)) : getCurrencySymbol() + '0.00';
-    document.getElementById('total').textContent = formatPrice(subtotalRobux * (1 - (appliedDiscount / subtotalUSD)));
+    document.getElementById('subtotal').textContent = getCurrencySymbol() + subtotalConverted;
+    document.getElementById('discount').textContent = appliedDiscount > 0 ? '-' + getCurrencySymbol() + discountConverted : getCurrencySymbol() + '0.00';
+    document.getElementById('total').textContent = getCurrencySymbol() + totalConverted;
     
     document.getElementById('summaryItemsList').innerHTML = cart.map(function(i) {
         return '<div class="summary-item"><div class="summary-item-info"><span class="material-icons">' + getIcon(i.category) + '</span><span>' + i.name + ' x' + (i.quantity || 1) + '</span></div><span>' + formatPrice(i.price * (i.quantity || 1)) + '</span></div>';
     }).join('');
     
+    var totalUSD = parseFloat(totalConverted) / (CURRENCIES[getCurrency()] ? CURRENCIES[getCurrency()].rate : 1);
     if (!paypalRendered && cart.length > 0 && totalUSD > 0) { renderPayPal(totalUSD); paypalRendered = true; }
 }
 
@@ -160,7 +168,6 @@ function renderPayPal(total) {
                 await supabaseClient.from('orders').insert({ user_id: session.user.id, user_email: session.user.email, paypal_order_id: order.id, items: cart, subtotal: cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0) * ROBUX_TO_USD, discount: appliedDiscount, total: total, status: 'completed' });
             }
             cart = []; appliedDiscount = 0; currentPromoCode = null; saveCart(); paypalRendered = false; loadCart();
-            showNotification(t('notif_payment_success'), t('notif_payment_success_desc'), 'success');
         }
     }).render('#paypal-button-container');
 }
@@ -168,14 +175,3 @@ function renderPayPal(total) {
 function getIcon(cat) { var icons = { admin: 'shield', economy: 'account_balance_wallet', combat: 'sports_martial_arts', building: 'construction' }; return icons[cat] || 'code'; }
 function updateCartBadge() { var count = cart.reduce(function(s, i) { return s + (i.quantity || 1); }, 0); var badge = document.getElementById('cartCount'); if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; } }
 function saveCart() { localStorage.setItem('yxCart', JSON.stringify(cart)); updateCartBadge(); }
-
-function showNotification(title, message, type) {
-    var existing = document.querySelector('.notify-toast'); if (existing) existing.remove();
-    var icons = { success: 'check_circle', error: 'error', info: 'info' };
-    var toast = document.createElement('div');
-    toast.className = 'notify-toast notify-' + type;
-    toast.innerHTML = '<div class="notify-icon"><span class="material-icons">' + (icons[type] || 'info') + '</span></div><div class="notify-content"><div class="notify-title">' + title + '</div><div class="notify-message">' + message + '</div></div><button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button><div class="notify-progress"></div>';
-    document.body.appendChild(toast);
-    setTimeout(function() { toast.classList.add('show'); }, 10);
-    setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400); }, 4000);
-}
