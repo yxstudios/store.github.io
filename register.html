@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Turnstile se carga PRIMERO, sin async defer para que esté disponible -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
 </head>
 <body>
 
@@ -70,8 +72,8 @@
                     <span class="strength-text" id="strengthText">Fortaleza de la contraseña</span>
                 </div>
                 
-                <!-- Turnstile Widget -->
-                <div id="turnstile-widget" style="margin-bottom:20px;display:flex;justify-content:center;"></div>
+                <!-- Turnstile Widget - se renderiza aquí -->
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAELVyefNkoTULHXV" data-theme="dark" data-callback="onCaptchaSuccess" style="margin-bottom:20px;display:flex;justify-content:center;"></div>
                 
                 <div class="terms-checkbox">
                     <label>
@@ -99,9 +101,13 @@
         </div>
     </div>
 
-    <!-- Turnstile Script -->
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=_turnstileCb" async defer></script>
-    
+    <script>
+        // Callback cuando se completa el captcha
+        function onCaptchaSuccess(token) {
+            console.log('Captcha completado');
+            window.captchaToken = token;
+        }
+    </script>
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
     <script type="module" src="js/auth.js"></script>
