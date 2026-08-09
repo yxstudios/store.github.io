@@ -280,16 +280,18 @@
             renderFeaturedProducts();
         }
 
-        function selectCurrency(currency) {
-            localStorage.setItem('yxCurrency', currency);
-            document.getElementById('currentCurrency').textContent = currency;
-            document.querySelectorAll('#currencyDropdown .dropdown-item').forEach(function(item) {
-                item.classList.toggle('active', item.dataset.currency === currency);
-            });
-            document.getElementById('currencyDropdown').classList.remove('open');
-            if (typeof renderProducts === 'function') renderProducts();
-            if (typeof renderFeaturedProducts === 'function') renderFeaturedProducts();
-        }
+function selectCurrency(currency) {
+    localStorage.setItem('yxCurrency', currency);
+    document.getElementById('currentCurrency').textContent = currency;
+    document.querySelectorAll('#currencyDropdown .dropdown-item').forEach(function(item) {
+        item.classList.toggle('active', item.dataset.currency === currency);
+    });
+    document.getElementById('currencyDropdown').classList.remove('open');
+    
+    // Actualizar productos y featured SIN refrescar
+    if (typeof renderProducts === 'function') renderProducts();
+    if (typeof renderFeaturedProducts === 'function') renderFeaturedProducts();
+}
 
         function updateFeaturedTitles() {
             var titles = {
