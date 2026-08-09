@@ -11,7 +11,6 @@
 </head>
 <body>
 
-    <!-- THEME SWITCHER -->
     <div class="theme-switcher">
         <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
         <div class="theme-panel">
@@ -25,7 +24,6 @@
         </div>
     </div>
 
-    <!-- TOPBAR -->
     <nav class="topbar">
         <div class="topbar-container">
             <div class="topbar-brand">
@@ -35,22 +33,21 @@
                 </a>
             </div>
             <div class="topbar-nav">
-                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
-                <a href="index.html#products" class="nav-link"><span class="material-icons">store</span><span>Productos</span></a>
-                <a href="cart.html" class="nav-link cart-link active"><span class="material-icons">shopping_cart</span><span>Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
+                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span data-i18n="home">Home</span></a>
+                <a href="index.html#products" class="nav-link"><span class="material-icons">store</span><span data-i18n="products">Productos</span></a>
+                <a href="cart.html" class="nav-link cart-link active"><span class="material-icons">shopping_cart</span><span data-i18n="cart">Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
                 <div id="guestMenu" class="auth-buttons">
-                    <a href="login.html" class="btn-login"><span class="material-icons">login</span> Iniciar Sesión</a>
-                    <a href="register.html" class="btn-register"><span class="material-icons">person_add</span> Registrarse</a>
+                    <a href="login.html" class="btn-login"><span class="material-icons">login</span> <span data-i18n="login">Iniciar Sesión</span></a>
+                    <a href="register.html" class="btn-register"><span class="material-icons">person_add</span> <span data-i18n="register">Registrarse</span></a>
                 </div>
                 <div id="userMenu" class="user-menu" style="display:none;">
                     <div class="user-dropdown">
                         <button class="user-dropdown-btn"><img id="userAvatar" src="https://via.placeholder.com/32" class="user-avatar"><span id="userNameDisplay">Usuario</span><span class="material-icons">arrow_drop_down</span></button>
                         <div class="user-dropdown-content">
-                            <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
-                            <a href="profile.html#purchases"><span class="material-icons">shopping_bag</span> Mis Compras</a>
-                            <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
+                            <a href="profile.html"><span class="material-icons">person</span> <span data-i18n="profile">Mi Perfil</span></a>
+                            <a href="cart.html"><span class="material-icons">shopping_cart</span> <span data-i18n="cart">Carrito</span></a>
                             <div class="dropdown-divider"></div>
-                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
+                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> <span data-i18n="logout">Cerrar Sesión</span></a>
                         </div>
                     </div>
                 </div>
@@ -58,93 +55,40 @@
         </div>
     </nav>
 
-    <!-- CART CONTENT -->
     <main class="cart-page">
         <div class="cart-container">
-            
-            <!-- CART HEADER -->
             <div class="cart-header">
-                <div class="cart-header-left">
-                    <span class="material-icons cart-header-icon">shopping_cart</span>
-                    <div>
-                        <h1>Tu Carrito de Compras</h1>
-                        <p id="cartItemCount">0 productos</p>
-                    </div>
-                </div>
-                <button id="clearCart" class="btn-clear">
-                    <span class="material-icons">delete_outline</span> Vaciar Carrito
-                </button>
+                <h1><span class="material-icons">shopping_cart</span> <span data-i18n="cart_title">Tu Carrito</span></h1>
+                <button id="clearCart" class="btn-clear"><span class="material-icons">delete_sweep</span> <span data-i18n="clear_cart">Vaciar Carrito</span></button>
             </div>
-
-            <!-- CART CONTENT GRID -->
-            <div class="cart-content-grid">
-                
-                <!-- CART ITEMS -->
-                <div class="cart-items-section">
-                    <div id="cartItemsContainer" class="cart-items-container"></div>
-                    
-                    <div id="emptyCartMessage" class="empty-cart-state" style="display:none;">
-                        <div class="empty-cart-icon">
-                            <span class="material-icons">shopping_cart_off</span>
-                        </div>
-                        <h2>Tu carrito está vacío</h2>
-                        <p>Explora nuestros sistemas profesionales para Roblox</p>
-                        <a href="index.html#products" class="btn-primary">
-                            <span class="material-icons">store</span> Explorar Productos
-                        </a>
+            <div id="cartItemsContainer" class="cart-items-container"></div>
+            <div id="emptyCartMessage" class="empty-cart-state" style="display:none;">
+                <span class="material-icons">shopping_cart_off</span>
+                <h2 data-i18n="empty_cart">Tu carrito está vacío</h2>
+                <p data-i18n="empty_cart_desc">Explora nuestros sistemas para Roblox</p>
+                <a href="index.html#products" class="btn-primary"><span class="material-icons">store</span> <span data-i18n="view_products">Ver Productos</span></a>
+            </div>
+            <div id="cartSummarySection" class="cart-summary-section" style="display:none;">
+                <div class="summary-card">
+                    <h3 data-i18n="order_summary">Resumen de Compra</h3>
+                    <div class="summary-items" id="summaryItemsList"></div>
+                    <div class="summary-totals">
+                        <div class="summary-row"><span data-i18n="subtotal">Subtotal</span><span id="subtotal">$0.00</span></div>
+                        <div class="summary-row discount-row"><span data-i18n="discount_label">Descuento</span><span id="discount">$0.00</span></div>
+                        <div class="summary-row total-row"><span data-i18n="total_label">Total</span><span id="total">$0.00</span></div>
                     </div>
-                </div>
-
-                <!-- CART SUMMARY -->
-                <div id="cartSummarySection" class="cart-summary-section" style="display:none;">
-                    <div class="summary-card">
-                        <h3>Resumen de Compra</h3>
-                        
-                        <div class="summary-items" id="summaryItemsList"></div>
-                        
-                        <div class="summary-divider"></div>
-                        
-                        <div class="summary-totals">
-                            <div class="summary-row">
-                                <span>Subtotal</span>
-                                <span id="subtotal">$0.00</span>
-                            </div>
-                            <div class="summary-row discount-row">
-                                <span>Descuento</span>
-                                <span id="discount">$0.00</span>
-                            </div>
-                            <div class="summary-row total-row">
-                                <span>Total</span>
-                                <span id="total">$0.00</span>
-                            </div>
+                    <div class="promo-section">
+                        <div class="promo-input-group">
+                            <span class="material-icons">discount</span>
+                            <input type="text" id="promoInput" data-i18n="promo_placeholder" placeholder="Código promocional">
+                            <button id="applyPromo" class="btn-promo" data-i18n="apply_promo">Aplicar</button>
                         </div>
-
-                        <!-- PROMO CODE -->
-                        <div class="promo-section">
-                            <label class="promo-label">Código promocional</label>
-                            <div class="promo-input-group">
-                                <span class="material-icons">confirmation_number</span>
-                                <input type="text" id="promoInput" placeholder="Ingresa tu código">
-                                <button id="applyPromo" class="btn-promo">Aplicar</button>
-                            </div>
-                            <div id="promoMessage" class="promo-message"></div>
-                            <div class="promo-hints">
-                                <span>Prueba: WELCOME10, ROBLOX20, VIP50</span>
-                            </div>
-                        </div>
-
-                        <!-- PAYMENT -->
-                        <div class="payment-section">
-                            <div class="payment-header">
-                                <span class="material-icons">lock</span>
-                                <span>Pago Seguro</span>
-                            </div>
-                            <div id="paypal-button-container"></div>
-                            <div class="payment-trust">
-                                <span class="material-icons">verified_user</span>
-                                <span>Procesado por PayPal · Compra protegida</span>
-                            </div>
-                        </div>
+                        <div id="promoMessage" class="promo-message"></div>
+                    </div>
+                    <div class="payment-section">
+                        <h4 data-i18n="payment_method">Método de Pago</h4>
+                        <div id="paypal-button-container"></div>
+                        <div class="payment-info"><span class="material-icons">lock</span> <span data-i18n="secure_payment">Pago seguro procesado por PayPal</span></div>
                     </div>
                 </div>
             </div>
@@ -153,7 +97,11 @@
 
     <script src="https://www.paypal.com/sdk/js?client-id=Aa6KFjacVgqjs6vg9uBBD58-DAVVU1QPXJ_RIrDqUhVSXXs_n35A65NRxCcc3kN91D-pgZg6UsKBW05u&currency=USD&disable-funding=credit,card"></script>
     <script src="js/config.js"></script>
+    <script src="js/translations.js"></script>
     <script src="js/theme.js"></script>
+    <script>
+        applyTranslations();
+    </script>
     <script type="module" src="js/cart.js"></script>
 </body>
 </html>
