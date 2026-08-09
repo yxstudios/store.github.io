@@ -1,5 +1,5 @@
 // ============================================
-// YX STUDIOS - AUTENTICACIÓN CON TURNSTILE
+// YX STUDIOS - AUTENTICACIÓN
 // ============================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -10,24 +10,8 @@ var supabase = createClient(
 
 var BASE_URL = 'https://yxstore.linkpc.net';
 
-// Función que se llama cuando Turnstile se carga
-window._turnstileCb = function() {
-    if (typeof turnstile !== 'undefined') {
-        turnstile.render('#turnstile-widget', {
-            sitekey: '0x4AAAAAAELVyefNkoTULHXV',
-            theme: 'dark',
-            callback: function(token) {
-                window.captchaToken = token;
-            }
-        });
-    }
-};
-
 console.log('Auth JS - Base URL:', BASE_URL);
 
-// ============================================
-// INICIAR SESIÓN
-// ============================================
 async function signInWithEmail(email, password) {
     try {
         showLoading(true);
@@ -38,65 +22,31 @@ async function signInWithEmail(email, password) {
     } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
 
-// ============================================
-// REGISTRO CON TURNSTILE
-// ============================================
 async function signUpWithEmail(name, email, password) {
     try {
         showLoading(true);
-        
-        // Obtener token del captcha
         var captchaToken = window.captchaToken || null;
-        
-        if (!captchaToken) {
-            showMessage('Por favor completa la verificación de seguridad.', 'error');
-            showLoading(false);
-            return;
-        }
+        if (!captchaToken) { showMessage('Completa la verificación de seguridad.', 'error'); showLoading(false); return; }
         
         var { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: { full_name: name },
-                captchaToken: captchaToken
-            }
+            email: email, password: password,
+            options: { data: { full_name: name }, captchaToken: captchaToken }
         });
-        
-        if (error) {
-            // Resetear captcha si hay error
-            if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-widget');
-            window.captchaToken = null;
-            throw error;
-        }
-        
+        if (error) { if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-container'); window.captchaToken = null; throw error; }
         showMessage('Cuenta creada exitosamente.', 'success');
         setTimeout(function() { window.location.href = BASE_URL + '/index.html'; }, 1000);
-    } catch (error) { 
-        showMessage(error.message, 'error'); 
-        showLoading(false);
-        if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-widget');
-    }
+    } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
 
-// ============================================
-// LOGIN CON DISCORD
-// ============================================
 async function signInWithDiscord() {
     try {
         var redirectUrl = BASE_URL + '/index.html';
         console.log('Discord redirect:', redirectUrl);
-        var { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'discord',
-            options: { redirectTo: redirectUrl }
-        });
+        var { data, error } = await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: redirectUrl } });
         if (error) { showMessage('Error Discord: ' + error.message, 'error'); }
     } catch (error) { showMessage('Error: ' + error.message, 'error'); }
 }
 
-// ============================================
-// RESTABLECER CONTRASEÑA
-// ============================================
 async function resetPassword(email) {
     try {
         showLoading(true);
