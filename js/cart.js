@@ -8,26 +8,27 @@ var supabaseClient = createClient(
 var BASE_URL = 'https://yxstore.linkpc.net';
 var cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
 var appliedDiscount = 0;
+var currentPromoCode = null;
 var promoCodes = { 'WELCOME10': 0.10, 'ROBLOX20': 0.20, 'VIP50': 0.50 };
 var ROBUX_TO_USD = 0.0125;
 var paypalRendered = false;
 
 // ============================================
-// SISTEMA DE MONEDAS (igual que en main.js)
+// SISTEMA DE MONEDAS
 // ============================================
 var CURRENCIES = {
-    USD: { symbol: '$', rate: 1 },
-    EUR: { symbol: '€', rate: 0.92 },
-    PEN: { symbol: 'S/', rate: 3.75 },
-    MXN: { symbol: 'MX$', rate: 17.50 },
-    COP: { symbol: 'CO$', rate: 4100 },
-    CLP: { symbol: 'CL$', rate: 920 },
-    ARS: { symbol: 'AR$', rate: 850 },
-    BRL: { symbol: 'R$', rate: 5.05 },
-    GBP: { symbol: '£', rate: 0.79 },
-    JPY: { symbol: '¥', rate: 148 },
-    CAD: { symbol: 'CA$', rate: 1.35 },
-    AUD: { symbol: 'AU$', rate: 1.53 }
+    USD: { symbol: '$', rate: 1, name: 'US Dollar' },
+    EUR: { symbol: '€', rate: 0.92, name: 'Euro' },
+    PEN: { symbol: 'S/', rate: 3.75, name: 'Sol Peruano' },
+    MXN: { symbol: 'MX$', rate: 17.50, name: 'Peso Mexicano' },
+    COP: { symbol: 'CO$', rate: 4100, name: 'Peso Colombiano' },
+    CLP: { symbol: 'CL$', rate: 920, name: 'Peso Chileno' },
+    ARS: { symbol: 'AR$', rate: 850, name: 'Peso Argentino' },
+    BRL: { symbol: 'R$', rate: 5.05, name: 'Real Brasileño' },
+    GBP: { symbol: '£', rate: 0.79, name: 'Libra Esterlina' },
+    JPY: { symbol: '¥', rate: 148, name: 'Yen Japonés' },
+    CAD: { symbol: 'CA$', rate: 1.35, name: 'Dólar Canadiense' },
+    AUD: { symbol: 'AU$', rate: 1.53, name: 'Dólar Australiano' }
 };
 
 function getCurrencySymbol() {
@@ -51,11 +52,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     await checkUserSession();
     loadCart();
     updateCartBadge();
-    applyTranslations();
+    if (typeof applyTranslations === 'function') applyTranslations();
 
     document.getElementById('clearCart').addEventListener('click', function() {
         if (cart.length === 0) return;
-        cart = []; appliedDiscount = 0; saveCart(); loadCart();
+        cart = []; appliedDiscount = 0; currentPromoCode = null; saveCart(); loadCart();
+        showNotification(t('notif_cart_cleared'), t('notif_cart_cleared_desc'), 'info');
     });
 
     document.getElementById('applyPromo').addEventListener('click', function() {
@@ -63,9 +65,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         var msgEl = document.getElementById('promoMessage');
         if (!code) { if (msgEl) msgEl.innerHTML = '<span class="promo-error">' + t('promo_invalid') + '</span>'; return; }
         if (promoCodes[code]) {
+            currentPromoCode = code;
             appliedDiscount = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0) * ROBUX_TO_USD * promoCodes[code];
             if (msgEl) msgEl.innerHTML = '<span class="promo-success">' + (promoCodes[code] * 100) + '% ' + t('promo_applied') + '</span>';
-        } else { appliedDiscount = 0; if (msgEl) msgEl.innerHTML = '<span class="promo-error">' + t('promo_invalid') + '</span>'; }
+        } else { appliedDiscount = 0; currentPromoCode = null; if (msgEl) msgEl.innerHTML = '<span class="promo-error">' + t('promo_invalid') + '</span>'; }
         updateSummary();
     });
 });
@@ -92,26 +95,49 @@ async function checkUserSession() {
 function loadCart() {
     var container = document.getElementById('cartItemsContainer'), empty = document.getElementById('emptyCartMessage'), summary = document.getElementById('cartSummarySection');
     updateCartBadge();
-    if (!cart.length) { if (container) container.innerHTML = ''; if (empty) empty.style.display = 'block'; if (summary) summary.style.display = 'none'; paypalRendered = false; return; }
-    if (empty) empty.style.display = 'none'; if (summary) summary.style.display = 'block';
+    if (!cart.length) { 
+        if (container) container.innerHTML = ''; 
+        if (empty) empty.style.display = 'block'; 
+        if (summary) summary.style.display = 'none'; 
+        paypalRendered = false; 
+        return; 
+    }
+    if (empty) empty.style.display = 'none'; 
+    if (summary) summary.style.display = 'block';
     if (container) {
         container.innerHTML = cart.map(function(item, idx) {
-            return '<div class="cart-item-card"><div class="cart-item-icon"><span class="material-icons">' + getIcon(item.category) + '</span></div><div class="cart-item-details"><h3>' + item.name + '</h3><span class="cart-item-category">' + item.category + '</span></div><div class="cart-item-quantity"><button class="qty-btn" onclick="updateQty(' + idx + ',-1)">-</button><span class="qty-value">' + (item.quantity || 1) + '</span><button class="qty-btn" onclick="updateQty(' + idx + ',1)">+</button></div><div class="cart-item-pricing"><div class="item-price">' + formatPrice(item.price * (item.quantity || 1)) + '</div></div><button class="btn-remove-item" onclick="removeItem(' + idx + ')"><span class="material-icons">close</span></button></div>';
+            var itemTotal = item.price * (item.quantity || 1);
+            return '<div class="cart-item-card">' +
+                '<div class="cart-item-icon"><span class="material-icons">' + getIcon(item.category) + '</span></div>' +
+                '<div class="cart-item-details"><h3>' + item.name + '</h3><span class="cart-item-category">' + item.category + '</span></div>' +
+                '<div class="cart-item-quantity"><button class="qty-btn" onclick="updateQty(' + idx + ',-1)">-</button><span class="qty-value">' + (item.quantity || 1) + '</span><button class="qty-btn" onclick="updateQty(' + idx + ',1)">+</button></div>' +
+                '<div class="cart-item-pricing"><div class="item-price">' + formatPrice(itemTotal) + '</div></div>' +
+                '<button class="btn-remove-item" onclick="removeItem(' + idx + ')"><span class="material-icons">close</span></button>' +
+                '</div>';
         }).join('');
     }
     updateSummary();
 }
 
-window.updateQty = function(idx, ch) { cart[idx].quantity = (cart[idx].quantity || 1) + ch; if (cart[idx].quantity <= 0) cart.splice(idx, 1); saveCart(); loadCart(); };
-window.removeItem = function(idx) { cart.splice(idx, 1); saveCart(); loadCart(); };
+window.updateQty = function(idx, ch) { 
+    cart[idx].quantity = (cart[idx].quantity || 1) + ch; 
+    if (cart[idx].quantity <= 0) cart.splice(idx, 1); 
+    saveCart(); loadCart(); 
+};
+window.removeItem = function(idx) { 
+    var item = cart[idx];
+    cart.splice(idx, 1); saveCart(); loadCart(); 
+    showNotification(t('notif_removed'), item.name + ' ' + t('notif_removed_desc'), 'info');
+};
 
 function updateSummary() {
     var subtotalRobux = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0);
-    var totalUSD = Math.max(0.01, (subtotalRobux * ROBUX_TO_USD) - appliedDiscount);
+    var subtotalUSD = subtotalRobux * ROBUX_TO_USD;
+    var totalUSD = Math.max(0.01, subtotalUSD - appliedDiscount);
     
     document.getElementById('subtotal').textContent = formatPrice(subtotalRobux);
-    document.getElementById('discount').textContent = appliedDiscount > 0 ? '-' + getCurrencySymbol() + appliedDiscount.toFixed(2) : getCurrencySymbol() + '0.00';
-    document.getElementById('total').textContent = getCurrencySymbol() + convertPrice(subtotalRobux);
+    document.getElementById('discount').textContent = appliedDiscount > 0 ? '-' + getCurrencySymbol() + convertPrice(subtotalRobux * (appliedDiscount / subtotalUSD)) : getCurrencySymbol() + '0.00';
+    document.getElementById('total').textContent = formatPrice(subtotalRobux * (1 - (appliedDiscount / subtotalUSD)));
     
     document.getElementById('summaryItemsList').innerHTML = cart.map(function(i) {
         return '<div class="summary-item"><div class="summary-item-info"><span class="material-icons">' + getIcon(i.category) + '</span><span>' + i.name + ' x' + (i.quantity || 1) + '</span></div><span>' + formatPrice(i.price * (i.quantity || 1)) + '</span></div>';
@@ -133,7 +159,7 @@ function renderPayPal(total) {
             if (session) {
                 await supabaseClient.from('orders').insert({ user_id: session.user.id, user_email: session.user.email, paypal_order_id: order.id, items: cart, subtotal: cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0) * ROBUX_TO_USD, discount: appliedDiscount, total: total, status: 'completed' });
             }
-            cart = []; appliedDiscount = 0; saveCart(); paypalRendered = false; loadCart();
+            cart = []; appliedDiscount = 0; currentPromoCode = null; saveCart(); paypalRendered = false; loadCart();
             showNotification(t('notif_payment_success'), t('notif_payment_success_desc'), 'success');
         }
     }).render('#paypal-button-container');
