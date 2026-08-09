@@ -650,3 +650,46 @@ input, textarea, select { font-family: 'Poppins', sans-serif; }
 }
 .topbar-select:hover { border-color: var(--accent); }
 .topbar-select:focus { outline: none; border-color: var(--accent); }
+
+/* Featured Indicators */
+.featured-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bg-tertiary);
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.indicator.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: var(--accent-glow);
+}
+
+/* Topbar Controls */
+.topbar-controls {
+    display: flex;
+    gap: 5px;
+    margin: 0 10px;
+}
+.topbar-select {
+    padding: 5px 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.7em;
+    cursor: pointer;
+    transition: var(--transition);
+    max-width: 80px;
+}
+.topbar-select:hover { border-color: var(--accent); }
+.topbar-select:focus { outline: none; border-color: var(--accent); }
