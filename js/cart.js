@@ -12,10 +12,46 @@ var promoCodes = { 'WELCOME10': 0.10, 'ROBLOX20': 0.20, 'VIP50': 0.50 };
 var ROBUX_TO_USD = 0.0125;
 var paypalRendered = false;
 
+// ============================================
+// SISTEMA DE MONEDAS (igual que en main.js)
+// ============================================
+var CURRENCIES = {
+    USD: { symbol: '$', rate: 1 },
+    EUR: { symbol: '€', rate: 0.92 },
+    PEN: { symbol: 'S/', rate: 3.75 },
+    MXN: { symbol: 'MX$', rate: 17.50 },
+    COP: { symbol: 'CO$', rate: 4100 },
+    CLP: { symbol: 'CL$', rate: 920 },
+    ARS: { symbol: 'AR$', rate: 850 },
+    BRL: { symbol: 'R$', rate: 5.05 },
+    GBP: { symbol: '£', rate: 0.79 },
+    JPY: { symbol: '¥', rate: 148 },
+    CAD: { symbol: 'CA$', rate: 1.35 },
+    AUD: { symbol: 'AU$', rate: 1.53 }
+};
+
+function getCurrencySymbol() {
+    var currency = localStorage.getItem('yxCurrency') || 'USD';
+    return CURRENCIES[currency] ? CURRENCIES[currency].symbol : '$';
+}
+function convertPrice(robux) {
+    var currency = localStorage.getItem('yxCurrency') || 'USD';
+    var usd = robux * ROBUX_TO_USD;
+    var rate = CURRENCIES[currency] ? CURRENCIES[currency].rate : 1;
+    return (usd * rate).toFixed(2);
+}
+function formatPrice(robux) {
+    return getCurrencySymbol() + convertPrice(robux);
+}
+
+// ============================================
+// INICIALIZAR
+// ============================================
 document.addEventListener('DOMContentLoaded', async function() {
     await checkUserSession();
     loadCart();
     updateCartBadge();
+    applyTranslations();
 
     document.getElementById('clearCart').addEventListener('click', function() {
         if (cart.length === 0) return;
@@ -25,11 +61,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('applyPromo').addEventListener('click', function() {
         var code = document.getElementById('promoInput').value.toUpperCase().trim();
         var msgEl = document.getElementById('promoMessage');
-        if (!code) { if (msgEl) msgEl.innerHTML = '<span class="promo-error">Ingresa un código</span>'; return; }
+        if (!code) { if (msgEl) msgEl.innerHTML = '<span class="promo-error">' + t('promo_invalid') + '</span>'; return; }
         if (promoCodes[code]) {
             appliedDiscount = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0) * ROBUX_TO_USD * promoCodes[code];
-            if (msgEl) msgEl.innerHTML = '<span class="promo-success">' + (promoCodes[code] * 100) + '% descuento</span>';
-        } else { appliedDiscount = 0; if (msgEl) msgEl.innerHTML = '<span class="promo-error">Inválido</span>'; }
+            if (msgEl) msgEl.innerHTML = '<span class="promo-success">' + (promoCodes[code] * 100) + '% ' + t('promo_applied') + '</span>';
+        } else { appliedDiscount = 0; if (msgEl) msgEl.innerHTML = '<span class="promo-error">' + t('promo_invalid') + '</span>'; }
         updateSummary();
     });
 });
@@ -60,7 +96,7 @@ function loadCart() {
     if (empty) empty.style.display = 'none'; if (summary) summary.style.display = 'block';
     if (container) {
         container.innerHTML = cart.map(function(item, idx) {
-            return '<div class="cart-item-card"><div class="cart-item-icon"><span class="material-icons">' + getIcon(item.category) + '</span></div><div class="cart-item-details"><h3>' + item.name + '</h3><span class="cart-item-category">' + item.category + '</span></div><div class="cart-item-quantity"><button class="qty-btn" onclick="updateQty(' + idx + ',-1)">-</button><span class="qty-value">' + (item.quantity || 1) + '</span><button class="qty-btn" onclick="updateQty(' + idx + ',1)">+</button></div><div class="cart-item-pricing"><div class="item-price">$' + (item.price * (item.quantity || 1) * ROBUX_TO_USD).toFixed(2) + '</div><div class="item-robux">' + (item.price * (item.quantity || 1)).toLocaleString() + ' Robux</div></div><button class="btn-remove-item" onclick="removeItem(' + idx + ')"><span class="material-icons">close</span></button></div>';
+            return '<div class="cart-item-card"><div class="cart-item-icon"><span class="material-icons">' + getIcon(item.category) + '</span></div><div class="cart-item-details"><h3>' + item.name + '</h3><span class="cart-item-category">' + item.category + '</span></div><div class="cart-item-quantity"><button class="qty-btn" onclick="updateQty(' + idx + ',-1)">-</button><span class="qty-value">' + (item.quantity || 1) + '</span><button class="qty-btn" onclick="updateQty(' + idx + ',1)">+</button></div><div class="cart-item-pricing"><div class="item-price">' + formatPrice(item.price * (item.quantity || 1)) + '</div></div><button class="btn-remove-item" onclick="removeItem(' + idx + ')"><span class="material-icons">close</span></button></div>';
         }).join('');
     }
     updateSummary();
@@ -71,11 +107,16 @@ window.removeItem = function(idx) { cart.splice(idx, 1); saveCart(); loadCart();
 
 function updateSummary() {
     var subtotalRobux = cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0);
-    var subtotalUSD = subtotalRobux * ROBUX_TO_USD, totalUSD = Math.max(0.01, subtotalUSD - appliedDiscount);
-    document.getElementById('subtotal').textContent = '$' + subtotalUSD.toFixed(2);
-    document.getElementById('discount').textContent = appliedDiscount > 0 ? '-$' + appliedDiscount.toFixed(2) : '$0.00';
-    document.getElementById('total').textContent = '$' + totalUSD.toFixed(2);
-    document.getElementById('summaryItemsList').innerHTML = cart.map(function(i) { return '<div class="summary-item"><div class="summary-item-info"><span class="material-icons">' + getIcon(i.category) + '</span><span>' + i.name + ' x' + (i.quantity || 1) + '</span></div><span>$' + (i.price * (i.quantity || 1) * ROBUX_TO_USD).toFixed(2) + '</span></div>'; }).join('');
+    var totalUSD = Math.max(0.01, (subtotalRobux * ROBUX_TO_USD) - appliedDiscount);
+    
+    document.getElementById('subtotal').textContent = formatPrice(subtotalRobux);
+    document.getElementById('discount').textContent = appliedDiscount > 0 ? '-' + getCurrencySymbol() + appliedDiscount.toFixed(2) : getCurrencySymbol() + '0.00';
+    document.getElementById('total').textContent = getCurrencySymbol() + convertPrice(subtotalRobux);
+    
+    document.getElementById('summaryItemsList').innerHTML = cart.map(function(i) {
+        return '<div class="summary-item"><div class="summary-item-info"><span class="material-icons">' + getIcon(i.category) + '</span><span>' + i.name + ' x' + (i.quantity || 1) + '</span></div><span>' + formatPrice(i.price * (i.quantity || 1)) + '</span></div>';
+    }).join('');
+    
     if (!paypalRendered && cart.length > 0 && totalUSD > 0) { renderPayPal(totalUSD); paypalRendered = true; }
 }
 
@@ -89,28 +130,11 @@ function renderPayPal(total) {
         onApprove: async function(data, actions) {
             var order = await actions.order.capture();
             var { data: { session } } = await supabaseClient.auth.getSession();
-            
-            // Guardar en Supabase
             if (session) {
-                await supabaseClient.from('orders').insert({
-                    user_id: session.user.id,
-                    user_email: session.user.email,
-                    paypal_order_id: order.id,
-                    items: cart,
-                    subtotal: cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0) * ROBUX_TO_USD,
-                    discount: appliedDiscount,
-                    total: total,
-                    status: 'completed'
-                });
+                await supabaseClient.from('orders').insert({ user_id: session.user.id, user_email: session.user.email, paypal_order_id: order.id, items: cart, subtotal: cart.reduce(function(s, i) { return s + (i.price * (i.quantity || 1)); }, 0) * ROBUX_TO_USD, discount: appliedDiscount, total: total, status: 'completed' });
             }
-            
-            // Respaldo en localStorage
-            var orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-            orders.push({ id: order.id, items: cart, total: total, date: new Date().toISOString(), status: 'completed' });
-            localStorage.setItem('yxOrders', JSON.stringify(orders));
-            
             cart = []; appliedDiscount = 0; saveCart(); paypalRendered = false; loadCart();
-            alert('¡Pago exitoso! Gracias por tu compra.');
+            showNotification(t('notif_payment_success'), t('notif_payment_success_desc'), 'success');
         }
     }).render('#paypal-button-container');
 }
@@ -118,3 +142,14 @@ function renderPayPal(total) {
 function getIcon(cat) { var icons = { admin: 'shield', economy: 'account_balance_wallet', combat: 'sports_martial_arts', building: 'construction' }; return icons[cat] || 'code'; }
 function updateCartBadge() { var count = cart.reduce(function(s, i) { return s + (i.quantity || 1); }, 0); var badge = document.getElementById('cartCount'); if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; } }
 function saveCart() { localStorage.setItem('yxCart', JSON.stringify(cart)); updateCartBadge(); }
+
+function showNotification(title, message, type) {
+    var existing = document.querySelector('.notify-toast'); if (existing) existing.remove();
+    var icons = { success: 'check_circle', error: 'error', info: 'info' };
+    var toast = document.createElement('div');
+    toast.className = 'notify-toast notify-' + type;
+    toast.innerHTML = '<div class="notify-icon"><span class="material-icons">' + (icons[type] || 'info') + '</span></div><div class="notify-content"><div class="notify-title">' + title + '</div><div class="notify-message">' + message + '</div></div><button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button><div class="notify-progress"></div>';
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.classList.add('show'); }, 10);
+    setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400); }, 4000);
+}
