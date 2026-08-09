@@ -1,5 +1,5 @@
 // ============================================
-// YX STUDIOS - AUTENTICACIÓN
+// YX STUDIOS - AUTENTICACIÓN CON TURNSTILE
 // ============================================
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -10,8 +10,24 @@ var supabase = createClient(
 
 var BASE_URL = 'https://yxstore.linkpc.net';
 
+// Función que se llama cuando Turnstile se carga
+window._turnstileCb = function() {
+    if (typeof turnstile !== 'undefined') {
+        turnstile.render('#turnstile-widget', {
+            sitekey: '0x4AAAAAAELVyefNkoTULHXV',
+            theme: 'dark',
+            callback: function(token) {
+                window.captchaToken = token;
+            }
+        });
+    }
+};
+
 console.log('Auth JS - Base URL:', BASE_URL);
 
+// ============================================
+// INICIAR SESIÓN
+// ============================================
 async function signInWithEmail(email, password) {
     try {
         showLoading(true);
@@ -22,14 +38,18 @@ async function signInWithEmail(email, password) {
     } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
 
+// ============================================
+// REGISTRO CON TURNSTILE
+// ============================================
 async function signUpWithEmail(name, email, password) {
     try {
         showLoading(true);
         
+        // Obtener token del captcha
         var captchaToken = window.captchaToken || null;
         
         if (!captchaToken) {
-            showMessage('Por favor completa el captcha de seguridad.', 'error');
+            showMessage('Por favor completa la verificación de seguridad.', 'error');
             showLoading(false);
             return;
         }
@@ -45,7 +65,7 @@ async function signUpWithEmail(name, email, password) {
         
         if (error) {
             // Resetear captcha si hay error
-            if (typeof turnstile !== 'undefined') turnstile.reset();
+            if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-widget');
             window.captchaToken = null;
             throw error;
         }
@@ -55,9 +75,13 @@ async function signUpWithEmail(name, email, password) {
     } catch (error) { 
         showMessage(error.message, 'error'); 
         showLoading(false);
+        if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-widget');
     }
 }
 
+// ============================================
+// LOGIN CON DISCORD
+// ============================================
 async function signInWithDiscord() {
     try {
         var redirectUrl = BASE_URL + '/index.html';
@@ -70,6 +94,9 @@ async function signInWithDiscord() {
     } catch (error) { showMessage('Error: ' + error.message, 'error'); }
 }
 
+// ============================================
+// RESTABLECER CONTRASEÑA
+// ============================================
 async function resetPassword(email) {
     try {
         showLoading(true);
