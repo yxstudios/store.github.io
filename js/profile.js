@@ -5,7 +5,7 @@ var supabase = createClient(
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
 );
 
-var BASE_URL = 'https://yxstudios.github.io/store.github.io';
+var BASE_URL = 'https://yxstore.linkpc.net';
 var currentUser = null;
 var tempAvatar = null;
 var tempBanner = null;
@@ -17,20 +17,16 @@ async function init() {
     await loadProfile();
     loadPurchases();
     loadInvoices();
+    loadFavorites();
     setupNavigation();
     setupEvents();
     updateCartBadge();
 }
 
 async function loadProfile() {
-    var { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
-
+    var { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!profile) {
-        await supabase.from('profiles').insert({ id: currentUser.id });
+        await supabase.from('profiles').insert({ id: currentUser.id, full_name: currentUser.user_metadata?.full_name || '' });
         profile = {};
     }
 
@@ -38,14 +34,9 @@ async function loadProfile() {
     document.getElementById('profileEmailDisplay').textContent = currentUser.email;
     document.getElementById('userNameDisplay').textContent = profile.full_name || currentUser.email.split('@')[0];
     document.getElementById('tooltipEmail').textContent = currentUser.email;
-
     document.getElementById('profileAvatar').src = profile.avatar_url || 'https://via.placeholder.com/140';
     document.getElementById('userAvatarTop').src = profile.avatar_url || 'https://via.placeholder.com/32';
-
-    if (profile.banner_url) {
-        document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
-    }
-
+    if (profile.banner_url) document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
     document.getElementById('editName').value = profile.full_name || '';
     document.getElementById('editBio').value = profile.bio || '';
     document.getElementById('editRoblox').value = profile.roblox || '';
@@ -53,42 +44,46 @@ async function loadProfile() {
     document.getElementById('languageSelect').value = localStorage.getItem('yxLang') || 'es';
     document.getElementById('currencySelect').value = localStorage.getItem('yxCurrency') || 'USD';
 
-    var orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+    var { count } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
     var badge = document.getElementById('profileBadge');
-    if (orders.length >= 10) badge.textContent = 'VIP';
-    else if (orders.length >= 5) badge.textContent = 'Cliente Frecuente';
-    else if (orders.length >= 1) badge.textContent = 'Cliente';
+    if (count >= 10) badge.textContent = 'VIP';
+    else if (count >= 5) badge.textContent = 'Cliente Frecuente';
+    else if (count >= 1) badge.textContent = 'Cliente';
     else badge.textContent = 'Nuevo';
 }
 
-function loadPurchases() {
-    var orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+async function loadPurchases() {
+    var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     var tbody = document.getElementById('purchasesTableBody');
-    if (!orders.length) return;
-    tbody.innerHTML = orders.reverse().map(function(o) {
+    if (!orders || !orders.length) return;
+    tbody.innerHTML = orders.map(function(o) {
         var items = o.items ? o.items.map(function(i) { return i.name; }).join(', ') : 'Productos';
-        return '<tr><td><strong>#' + (o.id || '').substring(0, 8) + '</strong></td><td>' + new Date(o.date).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? o.total.toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">Completado</span></td><td><button class="btn-sm btn-outline" onclick="downloadInvoice(\'' + o.id + '\')"><span class="material-icons">download</span></button></td></tr>';
+        return '<tr><td><strong>#' + o.id + '</strong></td><td>' + new Date(o.created_at).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">' + (o.status || 'Completado') + '</span></td><td><button class="btn-sm btn-outline" onclick="downloadInvoice(' + o.id + ')"><span class="material-icons">download</span></button></td></tr>';
     }).join('');
 }
 
-function loadInvoices() {
-    var orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
+async function loadInvoices() {
+    var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     var list = document.getElementById('invoicesList');
-    if (!orders.length) return;
+    if (!orders || !orders.length) return;
     list.innerHTML = orders.map(function(o) {
-        return '<div class="invoice-card"><div class="invoice-info"><span class="material-icons">receipt</span><div><strong>Factura #' + (o.id || '').substring(0, 8) + '</strong><p>' + new Date(o.date).toLocaleDateString() + ' - $' + (o.total ? o.total.toFixed(2) : '0.00') + '</p></div></div><button class="btn-sm btn-outline" onclick="downloadInvoice(\'' + o.id + '\')"><span class="material-icons">download</span> Descargar</button></div>';
+        return '<div class="invoice-card"><div class="invoice-info"><span class="material-icons">receipt</span><div><strong>Factura #' + o.id + '</strong><p>' + new Date(o.created_at).toLocaleDateString() + ' - $' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</p></div></div><button class="btn-sm btn-outline" onclick="downloadInvoice(' + o.id + ')"><span class="material-icons">download</span> Descargar</button></div>';
     }).join('');
+}
+
+async function loadFavorites() {
+    var { data: favs } = await supabase.from('favorites').select('*').eq('user_id', currentUser.id);
+    var list = document.getElementById('favoritesList');
+    if (!favs || !favs.length) { if (list) list.innerHTML = '<p class="text-muted">No tienes favoritos</p>'; return; }
+    if (list) list.innerHTML = favs.map(function(f) { return '<div class="favorite-item">Producto #' + f.product_id + '</div>'; }).join('');
 }
 
 window.downloadInvoice = function(orderId) {
-    var orders = JSON.parse(localStorage.getItem('yxOrders') || '[]');
-    var order = orders.find(function(o) { return o.id === orderId; });
-    if (!order) return;
-    var content = 'YX STUDIOS - FACTURA\n========================\nFactura: #' + order.id.substring(0, 8) + '\nFecha: ' + new Date(order.date).toLocaleDateString() + '\nTotal: $' + (order.total ? order.total.toFixed(2) : '0.00') + '\n========================\nGracias por tu compra!';
+    var content = 'YX STUDIOS - FACTURA\n========================\nFactura: #' + orderId + '\nGracias por tu compra!';
     var blob = new Blob([content], { type: 'text/plain' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url; a.download = 'factura_' + order.id.substring(0, 8) + '.txt'; a.click();
+    a.href = url; a.download = 'factura_' + orderId + '.txt'; a.click();
     URL.revokeObjectURL(url);
 };
 
@@ -105,77 +100,34 @@ function setupNavigation() {
 }
 
 function setupEvents() {
-    // AVATAR - Solo guarda en variable temporal
     document.getElementById('avatarUpload').addEventListener('change', function(e) {
-        var file = e.target.files[0];
-        if (!file) return;
+        var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) {
-            tempAvatar = ev.target.result;
-            document.getElementById('profileAvatar').src = tempAvatar;
-            document.getElementById('userAvatarTop').src = tempAvatar;
-        };
+        reader.onload = function(ev) { tempAvatar = ev.target.result; document.getElementById('profileAvatar').src = tempAvatar; document.getElementById('userAvatarTop').src = tempAvatar; };
         reader.readAsDataURL(file);
     });
 
-    // BANNER - Solo guarda en variable temporal
     document.getElementById('bannerUpload').addEventListener('change', function(e) {
-        var file = e.target.files[0];
-        if (!file) return;
+        var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) {
-            tempBanner = ev.target.result;
-            document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')';
-        };
+        reader.onload = function(ev) { tempBanner = ev.target.result; document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')'; };
         reader.readAsDataURL(file);
     });
 
-    // GUARDAR TODO - Solo cuando se hace clic
     document.getElementById('savePersonal').addEventListener('click', async function() {
-        var name = document.getElementById('editName').value.trim();
-        var bio = document.getElementById('editBio').value.trim();
-        var roblox = document.getElementById('editRoblox').value.trim();
-        var discord = document.getElementById('editDiscord').value.trim();
-
-        var updateData = {
-            id: currentUser.id,
-            full_name: name,
-            bio: bio,
-            roblox: roblox,
-            discord: discord,
-            updated_at: new Date().toISOString()
-        };
-
-        // Si hay avatar temporal, incluirlo
-        if (tempAvatar) {
-            updateData.avatar_url = tempAvatar;
-        }
-
-        // Si hay banner temporal, incluirlo
-        if (tempBanner) {
-            updateData.banner_url = tempBanner;
-        }
-
-        var { error } = await supabase.from('profiles').upsert(updateData);
-
-        if (error) {
-            showNotification('Error', error.message, 'error');
-            return;
-        }
-
-        // Limpiar temporales
-        tempAvatar = null;
-        tempBanner = null;
-
-        document.getElementById('profileName').textContent = name || 'Usuario';
-        document.getElementById('userNameDisplay').textContent = name || currentUser.email.split('@')[0];
-        showNotification('Perfil actualizado', 'Todos los cambios guardados', 'success');
+        var data = { id: currentUser.id, full_name: document.getElementById('editName').value.trim(), bio: document.getElementById('editBio').value.trim(), roblox: document.getElementById('editRoblox').value.trim(), discord: document.getElementById('editDiscord').value.trim(), updated_at: new Date().toISOString() };
+        if (tempAvatar) data.avatar_url = tempAvatar;
+        if (tempBanner) data.banner_url = tempBanner;
+        var { error } = await supabase.from('profiles').upsert(data);
+        if (error) { showNotification('Error', error.message, 'error'); return; }
+        tempAvatar = null; tempBanner = null;
+        document.getElementById('profileName').textContent = data.full_name || 'Usuario';
+        document.getElementById('userNameDisplay').textContent = data.full_name || currentUser.email.split('@')[0];
+        showNotification('Perfil actualizado', 'Guardado en la nube', 'success');
     });
 
-    // CAMBIAR CONTRASEÑA
     document.getElementById('changePasswordBtn').addEventListener('click', async function() {
-        var p1 = document.getElementById('newPassword').value;
-        var p2 = document.getElementById('confirmNewPassword').value;
+        var p1 = document.getElementById('newPassword').value, p2 = document.getElementById('confirmNewPassword').value;
         if (!p1 || !p2) { showNotification('Error', 'Completa los campos', 'error'); return; }
         if (p1 !== p2) { showNotification('Error', 'No coinciden', 'error'); return; }
         if (p1.length < 6) { showNotification('Error', 'Mínimo 6 caracteres', 'error'); return; }
@@ -184,7 +136,6 @@ function setupEvents() {
         else { showNotification('Contraseña actualizada', '', 'success'); document.getElementById('newPassword').value = ''; document.getElementById('confirmNewPassword').value = ''; }
     });
 
-    // CAMBIAR EMAIL
     document.getElementById('changeEmailBtn').addEventListener('click', async function() {
         var email = document.getElementById('newEmail').value.trim();
         if (!email) { showNotification('Error', 'Ingresa un correo', 'error'); return; }
@@ -193,7 +144,6 @@ function setupEvents() {
         else { showNotification('Solicitud enviada', 'Revisa tu correo', 'success'); }
     });
 
-    // TOGGLE PASSWORD
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
@@ -202,21 +152,13 @@ function setupEvents() {
         });
     });
 
-    // DISCORD - Con ruta completa
     document.getElementById('connectDiscord').addEventListener('click', async function() {
-        await supabase.auth.signInWithOAuth({
-            provider: 'discord',
-            options: { redirectTo: BASE_URL + '/profile.html' }
-        });
+        await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
 
-    // IDIOMA
     document.getElementById('languageSelect').addEventListener('change', function() { localStorage.setItem('yxLang', this.value); });
-
-    // MONEDA
     document.getElementById('currencySelect').addEventListener('change', function() { localStorage.setItem('yxCurrency', this.value); });
 
-    // TEMA
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
         dot.addEventListener('click', function() {
             document.documentElement.setAttribute('data-theme', this.dataset.accent);
@@ -226,23 +168,17 @@ function setupEvents() {
         });
     });
 
-    // ELIMINAR CUENTA
     document.getElementById('deleteAccountBtn').addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'flex'; });
     document.getElementById('cancelDelete').addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'none'; document.getElementById('deleteConfirmInput').value = ''; });
     document.getElementById('deleteConfirmInput').addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
     document.getElementById('confirmDelete').addEventListener('click', async function() {
         await supabase.from('profiles').delete().eq('id', currentUser.id);
-        await supabase.auth.signOut();
-        localStorage.clear();
-        window.location.href = BASE_URL + '/index.html';
+        await supabase.from('favorites').delete().eq('user_id', currentUser.id);
+        await supabase.from('cart_items').delete().eq('user_id', currentUser.id);
+        await supabase.auth.signOut(); localStorage.clear(); window.location.href = BASE_URL + '/index.html';
     });
 
-    // LOGOUT
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
-        e.preventDefault();
-        await supabase.auth.signOut();
-        window.location.href = BASE_URL + '/index.html';
-    });
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
 }
 
 function updateCartBadge() {
@@ -253,8 +189,7 @@ function updateCartBadge() {
 }
 
 function showNotification(title, message, type) {
-    var existing = document.querySelector('.notify-toast');
-    if (existing) existing.remove();
+    var existing = document.querySelector('.notify-toast'); if (existing) existing.remove();
     var icons = { success: 'check_circle', error: 'error', info: 'info' };
     var toast = document.createElement('div');
     toast.className = 'notify-toast notify-' + type;
