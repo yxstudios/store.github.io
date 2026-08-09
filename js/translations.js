@@ -1,5 +1,5 @@
 // ============================================
-// SISTEMA DE TRADUCCIONES
+// SISTEMA DE TRADUCCIONES - 10 IDIOMAS
 // ============================================
 var TRANSLATIONS = {
     es: {
@@ -11,10 +11,10 @@ var TRANSLATIONS = {
         all_products_sub: 'Explora nuestra colección completa',
         featured_title: 'Productos Destacados', featured_subtitle: 'Los más populares',
         why_us: '¿Por qué elegirnos?', why_us_sub: 'Ofrecemos los mejores sistemas para tu juego de Roblox',
-        security: 'Seguridad Garantizada', security_desc: 'Sistemas anti-exploit',
-        performance: 'Alto Rendimiento', performance_desc: 'Optimizados',
-        support: 'Soporte 24/7', support_desc: 'Instalación y ayuda',
-        updates: 'Actualizaciones Gratis', updates_desc: 'Sin costo adicional',
+        security: 'Seguridad Garantizada', security_desc: 'Sistemas anti-exploit y protección',
+        performance: 'Alto Rendimiento', performance_desc: 'Optimizados para tu juego',
+        support: 'Soporte 24/7', support_desc: 'Te ayudamos con la instalación',
+        updates: 'Actualizaciones Gratis', updates_desc: 'Recibe todas las actualizaciones',
         hero_badge: 'Sistemas profesionales para Roblox',
         hero_title: 'Lleva tu juego al siguiente nivel',
         hero_desc: 'Los mejores sistemas de administración, economía, combate y construcción para tu juego de Roblox.',
@@ -22,7 +22,9 @@ var TRANSLATIONS = {
         links: 'Enlaces', support_title: 'Soporte', contact: 'Contacto', terms: 'Términos',
         footer_desc: 'Sistemas para Roblox desde 2020', rights: 'Todos los derechos reservados.',
         promo_text: '50% de descuento - Usa el código: VIP50',
-        add_to_cart: 'Agregar', robux: 'Robux'
+        add_to_cart: 'Agregar', robux: 'Robux', price: 'Precio', buy_now: 'Comprar Ahora',
+        features_title: 'Características', free_updates: 'Actualizaciones gratis',
+        support_247: 'Soporte 24/7', add_to_cart_modal: 'Agregar al Carrito'
     },
     en: {
         home: 'Home', products: 'Products', cart: 'Cart', login: 'Sign In',
@@ -33,10 +35,10 @@ var TRANSLATIONS = {
         all_products_sub: 'Explore our complete collection',
         featured_title: 'Featured Products', featured_subtitle: 'Most Popular',
         why_us: 'Why choose us?', why_us_sub: 'We offer the best systems for your Roblox game',
-        security: 'Guaranteed Security', security_desc: 'Anti-exploit systems',
-        performance: 'High Performance', performance_desc: 'Optimized',
-        support: '24/7 Support', support_desc: 'Installation and help',
-        updates: 'Free Updates', updates_desc: 'No additional cost',
+        security: 'Guaranteed Security', security_desc: 'Anti-exploit systems and protection',
+        performance: 'High Performance', performance_desc: 'Optimized for your game',
+        support: '24/7 Support', support_desc: 'We help you with installation',
+        updates: 'Free Updates', updates_desc: 'Receive all updates',
         hero_badge: 'Professional systems for Roblox',
         hero_title: 'Take your game to the next level',
         hero_desc: 'The best administration, economy, combat and building systems for your Roblox game.',
@@ -44,21 +46,23 @@ var TRANSLATIONS = {
         links: 'Links', support_title: 'Support', contact: 'Contact', terms: 'Terms',
         footer_desc: 'Roblox systems since 2020', rights: 'All rights reserved.',
         promo_text: '50% off - Use code: VIP50',
-        add_to_cart: 'Add', robux: 'Robux'
+        add_to_cart: 'Add', robux: 'Robux', price: 'Price', buy_now: 'Buy Now',
+        features_title: 'Features', free_updates: 'Free updates',
+        support_247: '24/7 Support', add_to_cart_modal: 'Add to Cart'
     },
     pt: {
         home: 'Início', products: 'Produtos', cart: 'Carrinho', login: 'Entrar',
         register: 'Cadastrar', profile: 'Meu Perfil', logout: 'Sair',
-        search: 'Buscar sistemas...', featured: 'Destacados', all: 'Todos',
+        search: 'Buscar sistemas...', featured: 'Destaques', all: 'Todos',
         admin: 'Admin', economy: 'Economia', combat: 'Combate', building: 'Construção',
         view_products: 'Ver Produtos', all_products: 'Todos os Sistemas',
         all_products_sub: 'Explore nossa coleção completa',
-        featured_title: 'Produtos Destacados', featured_subtitle: 'Mais Populares',
+        featured_title: 'Produtos em Destaque', featured_subtitle: 'Mais Populares',
         why_us: 'Por que nos escolher?', why_us_sub: 'Oferecemos os melhores sistemas para seu jogo Roblox',
-        security: 'Segurança Garantida', security_desc: 'Sistemas anti-exploit',
-        performance: 'Alto Desempenho', performance_desc: 'Otimizados',
-        support: 'Suporte 24/7', support_desc: 'Instalação e ajuda',
-        updates: 'Atualizações Grátis', updates_desc: 'Sem custo adicional',
+        security: 'Segurança Garantida', security_desc: 'Sistemas anti-exploit e proteção',
+        performance: 'Alto Desempenho', performance_desc: 'Otimizado para seu jogo',
+        support: 'Suporte 24/7', support_desc: 'Ajudamos com a instalação',
+        updates: 'Atualizações Grátis', updates_desc: 'Receba todas as atualizações',
         hero_badge: 'Sistemas profissionais para Roblox',
         hero_title: 'Leve seu jogo ao próximo nível',
         hero_desc: 'Os melhores sistemas de administração, economia, combate e construção para seu jogo Roblox.',
@@ -66,26 +70,200 @@ var TRANSLATIONS = {
         links: 'Links', support_title: 'Suporte', contact: 'Contato', terms: 'Termos',
         footer_desc: 'Sistemas Roblox desde 2020', rights: 'Todos os direitos reservados.',
         promo_text: '50% de desconto - Use o código: VIP50',
-        add_to_cart: 'Adicionar', robux: 'Robux'
+        add_to_cart: 'Adicionar', robux: 'Robux', price: 'Preço', buy_now: 'Comprar Agora',
+        features_title: 'Características', free_updates: 'Atualizações grátis',
+        support_247: 'Suporte 24/7', add_to_cart_modal: 'Adicionar ao Carrinho'
+    },
+    fr: {
+        home: 'Accueil', products: 'Produits', cart: 'Panier', login: 'Connexion',
+        register: 'Inscription', profile: 'Mon Profil', logout: 'Déconnexion',
+        search: 'Rechercher...', featured: 'En vedette', all: 'Tous',
+        admin: 'Admin', economy: 'Économie', combat: 'Combat', building: 'Construction',
+        view_products: 'Voir Produits', all_products: 'Tous les Systèmes',
+        all_products_sub: 'Explorez notre collection complète',
+        featured_title: 'Produits Vedettes', featured_subtitle: 'Plus Populaires',
+        why_us: 'Pourquoi nous choisir?', why_us_sub: 'Nous offrons les meilleurs systèmes pour votre jeu Roblox',
+        security: 'Sécurité Garantie', security_desc: 'Systèmes anti-exploit et protection',
+        performance: 'Haute Performance', performance_desc: 'Optimisé pour votre jeu',
+        support: 'Support 24/7', support_desc: 'Nous vous aidons avec l\'installation',
+        updates: 'Mises à jour gratuites', updates_desc: 'Recevez toutes les mises à jour',
+        hero_badge: 'Systèmes professionnels pour Roblox',
+        hero_title: 'Faites passer votre jeu au niveau supérieur',
+        hero_desc: 'Les meilleurs systèmes d\'administration, d\'économie, de combat et de construction pour votre jeu Roblox.',
+        systems: 'Systèmes', clients: 'Clients', rating: 'Évaluation',
+        links: 'Liens', support_title: 'Support', contact: 'Contact', terms: 'Conditions',
+        footer_desc: 'Systèmes Roblox depuis 2020', rights: 'Tous droits réservés.',
+        promo_text: '50% de réduction - Code: VIP50',
+        add_to_cart: 'Ajouter', robux: 'Robux', price: 'Prix', buy_now: 'Acheter',
+        features_title: 'Caractéristiques', free_updates: 'Mises à jour gratuites',
+        support_247: 'Support 24/7', add_to_cart_modal: 'Ajouter au Panier'
+    },
+    de: {
+        home: 'Start', products: 'Produkte', cart: 'Warenkorb', login: 'Anmelden',
+        register: 'Registrieren', profile: 'Mein Profil', logout: 'Abmelden',
+        search: 'Systeme suchen...', featured: 'Empfohlen', all: 'Alle',
+        admin: 'Admin', economy: 'Wirtschaft', combat: 'Kampf', building: 'Bau',
+        view_products: 'Produkte ansehen', all_products: 'Alle Systeme',
+        all_products_sub: 'Entdecken Sie unsere komplette Kollektion',
+        featured_title: 'Empfohlene Produkte', featured_subtitle: 'Beliebteste',
+        why_us: 'Warum uns wählen?', why_us_sub: 'Wir bieten die besten Systeme für Ihr Roblox-Spiel',
+        security: 'Garantierte Sicherheit', security_desc: 'Anti-Exploit-Systeme und Schutz',
+        performance: 'Hohe Leistung', performance_desc: 'Optimiert für Ihr Spiel',
+        support: '24/7 Support', support_desc: 'Wir helfen bei der Installation',
+        updates: 'Kostenlose Updates', updates_desc: 'Erhalten Sie alle Updates',
+        hero_badge: 'Professionelle Systeme für Roblox',
+        hero_title: 'Bringen Sie Ihr Spiel auf die nächste Stufe',
+        hero_desc: 'Die besten Verwaltungs-, Wirtschafts-, Kampf- und Bausysteme für Ihr Roblox-Spiel.',
+        systems: 'Systeme', clients: 'Kunden', rating: 'Bewertung',
+        links: 'Links', support_title: 'Unterstützung', contact: 'Kontakt', terms: 'Bedingungen',
+        footer_desc: 'Roblox-Systeme seit 2020', rights: 'Alle Rechte vorbehalten.',
+        promo_text: '50% Rabatt - Code: VIP50',
+        add_to_cart: 'Hinzufügen', robux: 'Robux', price: 'Preis', buy_now: 'Jetzt kaufen',
+        features_title: 'Eigenschaften', free_updates: 'Kostenlose Updates',
+        support_247: '24/7 Support', add_to_cart_modal: 'In den Warenkorb'
+    },
+    it: {
+        home: 'Home', products: 'Prodotti', cart: 'Carrello', login: 'Accedi',
+        register: 'Registrati', profile: 'Mio Profilo', logout: 'Esci',
+        search: 'Cerca sistemi...', featured: 'In evidenza', all: 'Tutti',
+        admin: 'Admin', economy: 'Economia', combat: 'Combattimento', building: 'Costruzione',
+        view_products: 'Vedi Prodotti', all_products: 'Tutti i Sistemi',
+        all_products_sub: 'Esplora la nostra collezione completa',
+        featured_title: 'Prodotti in Evidenza', featured_subtitle: 'Più Popolari',
+        why_us: 'Perché sceglierci?', why_us_sub: 'Offriamo i migliori sistemi per il tuo gioco Roblox',
+        security: 'Sicurezza Garantita', security_desc: 'Sistemi anti-exploit e protezione',
+        performance: 'Alte Prestazioni', performance_desc: 'Ottimizzato per il tuo gioco',
+        support: 'Supporto 24/7', support_desc: 'Ti aiutiamo con l\'installazione',
+        updates: 'Aggiornamenti Gratuiti', updates_desc: 'Ricevi tutti gli aggiornamenti',
+        hero_badge: 'Sistemi professionali per Roblox',
+        hero_title: 'Porta il tuo gioco al livello successivo',
+        hero_desc: 'I migliori sistemi di amministrazione, economia, combattimento e costruzione per il tuo gioco Roblox.',
+        systems: 'Sistemi', clients: 'Clienti', rating: 'Valutazione',
+        links: 'Link', support_title: 'Supporto', contact: 'Contatto', terms: 'Termini',
+        footer_desc: 'Sistemi Roblox dal 2020', rights: 'Tutti i diritti riservati.',
+        promo_text: '50% di sconto - Codice: VIP50',
+        add_to_cart: 'Aggiungi', robux: 'Robux', price: 'Prezzo', buy_now: 'Compra Ora',
+        features_title: 'Caratteristiche', free_updates: 'Aggiornamenti gratuiti',
+        support_247: 'Supporto 24/7', add_to_cart_modal: 'Aggiungi al Carrello'
+    },
+    ja: {
+        home: 'ホーム', products: '製品', cart: 'カート', login: 'ログイン',
+        register: '登録', profile: 'プロフィール', logout: 'ログアウト',
+        search: 'システムを検索...', featured: '注目', all: 'すべて',
+        admin: '管理者', economy: '経済', combat: '戦闘', building: '建築',
+        view_products: '製品を見る', all_products: 'すべてのシステム',
+        all_products_sub: 'コレクションを探索',
+        featured_title: '注目の製品', featured_subtitle: '人気',
+        why_us: 'なぜ選ぶのか？', why_us_sub: 'Robloxゲームに最高のシステムを提供',
+        security: 'セキュリティ保証', security_desc: 'アンチエクスプロイトシステム',
+        performance: '高性能', performance_desc: 'ゲームに最適化',
+        support: '24時間サポート', support_desc: 'インストールをサポート',
+        updates: '無料アップデート', updates_desc: 'すべてのアップデートを受信',
+        hero_badge: 'Robloxのプロフェッショナルシステム',
+        hero_title: 'ゲームを次のレベルへ',
+        hero_desc: 'Robloxゲームのための最高の管理、経済、戦闘、建築システム。',
+        systems: 'システム', clients: 'クライアント', rating: '評価',
+        links: 'リンク', support_title: 'サポート', contact: '連絡先', terms: '利用規約',
+        footer_desc: '2020年からのRobloxシステム', rights: '全著作権所有。',
+        promo_text: '50%オフ - コード: VIP50',
+        add_to_cart: '追加', robux: 'ロバックス', price: '価格', buy_now: '今すぐ購入',
+        features_title: '特徴', free_updates: '無料アップデート',
+        support_247: '24時間サポート', add_to_cart_modal: 'カートに追加'
+    },
+    ko: {
+        home: '홈', products: '제품', cart: '장바구니', login: '로그인',
+        register: '회원가입', profile: '프로필', logout: '로그아웃',
+        search: '시스템 검색...', featured: '추천', all: '전체',
+        admin: '관리자', economy: '경제', combat: '전투', building: '건설',
+        view_products: '제품 보기', all_products: '모든 시스템',
+        all_products_sub: '전체 컬렉션 탐색',
+        featured_title: '추천 제품', featured_subtitle: '인기',
+        why_us: '왜 우리를 선택하나요?', why_us_sub: 'Roblox 게임을 위한 최고의 시스템 제공',
+        security: '보안 보장', security_desc: '안티 익스플로잇 시스템',
+        performance: '고성능', performance_desc: '게임에 최적화',
+        support: '24/7 지원', support_desc: '설치를 도와드립니다',
+        updates: '무료 업데이트', updates_desc: '모든 업데이트 수신',
+        hero_badge: 'Roblox 전문 시스템',
+        hero_title: '게임을 다음 단계로',
+        hero_desc: 'Roblox 게임을 위한 최고의 관리, 경제, 전투, 건설 시스템.',
+        systems: '시스템', clients: '클라이언트', rating: '평점',
+        links: '링크', support_title: '지원', contact: '연락처', terms: '약관',
+        footer_desc: '2020년부터 Roblox 시스템', rights: '모든 권리 보유.',
+        promo_text: '50% 할인 - 코드: VIP50',
+        add_to_cart: '추가', robux: '로벅스', price: '가격', buy_now: '지금 구매',
+        features_title: '특징', free_updates: '무료 업데이트',
+        support_247: '24/7 지원', add_to_cart_modal: '장바구니에 추가'
+    },
+    ru: {
+        home: 'Главная', products: 'Продукты', cart: 'Корзина', login: 'Войти',
+        register: 'Регистрация', profile: 'Профиль', logout: 'Выйти',
+        search: 'Поиск систем...', featured: 'Рекомендуемые', all: 'Все',
+        admin: 'Админ', economy: 'Экономика', combat: 'Бой', building: 'Строительство',
+        view_products: 'Смотреть', all_products: 'Все системы',
+        all_products_sub: 'Изучите нашу коллекцию',
+        featured_title: 'Рекомендуемые продукты', featured_subtitle: 'Популярные',
+        why_us: 'Почему выбирают нас?', why_us_sub: 'Лучшие системы для вашей игры Roblox',
+        security: 'Гарантия безопасности', security_desc: 'Анти-эксплойт системы',
+        performance: 'Высокая производительность', performance_desc: 'Оптимизировано',
+        support: 'Поддержка 24/7', support_desc: 'Помощь с установкой',
+        updates: 'Бесплатные обновления', updates_desc: 'Получайте все обновления',
+        hero_badge: 'Профессиональные системы для Roblox',
+        hero_title: 'Поднимите игру на новый уровень',
+        hero_desc: 'Лучшие системы администрирования, экономики, боя и строительства для Roblox.',
+        systems: 'Системы', clients: 'Клиенты', rating: 'Рейтинг',
+        links: 'Ссылки', support_title: 'Поддержка', contact: 'Контакты', terms: 'Условия',
+        footer_desc: 'Системы Roblox с 2020', rights: 'Все права защищены.',
+        promo_text: 'Скидка 50% - Код: VIP50',
+        add_to_cart: 'Добавить', robux: 'Robux', price: 'Цена', buy_now: 'Купить',
+        features_title: 'Характеристики', free_updates: 'Бесплатные обновления',
+        support_247: 'Поддержка 24/7', add_to_cart_modal: 'В корзину'
+    },
+    zh: {
+        home: '首页', products: '产品', cart: '购物车', login: '登录',
+        register: '注册', profile: '个人资料', logout: '退出',
+        search: '搜索系统...', featured: '精选', all: '全部',
+        admin: '管理', economy: '经济', combat: '战斗', building: '建筑',
+        view_products: '查看产品', all_products: '所有系统',
+        all_products_sub: '探索我们的完整系列',
+        featured_title: '精选产品', featured_subtitle: '最热门',
+        why_us: '为什么选择我们？', why_us_sub: '为您的Roblox游戏提供最佳系统',
+        security: '安全保障', security_desc: '反漏洞系统',
+        performance: '高性能', performance_desc: '为您的游戏优化',
+        support: '24/7支持', support_desc: '我们帮助您安装',
+        updates: '免费更新', updates_desc: '接收所有更新',
+        hero_badge: 'Roblox专业系统',
+        hero_title: '将您的游戏提升到新水平',
+        hero_desc: '为您的Roblox游戏提供最好的管理、经济、战斗和建筑系统。',
+        systems: '系统', clients: '客户', rating: '评分',
+        links: '链接', support_title: '支持', contact: '联系', terms: '条款',
+        footer_desc: '自2020年以来的Roblox系统', rights: '版权所有。',
+        promo_text: '5折 - 使用代码: VIP50',
+        add_to_cart: '添加', robux: 'Robux', price: '价格', buy_now: '立即购买',
+        features_title: '特点', free_updates: '免费更新',
+        support_247: '24/7支持', add_to_cart_modal: '加入购物车'
     }
 };
 
 function getLang() { return localStorage.getItem('yxLang') || 'es'; }
-function t(key) { var lang = getLang(); return TRANSLATIONS[lang] ? (TRANSLATIONS[lang][key] || TRANSLATIONS['es'][key] || key) : (TRANSLATIONS['es'][key] || key); }
+function t(key) { 
+    var lang = getLang(); 
+    if (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) return TRANSLATIONS[lang][key];
+    if (TRANSLATIONS['es'] && TRANSLATIONS['es'][key]) return TRANSLATIONS['es'][key];
+    return key; 
+}
 
 function applyTranslations() {
     document.querySelectorAll('[data-i18n]').forEach(function(el) {
         var key = el.dataset.i18n;
+        var text = t(key);
         if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'search')) {
-            el.placeholder = t(key);
-        } else if (el.tagName === 'SPAN' || el.tagName === 'A' || el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2' || el.tagName === 'H3' || el.tagName === 'H4' || el.tagName === 'BUTTON' || el.tagName === 'LABEL') {
+            el.placeholder = text;
+        } else if (el.querySelector('.material-icons') || el.querySelector('.fas') || el.querySelector('.fab')) {
             var icon = el.querySelector('.material-icons, .fas, .fab');
-            var text = t(key);
-            if (icon) {
-                el.innerHTML = icon.outerHTML + ' ' + text;
-            } else {
-                el.textContent = text;
-            }
+            var iconHTML = icon ? icon.outerHTML : '';
+            el.innerHTML = iconHTML + ' ' + text;
+        } else {
+            el.textContent = text;
         }
     });
 }
