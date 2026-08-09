@@ -50,47 +50,96 @@
             </div>
             
             <!-- DROPDOWNS DE IDIOMA Y MONEDA -->
-            <div class="topbar-controls">
-                <div class="dropdown-wrapper" id="langDropdown">
-                    <button class="dropdown-btn" onclick="toggleDropdown('langDropdown')">
-                        <span>🌐</span> <span id="currentLang">ES</span>
-                        <span class="material-icons dropdown-arrow">expand_more</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <button class="dropdown-item active" data-lang="es" onclick="selectLanguage('es')">🇪🇸 Español</button>
-                        <button class="dropdown-item" data-lang="en" onclick="selectLanguage('en')">🇺🇸 English</button>
-                        <button class="dropdown-item" data-lang="pt" onclick="selectLanguage('pt')">🇧🇷 Português</button>
-                        <button class="dropdown-item" data-lang="fr" onclick="selectLanguage('fr')">🇫🇷 Français</button>
-                        <button class="dropdown-item" data-lang="de" onclick="selectLanguage('de')">🇩🇪 Deutsch</button>
-                        <button class="dropdown-item" data-lang="it" onclick="selectLanguage('it')">🇮🇹 Italiano</button>
-                        <button class="dropdown-item" data-lang="ja" onclick="selectLanguage('ja')">🇯🇵 日本語</button>
-                        <button class="dropdown-item" data-lang="ko" onclick="selectLanguage('ko')">🇰🇷 한국어</button>
-                        <button class="dropdown-item" data-lang="ru" onclick="selectLanguage('ru')">🇷🇺 Русский</button>
-                        <button class="dropdown-item" data-lang="zh" onclick="selectLanguage('zh')">🇨🇳 中文</button>
-                    </div>
-                </div>
-                
-                <div class="dropdown-wrapper" id="currencyDropdown">
-                    <button class="dropdown-btn" onclick="toggleDropdown('currencyDropdown')">
-                        <span>💵</span> <span id="currentCurrency">USD</span>
-                        <span class="material-icons dropdown-arrow">expand_more</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <button class="dropdown-item active" data-currency="USD" onclick="selectCurrency('USD')">$ USD - Dólar</button>
-                        <button class="dropdown-item" data-currency="EUR" onclick="selectCurrency('EUR')">€ EUR - Euro</button>
-                        <button class="dropdown-item" data-currency="PEN" onclick="selectCurrency('PEN')">S/ PEN - Sol</button>
-                        <button class="dropdown-item" data-currency="MXN" onclick="selectCurrency('MXN')">MX$ MXN - Peso MX</button>
-                        <button class="dropdown-item" data-currency="COP" onclick="selectCurrency('COP')">CO$ COP - Peso CO</button>
-                        <button class="dropdown-item" data-currency="CLP" onclick="selectCurrency('CLP')">CL$ CLP - Peso CL</button>
-                        <button class="dropdown-item" data-currency="ARS" onclick="selectCurrency('ARS')">AR$ ARS - Peso AR</button>
-                        <button class="dropdown-item" data-currency="BRL" onclick="selectCurrency('BRL')">R$ BRL - Real</button>
-                        <button class="dropdown-item" data-currency="GBP" onclick="selectCurrency('GBP')">£ GBP - Libra</button>
-                        <button class="dropdown-item" data-currency="JPY" onclick="selectCurrency('JPY')">¥ JPY - Yen</button>
-                        <button class="dropdown-item" data-currency="CAD" onclick="selectCurrency('CAD')">CA$ CAD - Canadiense</button>
-                        <button class="dropdown-item" data-currency="AUD" onclick="selectCurrency('AUD')">AU$ AUD - Australiano</button>
-                    </div>
-                </div>
-            </div>
+<!-- DROPDOWNS DE IDIOMA Y MONEDA -->
+<div class="topbar-controls">
+    <!-- Dropdown Idioma -->
+    <div class="dropdown-wrapper" id="langDropdown">
+        <button class="dropdown-btn" onclick="toggleDropdown('langDropdown')">
+            <span class="material-icons dropdown-icon">translate</span>
+            <span id="currentLang">ES</span>
+            <span class="material-icons dropdown-arrow">expand_more</span>
+        </button>
+        <div class="dropdown-menu">
+            <button class="dropdown-item active" data-lang="es" onclick="selectLanguage('es')">
+                <span class="flag-icon flag-es"></span> Español
+            </button>
+            <button class="dropdown-item" data-lang="en" onclick="selectLanguage('en')">
+                <span class="flag-icon flag-us"></span> English
+            </button>
+            <button class="dropdown-item" data-lang="pt" onclick="selectLanguage('pt')">
+                <span class="flag-icon flag-br"></span> Português
+            </button>
+            <button class="dropdown-item" data-lang="fr" onclick="selectLanguage('fr')">
+                <span class="flag-icon flag-fr"></span> Français
+            </button>
+            <button class="dropdown-item" data-lang="de" onclick="selectLanguage('de')">
+                <span class="flag-icon flag-de"></span> Deutsch
+            </button>
+            <button class="dropdown-item" data-lang="it" onclick="selectLanguage('it')">
+                <span class="flag-icon flag-it"></span> Italiano
+            </button>
+            <button class="dropdown-item" data-lang="ja" onclick="selectLanguage('ja')">
+                <span class="flag-icon flag-jp"></span> 日本語
+            </button>
+            <button class="dropdown-item" data-lang="ko" onclick="selectLanguage('ko')">
+                <span class="flag-icon flag-kr"></span> 한국어
+            </button>
+            <button class="dropdown-item" data-lang="ru" onclick="selectLanguage('ru')">
+                <span class="flag-icon flag-ru"></span> Русский
+            </button>
+            <button class="dropdown-item" data-lang="zh" onclick="selectLanguage('zh')">
+                <span class="flag-icon flag-cn"></span> 中文
+            </button>
+        </div>
+    </div>
+    
+    <!-- Dropdown Moneda -->
+    <div class="dropdown-wrapper" id="currencyDropdown">
+        <button class="dropdown-btn" onclick="toggleDropdown('currencyDropdown')">
+            <span class="material-icons dropdown-icon">payments</span>
+            <span id="currentCurrency">USD</span>
+            <span class="material-icons dropdown-arrow">expand_more</span>
+        </button>
+        <div class="dropdown-menu">
+            <button class="dropdown-item active" data-currency="USD" onclick="selectCurrency('USD')">
+                <span class="dropdown-symbol">$</span> USD - Dólar
+            </button>
+            <button class="dropdown-item" data-currency="EUR" onclick="selectCurrency('EUR')">
+                <span class="dropdown-symbol">€</span> EUR - Euro
+            </button>
+            <button class="dropdown-item" data-currency="PEN" onclick="selectCurrency('PEN')">
+                <span class="dropdown-symbol">S/</span> PEN - Sol Peruano
+            </button>
+            <button class="dropdown-item" data-currency="MXN" onclick="selectCurrency('MXN')">
+                <span class="dropdown-symbol">MX$</span> MXN - Peso Mexicano
+            </button>
+            <button class="dropdown-item" data-currency="COP" onclick="selectCurrency('COP')">
+                <span class="dropdown-symbol">CO$</span> COP - Peso Colombiano
+            </button>
+            <button class="dropdown-item" data-currency="CLP" onclick="selectCurrency('CLP')">
+                <span class="dropdown-symbol">CL$</span> CLP - Peso Chileno
+            </button>
+            <button class="dropdown-item" data-currency="ARS" onclick="selectCurrency('ARS')">
+                <span class="dropdown-symbol">AR$</span> ARS - Peso Argentino
+            </button>
+            <button class="dropdown-item" data-currency="BRL" onclick="selectCurrency('BRL')">
+                <span class="dropdown-symbol">R$</span> BRL - Real Brasileño
+            </button>
+            <button class="dropdown-item" data-currency="GBP" onclick="selectCurrency('GBP')">
+                <span class="dropdown-symbol">£</span> GBP - Libra Esterlina
+            </button>
+            <button class="dropdown-item" data-currency="JPY" onclick="selectCurrency('JPY')">
+                <span class="dropdown-symbol">¥</span> JPY - Yen Japonés
+            </button>
+            <button class="dropdown-item" data-currency="CAD" onclick="selectCurrency('CAD')">
+                <span class="dropdown-symbol">CA$</span> CAD - Dólar Canadiense
+            </button>
+            <button class="dropdown-item" data-currency="AUD" onclick="selectCurrency('AUD')">
+                <span class="dropdown-symbol">AU$</span> AUD - Dólar Australiano
+            </button>
+        </div>
+    </div>
+</div>
             
             <div class="topbar-nav">
                 <a href="index.html" class="nav-link active"><span class="material-icons">home</span><span data-i18n="home">Home</span></a>
