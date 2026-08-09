@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <!-- Turnstile se carga PRIMERO, sin async defer para que esté disponible -->
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
 </head>
 <body>
 
@@ -46,7 +44,7 @@
                     <label><span class="material-icons">person</span> Nombre completo</label>
                     <div class="input-wrapper">
                         <span class="material-icons input-icon">person</span>
-                        <input type="text" id="registerName" placeholder="Tu nombre completo" required autocomplete="name">
+                        <input type="text" id="registerName" placeholder="Tu nombre completo" required>
                     </div>
                 </div>
                 
@@ -54,7 +52,7 @@
                     <label><span class="material-icons">email</span> Correo electrónico</label>
                     <div class="input-wrapper">
                         <span class="material-icons input-icon">email</span>
-                        <input type="email" id="registerEmail" placeholder="ejemplo@correo.com" required autocomplete="email">
+                        <input type="email" id="registerEmail" placeholder="ejemplo@correo.com" required>
                     </div>
                 </div>
                 
@@ -62,7 +60,7 @@
                     <label><span class="material-icons">lock</span> Contraseña</label>
                     <div class="input-wrapper">
                         <span class="material-icons input-icon">lock</span>
-                        <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
+                        <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required minlength="6">
                         <span class="material-icons toggle-password" data-target="registerPassword">visibility_off</span>
                     </div>
                 </div>
@@ -72,14 +70,11 @@
                     <span class="strength-text" id="strengthText">Fortaleza de la contraseña</span>
                 </div>
                 
-                <!-- Turnstile Widget - se renderiza aquí -->
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAELVyefNkoTULHXV" data-theme="dark" data-callback="onCaptchaSuccess" style="margin-bottom:20px;display:flex;justify-content:center;"></div>
+                <!-- Turnstile -->
+                <div id="turnstile-container" style="margin-bottom:20px;display:flex;justify-content:center;min-height:65px;"></div>
                 
                 <div class="terms-checkbox">
-                    <label>
-                        <input type="checkbox" id="termsCheck" required>
-                        <span>Acepto los <a href="#">Términos y Condiciones</a></span>
-                    </label>
+                    <label><input type="checkbox" id="termsCheck" required> Acepto los <a href="#">Términos</a></label>
                 </div>
                 
                 <button type="submit" class="btn-primary" id="registerBtn">
@@ -101,15 +96,135 @@
         </div>
     </div>
 
-    <script>
-        // Callback cuando se completa el captcha
-        function onCaptchaSuccess(token) {
-            console.log('Captcha completado');
-            window.captchaToken = token;
-        }
-    </script>
+    <!-- Turnstile -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onLoadTurnstile" defer></script>
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
-    <script type="module" src="js/auth.js"></script>
+    
+    <script>
+        var captchaToken = null;
+        
+        window.onLoadTurnstile = function() {
+            console.log('Turnstile cargado, renderizando...');
+            if (typeof turnstile !== 'undefined') {
+                turnstile.render('#turnstile-container', {
+                    sitekey: '0x4AAAAAAELVyefNkoTULHXV',
+                    theme: 'dark',
+                    callback: function(token) {
+                        console.log('Captcha completado, token:', token.substring(0,20)+'...');
+                        captchaToken = token;
+                    },
+                    'error-callback': function() {
+                        console.error('Error en Turnstile');
+                    }
+                });
+            } else {
+                console.error('Turnstile no disponible');
+            }
+        };
+
+        // Login con Discord
+        document.getElementById('discordRegister').addEventListener('click', function() {
+            var BASE_URL = 'https://yxstore.linkpc.net';
+            supabase.auth.signInWithOAuth({
+                provider: 'discord',
+                options: { redirectTo: BASE_URL + '/index.html' }
+            }).then(function(result) {
+                if (result.error) {
+                    document.getElementById('authMessage').textContent = result.error.message;
+                    document.getElementById('authMessage').className = 'auth-message error';
+                }
+            });
+        });
+
+        // Toggle password
+        document.querySelectorAll('.toggle-password').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var target = document.getElementById(this.dataset.target);
+                if (target) {
+                    target.type = target.type === 'password' ? 'text' : 'password';
+                    this.textContent = target.type === 'password' ? 'visibility_off' : 'visibility';
+                }
+            });
+        });
+
+        // Password strength
+        document.getElementById('registerPassword').addEventListener('input', function() {
+            var password = this.value;
+            var fill = document.getElementById('strengthFill');
+            var text = document.getElementById('strengthText');
+            if (!fill || !text) return;
+            var strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            var pcts = ['0%','25%','50%','75%','100%'];
+            var colors = ['#ff1744','#ff9100','#ffd600','#76ff03','#00e676'];
+            var texts = ['Muy débil','Débil','Media','Fuerte','Muy fuerte'];
+            fill.style.width = pcts[strength] || '0%';
+            fill.style.background = colors[strength] || colors[0];
+            text.textContent = texts[strength] || texts[0];
+        });
+
+        // Registro
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            var name = document.getElementById('registerName').value.trim();
+            var email = document.getElementById('registerEmail').value.trim();
+            var password = document.getElementById('registerPassword').value;
+            var terms = document.getElementById('termsCheck').checked;
+            var msgEl = document.getElementById('authMessage');
+            var btn = document.getElementById('registerBtn');
+            
+            if (!terms) {
+                msgEl.textContent = 'Debes aceptar los términos.';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+            
+            if (!captchaToken) {
+                msgEl.textContent = 'Completa la verificación de seguridad.';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Creando cuenta...';
+            
+            // Importar Supabase dinámicamente
+            var { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+            var supabase = createClient(
+                'https://qfgofnlvfxcmzexwuzou.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
+            );
+            
+            var { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: { full_name: name },
+                    captchaToken: captchaToken
+                }
+            });
+            
+            if (error) {
+                msgEl.textContent = error.message;
+                msgEl.className = 'auth-message error';
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-icons">person_add</span> Crear Cuenta';
+                // Reset captcha
+                if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-container');
+                captchaToken = null;
+            } else {
+                msgEl.textContent = 'Cuenta creada exitosamente. Redirigiendo...';
+                msgEl.className = 'auth-message success';
+                setTimeout(function() {
+                    window.location.href = 'https://yxstore.linkpc.net/index.html';
+                }, 1000);
+            }
+        });
+    </script>
 </body>
 </html>
