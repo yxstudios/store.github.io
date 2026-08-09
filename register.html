@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
 <body>
 
@@ -71,9 +71,8 @@
                     <span class="strength-text" id="strengthText">Fortaleza de la contraseña</span>
                 </div>
                 
-                <div style="margin-bottom:20px;display:flex;justify-content:center;">
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAEKgVKhJLPjVt5AP" data-theme="dark"></div>
-                </div>
+                <!-- Captcha -->
+                <div id="captchaContainer" style="margin-bottom:20px;display:flex;justify-content:center;min-height:65px;"></div>
                 
                 <div class="terms-checkbox">
                     <label>
@@ -82,7 +81,7 @@
                     </label>
                 </div>
                 
-                <button type="submit" class="btn-primary">
+                <button type="submit" class="btn-primary" id="registerBtn">
                     <span class="material-icons">person_add</span> Crear Cuenta
                 </button>
                 
@@ -103,6 +102,28 @@
 
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
+    <script>
+        // Inicializar Turnstile manualmente
+        window.onloadTurnstileCallback = function() {
+            if (typeof turnstile !== 'undefined') {
+                turnstile.render('#captchaContainer', {
+                    sitekey: '0x4AAAAAAELVyefNkoTULHXV',
+                    theme: 'dark',
+                    size: 'normal',
+                    callback: function(token) {
+                        console.log('Captcha completado');
+                        window.captchaToken = token;
+                    }
+                });
+            }
+        };
+        
+        // Cargar Turnstile
+        var script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit';
+        script.defer = true;
+        document.head.appendChild(script);
+    </script>
     <script type="module" src="js/auth.js"></script>
 </body>
 </html>
