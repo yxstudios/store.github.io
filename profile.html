@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="es" data-theme="red">
 <head>
@@ -35,16 +37,16 @@
                 </a>
             </div>
             <div class="topbar-nav">
-                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
-                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span><span>Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
+                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span data-i18n="home">Home</span></a>
+                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span><span data-i18n="cart">Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
                 <div class="user-menu" style="display:flex;">
                     <div class="user-dropdown">
                         <button class="user-dropdown-btn"><img id="userAvatarTop" src="https://via.placeholder.com/32" class="user-avatar"><span id="userNameDisplay">Usuario</span><span class="material-icons">arrow_drop_down</span></button>
                         <div class="user-dropdown-content">
-                            <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
-                            <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
+                            <a href="profile.html"><span class="material-icons">person</span> <span data-i18n="profile">Mi Perfil</span></a>
+                            <a href="cart.html"><span class="material-icons">shopping_cart</span> <span data-i18n="cart">Carrito</span></a>
                             <div class="dropdown-divider"></div>
-                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
+                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> <span data-i18n="logout">Cerrar Sesión</span></a>
                         </div>
                     </div>
                 </div>
@@ -57,7 +59,7 @@
         <div class="profile-banner" id="profileBanner" style="background-image:url('https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner');">
             <div class="profile-banner-overlay"></div>
             <label for="bannerUpload" class="profile-banner-edit-btn">
-                <span class="material-icons">edit</span> Cambiar portada
+                <span class="material-icons">edit</span> <span data-i18n="change_cover">Cambiar portada</span>
             </label>
             <input type="file" id="bannerUpload" accept="image/*" style="display:none;">
         </div>
@@ -79,13 +81,13 @@
                 <span class="badge" id="profileBadge">Cliente</span>
             </div>
             <nav class="profile-menu">
-                <a href="#" class="profile-menu-link active" data-section="personal"><span class="material-icons">person</span> Información Personal</a>
-                <a href="#" class="profile-menu-link" data-section="connections"><span class="material-icons">link</span> Conexiones</a>
-                <a href="#" class="profile-menu-link" data-section="security"><span class="material-icons">security</span> Seguridad</a>
-                <a href="#" class="profile-menu-link" data-section="purchases"><span class="material-icons">shopping_bag</span> Historial de Compras</a>
-                <a href="#" class="profile-menu-link" data-section="invoices"><span class="material-icons">receipt_long</span> Facturación</a>
-                <a href="#" class="profile-menu-link" data-section="settings"><span class="material-icons">settings</span> Configuración</a>
-                <a href="#" class="profile-menu-link" data-section="danger"><span class="material-icons" style="color:var(--danger);">dangerous</span> Zona de Peligro</a>
+                <a href="#" class="profile-menu-link active" data-section="personal"><span class="material-icons">person</span> <span data-i18n="personal_info">Información Personal</span></a>
+                <a href="#" class="profile-menu-link" data-section="connections"><span class="material-icons">link</span> <span data-i18n="connections">Conexiones</span></a>
+                <a href="#" class="profile-menu-link" data-section="security"><span class="material-icons">security</span> <span data-i18n="security_title">Seguridad</span></a>
+                <a href="#" class="profile-menu-link" data-section="purchases"><span class="material-icons">shopping_bag</span> <span data-i18n="purchase_history">Historial de Compras</span></a>
+                <a href="#" class="profile-menu-link" data-section="invoices"><span class="material-icons">receipt_long</span> <span data-i18n="invoices">Facturación</span></a>
+                <a href="#" class="profile-menu-link" data-section="settings"><span class="material-icons">settings</span> <span data-i18n="settings_title">Configuración</span></a>
+                <a href="#" class="profile-menu-link" data-section="danger"><span class="material-icons" style="color:var(--danger);">dangerous</span> <span data-i18n="danger_zone">Zona de Peligro</span></a>
             </nav>
         </div>
         
@@ -94,111 +96,101 @@
             
             <!-- INFORMACIÓN PERSONAL -->
             <div id="personalSection" class="profile-section-block active">
-                <h3>Información Personal</h3>
+                <h3 data-i18n="personal_info">Información Personal</h3>
                 <div class="form-grid">
-                    <div class="form-field"><label>Nombre completo</label><input type="text" id="editName" class="form-input" placeholder="Tu nombre completo"></div>
-                    <div class="form-field"><label>Apodo</label><input type="text" id="editNickname" class="form-input" placeholder="Tu apodo"></div>
+                    <div class="form-field"><label data-i18n="full_name">Nombre completo</label><input type="text" id="editName" class="form-input" data-i18n="full_name_placeholder" placeholder="Tu nombre completo"></div>
+                    <div class="form-field"><label data-i18n="nickname">Apodo</label><input type="text" id="editNickname" class="form-input" data-i18n="nickname_placeholder" placeholder="Tu apodo"></div>
                 </div>
                 <div class="form-field">
-                    <label>@Usuario</label>
-                    <div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="text" id="editUsername" class="form-input has-left-icon" placeholder="@tunombre" disabled></div>
+                    <label data-i18n="username_label">@Usuario</label>
+                    <div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="text" id="editUsername" class="form-input has-left-icon" disabled></div>
                 </div>
-                <div class="form-field"><label>Biografía</label><textarea id="editBio" class="form-input form-textarea" placeholder="Cuéntanos sobre ti..." rows="3"></textarea></div>
-                <button class="btn-primary" id="savePersonal"><span class="material-icons">save</span> Guardar Cambios</button>
+                <div class="form-field"><label data-i18n="bio">Biografía</label><textarea id="editBio" class="form-input form-textarea" data-i18n="bio_placeholder" placeholder="Cuéntanos sobre ti..." rows="3"></textarea></div>
+                <button class="btn-primary" id="savePersonal"><span class="material-icons">save</span> <span data-i18n="save_changes">Guardar Cambios</span></button>
             </div>
             
             <!-- CONEXIONES -->
             <div id="connectionsSection" class="profile-section-block">
-                <h3>Conexiones</h3>
+                <h3 data-i18n="connections">Conexiones</h3>
+                <p style="color:var(--text-secondary);margin-bottom:20px;" data-i18n="connections_desc">Vincula tus cuentas para una mejor experiencia</p>
                 
-                <!-- Discord -->
-                <div class="connection-card" id="discordConnectionCard">
-                    <div class="connection-header">
-                        <i class="fab fa-discord" style="font-size:2em;color:#5865F2;"></i>
-                        <div>
-                            <h4>Discord</h4>
-                            <p id="discordStatusText">No vinculado</p>
+                <div class="connection-card">
+                    <div class="connection-card-inner">
+                        <div class="connection-icon-wrapper discord-bg"><i class="fab fa-discord"></i></div>
+                        <div class="connection-info"><h4>Discord</h4><p id="discordStatusText" data-i18n="not_linked">No vinculado</p></div>
+                        <div class="connection-action"><button id="connectDiscordBtn" class="btn-connect"><i class="fab fa-discord"></i> <span data-i18n="link">Vincular</span></button></div>
+                    </div>
+                    <div id="discordLinkedInfo" class="connection-linked-info" style="display:none;">
+                        <div class="linked-divider"></div>
+                        <div class="linked-details">
+                            <img id="discordAvatarImg" src="" class="linked-avatar">
+                            <div class="linked-text"><strong id="discordLinkedUser">---</strong><span id="discordLinkedDate">---</span></div>
+                            <span class="linked-badge" data-i18n="connected">Conectado</span>
                         </div>
                     </div>
-                    <div id="discordLinkedInfo" style="display:none;">
-                        <div class="connection-details">
-                            <img id="discordAvatarImg" src="" style="width:40px;height:40px;border-radius:50%;margin-right:10px;">
-                            <div>
-                                <strong id="discordLinkedUser">---</strong>
-                                <p id="discordLinkedDate" style="font-size:0.75em;color:var(--text-muted);">---</p>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="connectDiscord" class="btn-outline btn-sm"><i class="fab fa-discord"></i> Vincular Discord</button>
                 </div>
                 
-                <!-- Roblox -->
-                <div class="connection-card" id="robloxConnectionCard">
-                    <div class="connection-header">
-                        <span class="material-icons" style="font-size:2em;color:#ff2d2d;">sports_esports</span>
-                        <div>
-                            <h4>Roblox</h4>
-                            <p id="robloxStatusText">No vinculado</p>
+                <div class="connection-card">
+                    <div class="connection-card-inner">
+                        <div class="connection-icon-wrapper roblox-bg"><span class="material-icons">sports_esports</span></div>
+                        <div class="connection-info"><h4>Roblox</h4><p id="robloxStatusText" data-i18n="not_linked">No vinculado</p></div>
+                        <div class="connection-action">
+                            <div class="input-with-icon-wrapper" style="margin-right:10px;"><span class="material-icons input-left-icon">sports_esports</span><input type="text" id="editRobloxConn" class="form-input has-left-icon" data-i18n="roblox_placeholder" placeholder="Username" style="width:160px;"></div>
+                            <button id="connectRobloxBtn" class="btn-connect"><span class="material-icons">link</span> <span data-i18n="link">Vincular</span></button>
                         </div>
                     </div>
-                    <div id="robloxLinkedInfo" style="display:none;">
-                        <div class="connection-details">
-                            <img id="robloxAvatarImg" src="" style="width:40px;height:40px;border-radius:50%;margin-right:10px;">
-                            <div>
-                                <strong id="robloxLinkedUser">---</strong>
-                                <p style="font-size:0.75em;color:var(--text-muted);">Cuenta vinculada</p>
-                            </div>
+                    <div id="robloxLinkedInfo" class="connection-linked-info" style="display:none;">
+                        <div class="linked-divider"></div>
+                        <div class="linked-details">
+                            <img id="robloxAvatarImg" src="" class="linked-avatar">
+                            <div class="linked-text"><strong id="robloxLinkedUser">---</strong><span data-i18n="account_linked">Cuenta vinculada</span></div>
+                            <span class="linked-badge" data-i18n="connected">Conectado</span>
                         </div>
                     </div>
-                    <div class="input-with-icon-wrapper" style="margin-bottom:10px;">
-                        <span class="material-icons input-left-icon">sports_esports</span>
-                        <input type="text" id="editRoblox" class="form-input has-left-icon" placeholder="Username de Roblox">
-                    </div>
-                    <button id="connectRoblox" class="btn-outline btn-sm"><span class="material-icons">link</span> Vincular Roblox</button>
                 </div>
             </div>
             
             <!-- SEGURIDAD -->
             <div id="securitySection" class="profile-section-block">
-                <h3>Seguridad</h3>
+                <h3 data-i18n="security_title">Seguridad</h3>
                 <div class="security-box">
-                    <div class="security-box-header"><span class="material-icons">lock</span><div><h4>Contraseña</h4><p>Actualiza tu contraseña periódicamente</p></div></div>
-                    <div class="form-field"><label>Nueva contraseña</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock</span><input type="password" id="newPassword" class="form-input has-left-icon" placeholder="Mínimo 3 caracteres"><button class="toggle-pass-btn" data-target="newPassword"><span class="material-icons">visibility_off</span></button></div></div>
-                    <div class="form-field"><label>Confirmar</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock_reset</span><input type="password" id="confirmNewPassword" class="form-input has-left-icon" placeholder="Repite la contraseña"><button class="toggle-pass-btn" data-target="confirmNewPassword"><span class="material-icons">visibility_off</span></button></div></div>
-                    <button class="btn-primary" id="changePasswordBtn"><span class="material-icons">lock_reset</span> Actualizar Contraseña</button>
+                    <div class="security-box-header"><span class="material-icons">lock</span><div><h4 data-i18n="password_label">Contraseña</h4><p data-i18n="password_desc">Actualiza tu contraseña periódicamente</p></div></div>
+                    <div class="form-field"><label data-i18n="new_password">Nueva contraseña</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock</span><input type="password" id="newPassword" class="form-input has-left-icon" data-i18n="password_placeholder" placeholder="Mínimo 3 caracteres"><button class="toggle-pass-btn" data-target="newPassword"><span class="material-icons">visibility_off</span></button></div></div>
+                    <div class="form-field"><label data-i18n="confirm_password">Confirmar</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock_reset</span><input type="password" id="confirmNewPassword" class="form-input has-left-icon" data-i18n="confirm_password_placeholder" placeholder="Repite la contraseña"><button class="toggle-pass-btn" data-target="confirmNewPassword"><span class="material-icons">visibility_off</span></button></div></div>
+                    <button class="btn-primary" id="changePasswordBtn"><span class="material-icons">lock_reset</span> <span data-i18n="update_password">Actualizar Contraseña</span></button>
                 </div>
                 <div class="security-box">
-                    <div class="security-box-header"><span class="material-icons">email</span><div><h4>Correo Electrónico</h4><p>Cambia tu dirección de correo</p></div></div>
-                    <div class="current-email-info"><span class="material-icons">info</span><span>Correo actual: <strong id="tooltipEmail">cargando...</strong></span></div>
-                    <div class="form-field"><label>Nuevo correo</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="email" id="newEmail" class="form-input has-left-icon" placeholder="nuevo@correo.com"></div></div>
-                    <button class="btn-primary" id="changeEmailBtn"><span class="material-icons">send</span> Solicitar Cambio</button>
+                    <div class="security-box-header"><span class="material-icons">email</span><div><h4 data-i18n="email_label">Correo Electrónico</h4><p data-i18n="email_desc">Cambia tu dirección de correo</p></div></div>
+                    <div class="current-email-info"><span class="material-icons">info</span><span data-i18n="current_email">Correo actual: <strong id="tooltipEmail">cargando...</strong></span></div>
+                    <div class="form-field"><label data-i18n="new_email">Nuevo correo</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="email" id="newEmail" class="form-input has-left-icon" data-i18n="new_email_placeholder" placeholder="nuevo@correo.com"></div></div>
+                    <button class="btn-primary" id="changeEmailBtn"><span class="material-icons">send</span> <span data-i18n="request_change">Solicitar Cambio</span></button>
                 </div>
             </div>
             
             <!-- COMPRAS -->
             <div id="purchasesSection" class="profile-section-block">
-                <h3>Historial de Compras</h3>
+                <h3 data-i18n="purchase_history">Historial de Compras</h3>
                 <div class="purchases-filters">
-                    <div class="input-with-icon-wrapper" style="flex:1;max-width:300px;"><span class="material-icons input-left-icon">search</span><input type="text" id="searchPurchases" class="form-input has-left-icon" placeholder="Buscar compra..."></div>
-                    <select id="filterStatus" class="form-input" style="max-width:180px;"><option value="all">Todos</option><option value="completed">Completado</option></select>
+                    <div class="input-with-icon-wrapper" style="flex:1;max-width:300px;"><span class="material-icons input-left-icon">search</span><input type="text" id="searchPurchases" class="form-input has-left-icon" data-i18n="search_purchases" placeholder="Buscar compra..."></div>
+                    <select id="filterStatus" class="form-input" style="max-width:180px;"><option value="all" data-i18n="all">Todos</option><option value="completed" data-i18n="completed">Completado</option></select>
                 </div>
-                <div class="table-scroll"><table class="purchases-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Productos</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody id="purchasesTableBody"><tr><td colspan="6" class="table-empty-message">No tienes compras</td></tr></tbody></table></div>
+                <div class="table-scroll"><table class="purchases-table"><thead><tr><th data-i18n="order">Pedido</th><th data-i18n="date">Fecha</th><th data-i18n="products">Productos</th><th data-i18n="total_label">Total</th><th data-i18n="status">Estado</th><th></th></tr></thead><tbody id="purchasesTableBody"><tr><td colspan="6" class="table-empty-message" data-i18n="no_purchases">No tienes compras</td></tr></tbody></table></div>
             </div>
             
             <!-- FACTURACIÓN -->
             <div id="invoicesSection" class="profile-section-block">
-                <h3>Facturación</h3>
-                <div id="invoicesList"><p class="text-muted">No hay facturas disponibles</p></div>
+                <h3 data-i18n="invoices">Facturación</h3>
+                <div id="invoicesList"><p class="text-muted" data-i18n="no_invoices">No hay facturas disponibles</p></div>
             </div>
             
             <!-- CONFIGURACIÓN -->
             <div id="settingsSection" class="profile-section-block">
-                <h3>Configuración</h3>
+                <h3 data-i18n="settings_title">Configuración</h3>
                 
                 <div class="settings-card-pro">
                     <div class="settings-card-header">
                         <span class="material-icons">translate</span>
-                        <div><h4>Idioma</h4><p>Selecciona tu idioma preferido</p></div>
+                        <div><h4 data-i18n="language">Idioma</h4><p data-i18n="language_desc">Selecciona tu idioma preferido</p></div>
                     </div>
                     <div class="dropdown-wrapper" id="profileLangDropdown">
                         <button class="dropdown-btn settings-dropdown-btn" onclick="toggleDropdown('profileLangDropdown')">
@@ -223,7 +215,7 @@
                 <div class="settings-card-pro">
                     <div class="settings-card-header">
                         <span class="material-icons">payments</span>
-                        <div><h4>Moneda</h4><p>Selecciona tu moneda preferida</p></div>
+                        <div><h4 data-i18n="currency">Moneda</h4><p data-i18n="currency_desc">Selecciona tu moneda preferida</p></div>
                     </div>
                     <div class="dropdown-wrapper" id="profileCurrencyDropdown">
                         <button class="dropdown-btn settings-dropdown-btn" onclick="toggleDropdown('profileCurrencyDropdown')">
@@ -250,7 +242,7 @@
                 <div class="settings-card-pro">
                     <div class="settings-card-header">
                         <span class="material-icons">palette</span>
-                        <div><h4>Tema</h4><p>Personaliza el color de acento</p></div>
+                        <div><h4 data-i18n="theme">Tema</h4><p data-i18n="theme_desc">Personaliza el color de acento</p></div>
                     </div>
                     <div class="theme-dots" style="justify-content:flex-start;padding:10px 0;">
                         <button class="theme-dot active" data-accent="red" style="background:#ff2d2d;"></button>
@@ -263,10 +255,10 @@
             
             <!-- ZONA DE PELIGRO -->
             <div id="dangerSection" class="profile-section-block">
-                <h3 style="color:var(--danger);">Zona de Peligro</h3>
+                <h3 style="color:var(--danger);" data-i18n="danger_zone">Zona de Peligro</h3>
                 <div class="danger-box">
-                    <div class="danger-box-info"><span class="material-icons danger-icon">warning</span><div><h4>Eliminar Cuenta</h4><p>Esta acción es irreversible.</p></div></div>
-                    <button class="btn-danger" id="deleteAccountBtn"><span class="material-icons">delete_forever</span> Eliminar mi cuenta</button>
+                    <div class="danger-box-info"><span class="material-icons danger-icon">warning</span><div><h4 data-i18n="delete_account">Eliminar Cuenta</h4><p data-i18n="delete_account_desc">Esta acción es irreversible.</p></div></div>
+                    <button class="btn-danger" id="deleteAccountBtn"><span class="material-icons">delete_forever</span> <span data-i18n="delete_my_account">Eliminar mi cuenta</span></button>
                 </div>
             </div>
         </div>
@@ -276,17 +268,21 @@
     <div id="deleteModal" class="modal-overlay-profile" style="display:none;">
         <div class="modal-card-profile">
             <span class="material-icons modal-warn-icon">warning</span>
-            <h3>Eliminar Cuenta</h3>
-            <p>Escribe <strong>ELIMINAR</strong> para confirmar:</p>
-            <input type="text" id="deleteConfirmInput" class="form-input" placeholder="Escribe ELIMINAR">
-            <div class="modal-buttons"><button class="btn-outline" id="cancelDelete">Cancelar</button><button class="btn-danger" id="confirmDelete" disabled>Eliminar</button></div>
+            <h3 data-i18n="delete_account">Eliminar Cuenta</h3>
+            <p data-i18n="delete_confirm_text">Escribe <strong>ELIMINAR</strong> para confirmar:</p>
+            <input type="text" id="deleteConfirmInput" class="form-input" data-i18n="delete_confirm_placeholder" placeholder="Escribe ELIMINAR">
+            <div class="modal-buttons"><button class="btn-outline" id="cancelDelete" data-i18n="cancel">Cancelar</button><button class="btn-danger" id="confirmDelete" disabled data-i18n="delete_permanently">Eliminar</button></div>
         </div>
     </div>
 
     <script src="js/config.js"></script>
+    <script src="js/translations.js"></script>
     <script src="js/theme.js"></script>
     <script>
-        // Dropdowns del profile
+        // Aplicar traducciones al cargar
+        applyTranslations();
+        
+        // Dropdowns
         function toggleDropdown(id) {
             var dropdown = document.getElementById(id);
             var isOpen = dropdown.classList.contains('open');
@@ -303,7 +299,7 @@
             document.getElementById('profileCurrentLang').textContent = lang.toUpperCase();
             document.querySelectorAll('#profileLangDropdown .dropdown-item').forEach(function(item) { item.classList.toggle('active', item.dataset.lang === lang); });
             document.getElementById('profileLangDropdown').classList.remove('open');
-            if (typeof applyTranslations === 'function') applyTranslations();
+            applyTranslations();
         }
         function selectProfileCurrency(currency) {
             localStorage.setItem('yxCurrency', currency);
