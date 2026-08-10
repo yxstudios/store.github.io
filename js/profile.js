@@ -72,17 +72,53 @@ async function loadProfile() {
 }
 
 function loadSpotifyInfo(profile) {
-    setText('spotifyStatusText', 'Vinculado como ' + (profile.spotify_name || 'Usuario Spotify'));
-    showEl('spotifyLinkedInfo');
-    setText('spotifyLinkedUser', profile.spotify_name || 'Usuario de Spotify');
-    setText('spotifyEmail', profile.spotify_email || '');
-    if (profile.spotify_avatar) document.getElementById('spotifyAvatarImg').src = profile.spotify_avatar;
-    setText('spotifyPlan', profile.spotify_plan || 'Free');
-    setText('spotifyFollowers', (profile.spotify_followers || 0).toLocaleString());
-    setText('spotifyPlaylists', (profile.spotify_playlists || 0).toLocaleString());
-    setText('spotifyArtists', (profile.spotify_artists || 0).toLocaleString());
-    if (profile.spotify_url) { var link = document.getElementById('spotifyProfileLink'); if (link) { link.href = profile.spotify_url; link.style.display = 'inline-flex'; } }
-    document.getElementById('connectSpotifyBtn').innerHTML = '<i class="fab fa-spotify"></i> Revincular';
+    console.log('Cargando Spotify info...');
+    
+    // Status
+    var statusText = document.getElementById('spotifyStatusText');
+    if (statusText) statusText.textContent = 'Vinculado como ' + (profile.spotify_name || 'Usuario Spotify');
+    
+    // Mostrar sección
+    var linkedInfo = document.getElementById('spotifyLinkedInfo');
+    if (linkedInfo) linkedInfo.style.display = 'block';
+    
+    // Nombre
+    var linkedUser = document.getElementById('spotifyLinkedUser');
+    if (linkedUser) linkedUser.textContent = profile.spotify_name || 'Usuario de Spotify';
+    
+    // Avatar
+    var avatarImg = document.getElementById('spotifyAvatarImg');
+    if (avatarImg && profile.spotify_avatar) avatarImg.src = profile.spotify_avatar;
+    
+    // Email (guardar valor real en dataset)
+    var emailDisplay = document.getElementById('spotifyEmailDisplay');
+    if (emailDisplay) {
+        emailDisplay.textContent = profile.spotify_email || 'Sin email';
+        emailDisplay.dataset.email = profile.spotify_email || '';
+        // Por defecto blur
+        emailDisplay.style.filter = 'blur(4px)';
+    }
+    
+    // Botón
+    var connectBtn = document.getElementById('connectSpotifyBtn');
+    if (connectBtn) connectBtn.innerHTML = '<i class="fab fa-spotify"></i> Revincular';
+    
+    // Toggle email blur
+    var toggleBtn = document.getElementById('toggleSpotifyEmail');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            var emailEl = document.getElementById('spotifyEmailDisplay');
+            if (emailEl) {
+                if (emailEl.style.filter === 'blur(4px)') {
+                    emailEl.style.filter = 'blur(0px)';
+                    toggleBtn.querySelector('.material-icons').textContent = 'visibility';
+                } else {
+                    emailEl.style.filter = 'blur(4px)';
+                    toggleBtn.querySelector('.material-icons').textContent = 'visibility_off';
+                }
+            }
+        });
+    }
 }
 
 async function loadPurchases() {
