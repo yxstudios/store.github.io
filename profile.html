@@ -176,7 +176,7 @@
                     </div>
                 </div>
                 
-               <!-- Spotify Card -->
+<!-- Spotify Card -->
 <div class="connection-card" id="spotifyConnectionCard">
     <div class="connection-card-inner">
         <div class="connection-icon-wrapper spotify-bg">
@@ -184,59 +184,37 @@
         </div>
         <div class="connection-info">
             <h4>Spotify</h4>
-            <p id="spotifyStatusText" data-i18n="not_linked">No vinculado</p>
+            <p id="spotifyStatusText">No vinculado</p>
         </div>
         <div class="connection-action">
             <button id="connectSpotifyBtn" class="btn-connect">
-                <i class="fab fa-spotify"></i> <span data-i18n="link">Vincular con Spotify</span>
+                <i class="fab fa-spotify"></i> Vincular con Spotify
             </button>
         </div>
     </div>
     <div id="spotifyLinkedInfo" class="connection-linked-info" style="display:none;">
         <div class="linked-divider"></div>
         <div class="linked-details">
-            <img id="spotifyAvatarImg" src="" class="linked-avatar" alt="Spotify Avatar">
+            <img id="spotifyAvatarImg" src="" class="linked-avatar" alt="Spotify">
             <div class="linked-text">
                 <strong id="spotifyLinkedUser">---</strong>
-                <span id="spotifyEmail" style="font-size:0.8em;color:var(--text-secondary);">---</span>
+                <span style="font-size:0.8em;color:var(--text-secondary);">Spotify</span>
             </div>
-            <span class="linked-badge" data-i18n="connected">Conectado</span>
+            <span class="linked-badge">Conectado</span>
         </div>
         
-        <!-- Stats de Spotify -->
-        <div class="roblox-stats" style="margin-top:15px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-            <div class="roblox-stat-card">
-                <span class="material-icons" style="color:#1DB954;">queue_music</span>
-                <strong id="spotifyPlaylists">0</strong>
-                <small>Playlists</small>
+        <!-- Email con toggle blur -->
+        <div style="margin-top:12px;padding:12px 14px;background:var(--bg-card);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
+                <span class="material-icons" style="color:#1DB954;flex-shrink:0;">email</span>
+                <span id="spotifyEmailDisplay" style="font-size:0.85em;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;filter:blur(4px);transition:filter 0.3s;">cargando...</span>
             </div>
-            <div class="roblox-stat-card">
-                <span class="material-icons" style="color:#1DB954;">people</span>
-                <strong id="spotifyFollowers">0</strong>
-                <small>Seguidores</small>
-            </div>
-            <div class="roblox-stat-card">
-                <span class="material-icons" style="color:#1DB954;">mic</span>
-                <strong id="spotifyArtists">0</strong>
-                <small>Artistas</small>
-            </div>
-        </div>
-        
-        <!-- Plan -->
-        <div style="margin-top:10px;padding:10px 14px;background:var(--bg-card);border-radius:10px;font-size:0.8em;color:var(--text-secondary);display:flex;align-items:center;gap:8px;">
-            <span class="material-icons" style="font-size:1.1em;color:#1DB954;">workspace_premium</span>
-            <span>Plan: <strong id="spotifyPlan" style="color:var(--text-primary);">---</strong></span>
-        </div>
-        
-        <!-- Link al perfil -->
-        <div style="margin-top:12px;">
-            <a id="spotifyProfileLink" href="#" target="_blank" class="btn-connect" style="display:none;text-decoration:none;width:100%;justify-content:center;background:#1DB954;border-color:#1DB954;color:#000;">
-                <i class="fab fa-spotify"></i> Ver perfil en Spotify
-            </a>
+            <button id="toggleSpotifyEmail" class="btn-connect" style="padding:6px 10px;font-size:0.75em;flex-shrink:0;" title="Mostrar/ocultar email">
+                <span class="material-icons" style="font-size:1.1em;">visibility_off</span>
+            </button>
         </div>
     </div>
 </div>
-            
             <!-- SEGURIDAD -->
             <div id="securitySection" class="profile-section-block">
                 <h3 data-i18n="security_title">Seguridad</h3>
