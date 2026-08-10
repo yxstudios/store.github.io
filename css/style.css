@@ -1013,16 +1013,22 @@ input, textarea, select { font-family: 'Poppins', sans-serif; }
     color: var(--accent);
 }
 
-/* Roblox Stats */
+/* Roblox Stats Cards */
 .roblox-stat-card {
     background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
-    padding: 10px;
+    padding: 12px 8px;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    transition: all 0.3s;
+}
+.roblox-stat-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
 }
 .roblox-stat-card .material-icons {
     font-size: 1.2em;
@@ -1034,4 +1040,6 @@ input, textarea, select { font-family: 'Poppins', sans-serif; }
 .roblox-stat-card small {
     font-size: 0.7em;
     color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
