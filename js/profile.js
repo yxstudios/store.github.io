@@ -14,16 +14,8 @@ async function init() {
     var { data: { session } } = await supabase.auth.getSession();
     if (!session) { window.location.href = BASE_URL + '/login.html'; return; }
     currentUser = session.user;
-
-    // Refrescar sesión para datos frescos
     await supabase.auth.refreshSession();
-    
-    // Pequeña pausa para que oauth-sync.js termine de guardar
-    // (Spotify hace llamadas extra a su API antes del upsert, así que
-    // esta espera es una salvaguarda; el refresco real y confiable
-    // llega vía el evento 'yx-oauth-synced' más abajo).
     await new Promise(function(resolve) { setTimeout(resolve, 500); });
-
     console.log('Usuario:', currentUser.email);
     await loadProfile();
     loadPurchases();
@@ -33,37 +25,60 @@ async function init() {
     updateCartBadge();
 }
 
-// Si oauth-sync.js termina de guardar Spotify/Discord DESPUÉS de que ya
-// cargamos el perfil (p. ej. justo al volver del redirect de Spotify),
-// este evento nos avisa para recargar el perfil sin que el usuario tenga
-// que refrescar la página manualmente.
-window.addEventListener('yx-oauth-synced', function(e) {
-    console.log('yx-oauth-synced recibido:', e.detail);
-    if (!currentUser) return;
-    loadProfile();
-});
-
 async function loadProfile() {
     var { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!profile) { await supabase.from('profiles').insert({ id: currentUser.id }); profile = {}; }
+
+    // Verificar identidades para guardar datos de OAuth
+    var { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        var identities = session.user.identities || [];
+        identities.forEach(async function(identity) {
+            var provider = identity.provider;
+            var idData = identity.identity_data || {};
+            
+            if (provider === 'discord' && !profile.discord_id) {
+                await supabase.from('profiles').upsert({
+                    id: currentUser.id,
+                    full_name: idData.full_name || idData.name || '',
+                    nickname: idData.full_name || idData.name || '',
+                    discord_id: idData.provider_id || identity.id || '',
+                    discord_username: idData.full_name || idData.name || '',
+                    discord_avatar: idData.avatar_url || idData.picture || '',
+                    discord_linked_at: new Date().toISOString(),
+                    avatar_url: idData.avatar_url || idData.picture || '',
+                    updated_at: new Date().toISOString()
+                });
+            }
+            
+            if (provider === 'spotify' && !profile.spotify_id) {
+                await supabase.from('profiles').upsert({
+                    id: currentUser.id,
+                    spotify_id: idData.provider_id || identity.id || currentUser.id,
+                    spotify_name: idData.full_name || idData.name || 'Usuario Spotify',
+                    spotify_avatar: idData.avatar_url || idData.picture || '',
+                    spotify_email: idData.email || session.user.email || '',
+                    spotify_linked_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                });
+            }
+        });
+        
+        var { data: updatedProfile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+        profile = updatedProfile || profile;
+    }
 
     console.log('Perfil cargado:', profile);
 
     document.getElementById('profileName').textContent = profile.nickname || profile.full_name || 'Usuario';
     document.getElementById('profileEmailDisplay').textContent = currentUser.email;
-    var topName = document.getElementById('userNameDisplay');
-    if (topName) topName.textContent = profile.nickname || profile.full_name || currentUser.email.split('@')[0];
-    var tooltipEmail = document.getElementById('tooltipEmail');
-    if (tooltipEmail) tooltipEmail.textContent = currentUser.email;
+    var topName = document.getElementById('userNameDisplay'); if (topName) topName.textContent = profile.nickname || profile.full_name || currentUser.email.split('@')[0];
+    var tooltipEmail = document.getElementById('tooltipEmail'); if (tooltipEmail) tooltipEmail.textContent = currentUser.email;
 
     var avatarUrl = profile.avatar_url || currentUser.user_metadata?.avatar_url || 'https://via.placeholder.com/140';
     document.getElementById('profileAvatar').src = avatarUrl;
-    var topAvatar = document.getElementById('userAvatarTop');
-    if (topAvatar) topAvatar.src = avatarUrl;
-
-    if (profile.banner_url) {
-        document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
-    }
+    var topAvatar = document.getElementById('userAvatarTop'); if (topAvatar) topAvatar.src = avatarUrl;
+    if (profile.banner_url) document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
 
     setValue('editName', profile.full_name || '');
     setValue('editNickname', profile.nickname || '');
@@ -99,67 +114,37 @@ async function loadProfile() {
 }
 
 function loadSpotifyInfo(profile) {
-    console.log('Cargando Spotify info...');
-
     var statusText = document.getElementById('spotifyStatusText');
     if (statusText) statusText.textContent = 'Vinculado como ' + (profile.spotify_name || 'Usuario Spotify');
-
     var linkedInfo = document.getElementById('spotifyLinkedInfo');
     if (linkedInfo) linkedInfo.style.display = 'block';
-
     var linkedUser = document.getElementById('spotifyLinkedUser');
     if (linkedUser) linkedUser.textContent = profile.spotify_name || 'Usuario de Spotify';
-
     var avatarImg = document.getElementById('spotifyAvatarImg');
     if (avatarImg && profile.spotify_avatar) avatarImg.src = profile.spotify_avatar;
-
     var emailDisplay = document.getElementById('spotifyEmailDisplay');
-    if (emailDisplay) {
-        emailDisplay.textContent = profile.spotify_email || 'Sin email';
-        emailDisplay.dataset.email = profile.spotify_email || '';
-        emailDisplay.style.filter = 'blur(4px)';
-    }
-
+    if (emailDisplay) { emailDisplay.textContent = profile.spotify_email || 'Sin email'; emailDisplay.dataset.email = profile.spotify_email || ''; emailDisplay.style.filter = 'blur(4px)'; }
     var connectBtn = document.getElementById('connectSpotifyBtn');
     if (connectBtn) connectBtn.innerHTML = '<i class="fab fa-spotify"></i> Revincular';
-
-    // Toggle email blur
     var toggleBtn = document.getElementById('toggleSpotifyEmail');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', function() {
             var emailEl = document.getElementById('spotifyEmailDisplay');
-            if (emailEl) {
-                if (emailEl.style.filter === 'blur(4px)') {
-                    emailEl.style.filter = 'blur(0px)';
-                    toggleBtn.querySelector('.material-icons').textContent = 'visibility';
-                } else {
-                    emailEl.style.filter = 'blur(4px)';
-                    toggleBtn.querySelector('.material-icons').textContent = 'visibility_off';
-                }
-            }
+            if (emailEl) { emailEl.style.filter = emailEl.style.filter === 'blur(4px)' ? 'blur(0px)' : 'blur(4px)'; toggleBtn.querySelector('.material-icons').textContent = emailEl.style.filter === 'blur(4px)' ? 'visibility_off' : 'visibility'; }
         });
     }
 }
 
 async function loadPurchases() {
     var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-    var tbody = document.getElementById('purchasesTableBody');
-    if (!tbody) return;
-    if (!orders || !orders.length) return;
-    tbody.innerHTML = orders.map(function(o) {
-        var items = o.items ? o.items.map(function(i) { return i.name; }).join(', ') : 'Productos';
-        return '<tr><td><strong>#' + o.id + '</strong></td><td>' + new Date(o.created_at).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">Completado</span></td></tr>';
-    }).join('');
+    var tbody = document.getElementById('purchasesTableBody'); if (!tbody) return; if (!orders || !orders.length) return;
+    tbody.innerHTML = orders.map(function(o) { var items = o.items ? o.items.map(function(i) { return i.name; }).join(', ') : 'Productos'; return '<tr><td><strong>#' + o.id + '</strong></td><td>' + new Date(o.created_at).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">Completado</span></td></tr>'; }).join('');
 }
 
 async function loadInvoices() {
     var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-    var list = document.getElementById('invoicesList');
-    if (!list) return;
-    if (!orders || !orders.length) return;
-    list.innerHTML = orders.map(function(o) {
-        return '<div class="invoice-card"><div class="invoice-info"><span class="material-icons">receipt</span><div><strong>Factura #' + o.id + '</strong><p>' + new Date(o.created_at).toLocaleDateString() + ' - $' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</p></div></div></div>';
-    }).join('');
+    var list = document.getElementById('invoicesList'); if (!list) return; if (!orders || !orders.length) return;
+    list.innerHTML = orders.map(function(o) { return '<div class="invoice-card"><div class="invoice-info"><span class="material-icons">receipt</span><div><strong>Factura #' + o.id + '</strong><p>' + new Date(o.created_at).toLocaleDateString() + ' - $' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</p></div></div></div>'; }).join('');
 }
 
 function setupNavigation() {
@@ -182,18 +167,15 @@ function setupEvents() {
         reader.onload = function(ev) { tempAvatar = ev.target.result; document.getElementById('profileAvatar').src = tempAvatar; var ta = document.getElementById('userAvatarTop'); if (ta) ta.src = tempAvatar; };
         reader.readAsDataURL(file);
     });
-
     document.getElementById('bannerUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
         reader.onload = function(ev) { tempBanner = ev.target.result; document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')'; };
         reader.readAsDataURL(file);
     });
-
     document.getElementById('savePersonal')?.addEventListener('click', async function() {
         var data = { id: currentUser.id, full_name: getValue('editName'), nickname: getValue('editNickname'), bio: getValue('editBio'), updated_at: new Date().toISOString() };
-        if (tempAvatar) data.avatar_url = tempAvatar;
-        if (tempBanner) data.banner_url = tempBanner;
+        if (tempAvatar) data.avatar_url = tempAvatar; if (tempBanner) data.banner_url = tempBanner;
         var { error } = await supabase.from('profiles').upsert(data);
         if (error) { alert('Error: ' + error.message); return; }
         tempAvatar = null; tempBanner = null;
@@ -201,62 +183,36 @@ function setupEvents() {
         var tn = document.getElementById('userNameDisplay'); if (tn) tn.textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
         alert('Perfil actualizado');
     });
-
     document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
         var p1 = getValue('newPassword'), p2 = getValue('confirmNewPassword');
-        if (!p1 || !p2) { alert('Completa los campos'); return; }
-        if (p1 !== p2) { alert('No coinciden'); return; }
-        if (p1.length < 3) { alert('Mínimo 3 caracteres'); return; }
+        if (!p1 || !p2) { alert('Completa los campos'); return; } if (p1 !== p2) { alert('No coinciden'); return; } if (p1.length < 3) { alert('Mínimo 3 caracteres'); return; }
         var { error } = await supabase.auth.updateUser({ password: p1 });
         if (error) { alert('Error: ' + error.message); } else { alert('Contraseña actualizada'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
     });
-
     document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
-        var email = getValue('newEmail');
-        if (!email) { alert('Ingresa un correo'); return; }
+        var email = getValue('newEmail'); if (!email) { alert('Ingresa un correo'); return; }
         var { error } = await supabase.auth.updateUser({ email: email });
         if (error) { alert('Error: ' + error.message); } else { alert('Solicitud enviada'); }
     });
-
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var t = document.getElementById(this.dataset.target);
-            if (t) { t.type = t.type === 'password' ? 'text' : 'password'; this.querySelector('.material-icons').textContent = t.type === 'password' ? 'visibility_off' : 'visibility'; }
-        });
+        btn.addEventListener('click', function() { var t = document.getElementById(this.dataset.target); if (t) { t.type = t.type === 'password' ? 'text' : 'password'; this.querySelector('.material-icons').textContent = t.type === 'password' ? 'visibility_off' : 'visibility'; } });
     });
-
     document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
-
     document.getElementById('connectSpotifyBtn')?.addEventListener('click', async function() {
         try {
-            var { error } = await supabase.auth.signInWithOAuth({
-                provider: 'spotify',
-                options: { redirectTo: BASE_URL + '/profile.html' }
-            });
+            var { error } = await supabase.auth.signInWithOAuth({ provider: 'spotify', options: { redirectTo: BASE_URL + '/profile.html' } });
             if (error) { alert('Error Spotify: ' + error.message); }
         } catch (e) { alert('Error al conectar con Spotify'); }
     });
-
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
-        dot.addEventListener('click', function() {
-            document.documentElement.setAttribute('data-theme', this.dataset.accent);
-            localStorage.setItem('yx-theme', this.dataset.accent);
-            document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); });
-            this.classList.add('active');
-        });
+        dot.addEventListener('click', function() { document.documentElement.setAttribute('data-theme', this.dataset.accent); localStorage.setItem('yx-theme', this.dataset.accent); document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); }); this.classList.add('active'); });
     });
-
     document.getElementById('deleteAccountBtn')?.addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'flex'; });
     document.getElementById('cancelDelete')?.addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'none'; setValue('deleteConfirmInput', ''); });
     document.getElementById('deleteConfirmInput')?.addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
-    document.getElementById('confirmDelete')?.addEventListener('click', async function() {
-        await supabase.from('profiles').delete().eq('id', currentUser.id);
-        await supabase.auth.signOut();
-        window.location.href = BASE_URL + '/index.html';
-    });
-
+    document.getElementById('confirmDelete')?.addEventListener('click', async function() { await supabase.from('profiles').delete().eq('id', currentUser.id); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
     document.getElementById('logoutBtn')?.addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
 }
 
@@ -264,12 +220,6 @@ function getValue(id) { var el = document.getElementById(id); return el ? el.val
 function setValue(id, value) { var el = document.getElementById(id); if (el) el.value = value; }
 function setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
 function showEl(id) { var el = document.getElementById(id); if (el) el.style.display = 'block'; }
-
-function updateCartBadge() {
-    var cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
-    var count = cart.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
-    var badge = document.getElementById('cartCount');
-    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
-}
+function updateCartBadge() { var cart = JSON.parse(localStorage.getItem('yxCart') || '[]'); var count = cart.reduce(function(s, i) { return s + (i.quantity || 1); }, 0); var badge = document.getElementById('cartCount'); if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; } }
 
 init();
