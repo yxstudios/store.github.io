@@ -49,7 +49,16 @@ async function signInWithEmail(login, password) {
             if (!email || !email.includes('@')) { showMessage('Usuario no encontrado.', 'error'); showLoading(false); return; }
         }
         var { data, error } = await supabase.auth.signInWithPassword({ email: email, password: password });
-        if (error) { showMessage(error.message.includes('Invalid login') ? 'Usuario o contraseña incorrectos.' : error.message, 'error'); showLoading(false); return; }
+        if (error) {
+            if (error.message.includes('Email not confirmed')) {
+                showMessage('Email no verificado. Revisa tu bandeja de entrada y confirma tu correo.', 'error');
+            } else if (error.message.includes('Invalid login')) {
+                showMessage('Usuario o contraseña incorrectos.', 'error');
+            } else {
+                showMessage(error.message, 'error');
+            }
+            showLoading(false); return;
+        }
         showMessage('Inicio de sesión exitoso.', 'success');
         setTimeout(function() { window.location.href = BASE_URL + '/index.html'; }, 1000);
     } catch (error) { showMessage('Error: ' + error.message, 'error'); showLoading(false); }
@@ -65,18 +74,64 @@ async function signUpWithEmail(name, nickname, username, email, password) {
         if (existing) { showMessage('El @usuario ya está en uso.', 'error'); showLoading(false); return; }
         var captchaToken = window.captchaToken || null;
         if (!captchaToken) { showMessage('Completa la verificación de seguridad.', 'error'); showLoading(false); return; }
-        var { data, error } = await supabase.auth.signUp({ email: email, password: password, options: { data: { full_name: name, nickname: nickname, username: username }, captchaToken: captchaToken } });
+        
+        var { data, error } = await supabase.auth.signUp({
+            email: email, password: password,
+            options: { data: { full_name: name, nickname: nickname, username: username }, captchaToken: captchaToken }
+        });
+        
         if (error) { if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-container'); window.captchaToken = null; throw error; }
-        if (data.user) { await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, nickname: nickname, username: username, updated_at: new Date().toISOString() }); }
-        showMessage('Cuenta creada exitosamente.', 'success');
-        setTimeout(function() { window.location.href = BASE_URL + '/index.html'; }, 1500);
+        
+        if (data.user) {
+            await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, nickname: nickname, username: username, updated_at: new Date().toISOString() });
+            
+            // Verificar si necesita confirmación de email
+            if (data.user.identities && data.user.identities.length === 0) {
+                showMessage('Este correo ya está registrado. Inicia sesión.', 'error');
+            } else if (data.session === null) {
+                // Email confirmation required
+                showMessage('Registro exitoso. Revisa tu correo para verificar tu cuenta.', 'success');
+            } else {
+                showMessage('Cuenta creada exitosamente.', 'success');
+                setTimeout(function() { window.location.href = BASE_URL + '/index.html'; }, 1500);
+            }
+        }
     } catch (error) { showMessage(error.message, 'error'); showLoading(false); }
 }
 
+// ============================================
+// LOGIN CON DISCORD (solo login, no link)
+// ============================================
 async function signInWithDiscord() {
     try {
-        var { error } = await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/index.html' } });
+        var { error } = await supabase.auth.signInWithOAuth({
+            provider: 'discord',
+            options: { redirectTo: BASE_URL + '/index.html' }
+        });
         if (error) { showMessage('Error Discord: ' + error.message, 'error'); }
+    } catch (error) { showMessage('Error: ' + error.message, 'error'); }
+}
+
+// ============================================
+// VINCULAR DISCORD (sin cambiar de cuenta)
+// ============================================
+async function linkDiscord() {
+    try {
+        var { error } = await supabase.auth.linkIdentity({
+            provider: 'discord'
+        });
+        if (error) {
+            console.error('Error al vincular Discord:', error);
+            // Si falla linkIdentity, intentar con signInWithOAuth con options
+            var { error: oauthError } = await supabase.auth.signInWithOAuth({
+                provider: 'discord',
+                options: { 
+                    redirectTo: BASE_URL + '/profile.html',
+                    skipBrowserRedirect: false
+                }
+            });
+            if (oauthError) { showMessage('Error: ' + oauthError.message, 'error'); }
+        }
     } catch (error) { showMessage('Error: ' + error.message, 'error'); }
 }
 
@@ -87,19 +142,12 @@ supabase.auth.onAuthStateChange(async function(event, session) {
     console.log('Auth state changed:', event);
     if (event === 'SIGNED_IN' && session) {
         var user = session.user;
-        var metadata = user.user_metadata || {};
         var identities = user.identities || [];
         
-        console.log('Identities:', identities.length);
-        
         identities.forEach(async function(identity) {
-            var provider = identity.provider;
             var idData = identity.identity_data || {};
-            
-            console.log('Processing provider:', provider);
-            
-            if (provider === 'discord') {
-                console.log('Guardando Discord...');
+            if (identity.provider === 'discord') {
+                console.log('Guardando datos de Discord...');
                 await supabase.from('profiles').upsert({
                     id: user.id,
                     full_name: idData.full_name || idData.name || '',
@@ -167,3 +215,4 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 window.signOut = signOut;
+window.linkDiscord = linkDiscord;
