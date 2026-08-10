@@ -29,28 +29,6 @@ async function loadProfile() {
     var { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!profile) { await supabase.from('profiles').insert({ id: currentUser.id }); profile = {}; }
 
-    var { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        var identities = session.user.identities || [];
-        identities.forEach(async function(identity) {
-            var idData = identity.identity_data || {};
-            if (identity.provider === 'discord' && !profile.discord_id) {
-                await supabase.from('profiles').upsert({
-                    id: currentUser.id, full_name: idData.full_name || idData.name || '',
-                    nickname: idData.full_name || idData.name || '',
-                    discord_id: idData.provider_id || identity.id || '',
-                    discord_username: idData.full_name || idData.name || '',
-                    discord_avatar: idData.avatar_url || idData.picture || '',
-                    discord_linked_at: new Date().toISOString(),
-                    avatar_url: idData.avatar_url || idData.picture || '',
-                    updated_at: new Date().toISOString()
-                });
-            }
-        });
-        var { data: updatedProfile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-        profile = updatedProfile || profile;
-    }
-
     document.getElementById('profileName').textContent = profile.nickname || profile.full_name || 'Usuario';
     document.getElementById('profileEmailDisplay').textContent = currentUser.email;
     var topName = document.getElementById('userNameDisplay'); if (topName) topName.textContent = profile.nickname || profile.full_name || currentUser.email.split('@')[0];
@@ -66,9 +44,9 @@ async function loadProfile() {
     setValue('editUsername', profile.username || '');
     setValue('editBio', profile.bio || '');
 
-    // Discord - Solo muestra si ya está vinculado
+    // Discord - Solo mostrar, no cambiar nada del perfil
     if (profile.discord_username) {
-        setText('discordStatusText', 'Vinculado como ' + profile.discord_username);
+        setText('discordStatusText', 'Vinculado');
         showEl('discordLinkedInfo');
         setText('discordLinkedUser', profile.discord_username);
         if (profile.discord_avatar) document.getElementById('discordAvatarImg').src = profile.discord_avatar;
@@ -112,7 +90,6 @@ function setupNavigation() {
 }
 
 function setupEvents() {
-    // Avatar
     document.getElementById('avatarUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
@@ -120,7 +97,6 @@ function setupEvents() {
         reader.readAsDataURL(file);
     });
 
-    // Banner
     document.getElementById('bannerUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
@@ -128,7 +104,6 @@ function setupEvents() {
         reader.readAsDataURL(file);
     });
 
-    // Guardar perfil
     document.getElementById('savePersonal')?.addEventListener('click', async function() {
         var data = { id: currentUser.id, full_name: getValue('editName'), nickname: getValue('editNickname'), bio: getValue('editBio'), updated_at: new Date().toISOString() };
         if (tempAvatar) data.avatar_url = tempAvatar; if (tempBanner) data.banner_url = tempBanner;
@@ -140,7 +115,6 @@ function setupEvents() {
         showNotification('Perfil actualizado', 'Tus datos han sido guardados correctamente', 'success');
     });
 
-    // Cambiar contraseña
     document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
         var p1 = getValue('newPassword'); var p2 = getValue('confirmNewPassword');
         if (!p1 || !p2) { showNotification('Error', 'Completa todos los campos', 'error'); return; }
@@ -151,7 +125,6 @@ function setupEvents() {
         else { showNotification('Contraseña actualizada', 'Se ha enviado un correo de confirmación', 'success'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
     });
 
-    // Cambiar email
     document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
         var email = getValue('newEmail');
         if (!email) { showNotification('Error', 'Ingresa un correo electrónico', 'error'); return; }
@@ -160,7 +133,6 @@ function setupEvents() {
         else { showNotification('Solicitud enviada', 'Revisa tu nuevo correo para confirmar el cambio', 'success'); }
     });
 
-    // Toggle password
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
@@ -169,6 +141,29 @@ function setupEvents() {
                 else { target.type = 'password'; this.querySelector('.material-icons').textContent = 'visibility_off'; }
             }
         });
+    });
+
+    // ============================================
+    // VINCULAR DISCORD - SOLO GUARDA NOMBRE, NO CAMBIA NADA
+    // ============================================
+    document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
+        var discordUser = prompt('Ingresa tu nombre de usuario de Discord (ej: usuario):');
+        if (!discordUser || discordUser.trim() === '') return;
+        
+        // Solo guarda discord_username y discord_linked_at, sin tocar avatar, nombre, ni nada
+        var { error } = await supabase.from('profiles').upsert({
+            id: currentUser.id,
+            discord_username: discordUser.trim(),
+            discord_linked_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        });
+        
+        if (error) {
+            showNotification('Error', error.message, 'error');
+        } else {
+            showNotification('Discord vinculado', 'Recargando...', 'success');
+            setTimeout(function() { location.reload(); }, 1000);
+        }
     });
 
     // Tema
