@@ -17,7 +17,6 @@ async function init() {
     await loadProfile();
     loadPurchases();
     loadInvoices();
-    loadFavorites();
     setupNavigation();
     setupEvents();
     updateCartBadge();
@@ -25,31 +24,47 @@ async function init() {
 
 async function loadProfile() {
     var { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-    if (!profile) {
-        await supabase.from('profiles').insert({ id: currentUser.id, full_name: currentUser.user_metadata?.full_name || '' });
-        profile = {};
-    }
+    if (!profile) { await supabase.from('profiles').insert({ id: currentUser.id }); profile = {}; }
 
-    document.getElementById('profileName').textContent = profile.full_name || 'Usuario';
+    document.getElementById('profileName').textContent = profile.nickname || profile.full_name || 'Usuario';
     document.getElementById('profileEmailDisplay').textContent = currentUser.email;
-    document.getElementById('userNameDisplay').textContent = profile.full_name || currentUser.email.split('@')[0];
+    document.getElementById('userNameDisplay').textContent = profile.nickname || profile.full_name || currentUser.email.split('@')[0];
     document.getElementById('tooltipEmail').textContent = currentUser.email;
-    document.getElementById('profileAvatar').src = profile.avatar_url || 'https://via.placeholder.com/140';
-    document.getElementById('userAvatarTop').src = profile.avatar_url || 'https://via.placeholder.com/32';
+    
+    // Avatar
+    var avatarUrl = profile.avatar_url || currentUser.user_metadata?.avatar_url || 'https://via.placeholder.com/140';
+    document.getElementById('profileAvatar').src = avatarUrl;
+    document.getElementById('userAvatarTop').src = avatarUrl;
+    
+    // Banner
     if (profile.banner_url) document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
+    
     document.getElementById('editName').value = profile.full_name || '';
+    document.getElementById('editNickname').value = profile.nickname || '';
+    document.getElementById('editUsername').value = profile.username || '';
     document.getElementById('editBio').value = profile.bio || '';
     document.getElementById('editRoblox').value = profile.roblox || '';
-    document.getElementById('editDiscord').value = profile.discord || '';
+    
+    // Discord info
+    if (profile.discord_username) {
+        document.getElementById('editDiscord').value = profile.discord_username;
+        document.getElementById('discordInfo').style.display = 'block';
+        document.getElementById('discordLinkedUser').textContent = profile.discord_username;
+        if (profile.discord_linked_at) {
+            document.getElementById('discordLinkedDate').textContent = new Date(profile.discord_linked_at).toLocaleDateString();
+        }
+    }
+    
     document.getElementById('languageSelect').value = localStorage.getItem('yxLang') || 'es';
     document.getElementById('currencySelect').value = localStorage.getItem('yxCurrency') || 'USD';
-
+    
+    // Badge
     var { count } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
     var badge = document.getElementById('profileBadge');
     if (count >= 10) badge.textContent = 'VIP';
     else if (count >= 5) badge.textContent = 'Cliente Frecuente';
     else if (count >= 1) badge.textContent = 'Cliente';
-    else badge.textContent = 'Nuevo';
+    else badge.innerHTML = '<span class="badge-new"><span class="material-icons">new_releases</span> Nuevo</span>';
 }
 
 async function loadPurchases() {
@@ -58,7 +73,7 @@ async function loadPurchases() {
     if (!orders || !orders.length) return;
     tbody.innerHTML = orders.map(function(o) {
         var items = o.items ? o.items.map(function(i) { return i.name; }).join(', ') : 'Productos';
-        return '<tr><td><strong>#' + o.id + '</strong></td><td>' + new Date(o.created_at).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">' + (o.status || 'Completado') + '</span></td><td><button class="btn-sm btn-outline" onclick="downloadInvoice(' + o.id + ')"><span class="material-icons">download</span></button></td></tr>';
+        return '<tr><td><strong>#' + o.id + '</strong></td><td>' + new Date(o.created_at).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">Completado</span></td><td><button class="btn-sm btn-outline" onclick="downloadInvoice(' + o.id + ')"><span class="material-icons">download</span></button></td></tr>';
     }).join('');
 }
 
@@ -71,19 +86,11 @@ async function loadInvoices() {
     }).join('');
 }
 
-async function loadFavorites() {
-    var { data: favs } = await supabase.from('favorites').select('*').eq('user_id', currentUser.id);
-    var list = document.getElementById('favoritesList');
-    if (!favs || !favs.length) { if (list) list.innerHTML = '<p class="text-muted">No tienes favoritos</p>'; return; }
-    if (list) list.innerHTML = favs.map(function(f) { return '<div class="favorite-item">Producto #' + f.product_id + '</div>'; }).join('');
-}
-
 window.downloadInvoice = function(orderId) {
     var content = 'YX STUDIOS - FACTURA\n========================\nFactura: #' + orderId + '\nGracias por tu compra!';
     var blob = new Blob([content], { type: 'text/plain' });
     var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = 'factura_' + orderId + '.txt'; a.click();
+    var a = document.createElement('a'); a.href = url; a.download = 'factura_' + orderId + '.txt'; a.click();
     URL.revokeObjectURL(url);
 };
 
@@ -115,22 +122,22 @@ function setupEvents() {
     });
 
     document.getElementById('savePersonal').addEventListener('click', async function() {
-        var data = { id: currentUser.id, full_name: document.getElementById('editName').value.trim(), bio: document.getElementById('editBio').value.trim(), roblox: document.getElementById('editRoblox').value.trim(), discord: document.getElementById('editDiscord').value.trim(), updated_at: new Date().toISOString() };
+        var data = { id: currentUser.id, full_name: document.getElementById('editName').value.trim(), nickname: document.getElementById('editNickname').value.trim(), username: document.getElementById('editUsername').value.trim(), bio: document.getElementById('editBio').value.trim(), roblox: document.getElementById('editRoblox').value.trim(), updated_at: new Date().toISOString() };
         if (tempAvatar) data.avatar_url = tempAvatar;
         if (tempBanner) data.banner_url = tempBanner;
         var { error } = await supabase.from('profiles').upsert(data);
         if (error) { showNotification('Error', error.message, 'error'); return; }
         tempAvatar = null; tempBanner = null;
-        document.getElementById('profileName').textContent = data.full_name || 'Usuario';
-        document.getElementById('userNameDisplay').textContent = data.full_name || currentUser.email.split('@')[0];
-        showNotification('Perfil actualizado', 'Guardado en la nube', 'success');
+        document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
+        document.getElementById('userNameDisplay').textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
+        showNotification('Perfil actualizado', 'Guardado correctamente', 'success');
     });
 
     document.getElementById('changePasswordBtn').addEventListener('click', async function() {
         var p1 = document.getElementById('newPassword').value, p2 = document.getElementById('confirmNewPassword').value;
         if (!p1 || !p2) { showNotification('Error', 'Completa los campos', 'error'); return; }
         if (p1 !== p2) { showNotification('Error', 'No coinciden', 'error'); return; }
-        if (p1.length < 6) { showNotification('Error', 'Mínimo 6 caracteres', 'error'); return; }
+        if (p1.length < 3) { showNotification('Error', 'Mínimo 3 caracteres', 'error'); return; }
         var { error } = await supabase.auth.updateUser({ password: p1 });
         if (error) { showNotification('Error', error.message, 'error'); }
         else { showNotification('Contraseña actualizada', '', 'success'); document.getElementById('newPassword').value = ''; document.getElementById('confirmNewPassword').value = ''; }
@@ -173,8 +180,6 @@ function setupEvents() {
     document.getElementById('deleteConfirmInput').addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
     document.getElementById('confirmDelete').addEventListener('click', async function() {
         await supabase.from('profiles').delete().eq('id', currentUser.id);
-        await supabase.from('favorites').delete().eq('user_id', currentUser.id);
-        await supabase.from('cart_items').delete().eq('user_id', currentUser.id);
         await supabase.auth.signOut(); localStorage.clear(); window.location.href = BASE_URL + '/index.html';
     });
 
