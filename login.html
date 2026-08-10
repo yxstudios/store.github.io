@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onLoadTurnstile" defer></script>
 </head>
 <body>
 
@@ -31,6 +32,7 @@
                 <div class="logo"><span class="material-icons logo-icon">sports_esports</span><h1>YX Studios</h1></div>
                 <p>Inicia sesión para continuar</p>
             </div>
+            
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
                     <label><span class="material-icons">alternate_email</span> @Usuario o Correo</label>
@@ -39,6 +41,7 @@
                         <input type="text" id="loginEmail" placeholder="@usuario o correo electrónico" required>
                     </div>
                 </div>
+                
                 <div class="form-group">
                     <label><span class="material-icons">lock</span> Contraseña</label>
                     <div class="input-wrapper">
@@ -47,14 +50,22 @@
                         <span class="material-icons toggle-password" data-target="loginPassword">visibility_off</span>
                     </div>
                 </div>
+                
                 <div class="form-options">
                     <label class="remember-me"><input type="checkbox"> Recordarme</label>
                     <a href="#" class="forgot-password" id="showForgotPassword">¿Olvidaste tu contraseña?</a>
                 </div>
+                
+                <!-- Captcha -->
+                <div id="loginCaptchaContainer" style="margin-bottom:20px;display:flex;justify-content:center;min-height:65px;"></div>
+                
                 <button type="submit" class="btn-primary"><span class="material-icons">login</span> Iniciar Sesión</button>
+                
                 <div class="divider"><span>o continúa con</span></div>
+                
                 <button type="button" id="discordLogin" class="btn-discord"><i class="fab fa-discord"></i> Continuar con Discord</button>
             </form>
+            
             <form id="forgotPasswordForm" class="auth-form" style="display:none;">
                 <h3 style="text-align:center;margin-bottom:15px;">Restablecer Contraseña</h3>
                 <p style="text-align:center;color:var(--text-secondary);margin-bottom:20px;font-size:0.9em;">Ingresa tu correo y te enviaremos un enlace.</p>
@@ -65,14 +76,174 @@
                 <button type="submit" class="btn-primary"><span class="material-icons">send</span> Enviar enlace</button>
                 <div style="text-align:center;margin-top:15px;"><a href="#" id="backToLogin" style="color:var(--accent);">Volver al inicio de sesión</a></div>
             </form>
+            
             <div class="auth-footer"><p>¿No tienes una cuenta? <a href="register.html">Regístrate aquí</a></p></div>
             <div id="authMessage" class="auth-message"></div>
         </div>
     </div>
 
     <script src="js/config.js"></script>
-    <script src="js/translations.js"></script>
     <script src="js/theme.js"></script>
-    <script type="module" src="js/auth.js"></script>
+    <script>
+        var loginCaptchaToken = null;
+        
+        window.onLoadTurnstile = function() {
+            if (typeof turnstile !== 'undefined') {
+                turnstile.render('#loginCaptchaContainer', {
+                    sitekey: '0x4AAAAAAELVyefNkoTULHXV',
+                    theme: 'dark',
+                    callback: function(token) {
+                        loginCaptchaToken = token;
+                        console.log('Login captcha completado');
+                    }
+                });
+            }
+        };
+        
+        // Toggle password
+        document.querySelectorAll('.toggle-password').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var t = document.getElementById(this.dataset.target);
+                if (t) { t.type = t.type === 'password' ? 'text' : 'password'; this.textContent = t.type === 'password' ? 'visibility_off' : 'visibility'; }
+            });
+        });
+        
+        // Forgot password toggle
+        document.getElementById('showForgotPassword').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'block';
+        });
+        document.getElementById('backToLogin').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        });
+        
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var login = document.getElementById('loginEmail').value.trim();
+            var password = document.getElementById('loginPassword').value;
+            var msgEl = document.getElementById('authMessage');
+            var btn = this.querySelector('.btn-primary');
+            
+            if (!login || !password) {
+                msgEl.textContent = 'Completa todos los campos.';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+            
+            if (!loginCaptchaToken) {
+                msgEl.textContent = 'Completa la verificación de seguridad.';
+                msgEl.className = 'auth-message error';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Iniciando...';
+            
+            try {
+                var { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+                var supabase = createClient(
+                    'https://qfgofnlvfxcmzexwuzou.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
+                );
+                
+                var email = login;
+                
+                // Si no es email, buscar por username o nickname
+                if (!login.includes('@')) {
+                    var username = login.startsWith('@') ? login.substring(1) : login;
+                    var { data: profile } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .or('username.eq.' + username + ',nickname.eq.' + username)
+                        .single();
+                    
+                    if (profile) {
+                        var { data: { user } } = await supabase.auth.admin.getUserById(profile.id);
+                        if (user && user.email) email = user.email;
+                    }
+                    
+                    if (!email || !email.includes('@')) {
+                        msgEl.textContent = 'Usuario no encontrado. Verifica el @usuario o apodo.';
+                        msgEl.className = 'auth-message error';
+                        btn.disabled = false;
+                        btn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
+                        if (typeof turnstile !== 'undefined') turnstile.reset('#loginCaptchaContainer');
+                        loginCaptchaToken = null;
+                        return;
+                    }
+                }
+                
+                var { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                    options: { captchaToken: loginCaptchaToken }
+                });
+                
+                if (error) {
+                    if (error.message.includes('Invalid login')) {
+                        msgEl.textContent = 'Usuario o contraseña incorrectos.';
+                    } else if (error.message.includes('Email not confirmed')) {
+                        msgEl.textContent = 'Email no verificado. Revisa tu correo.';
+                    } else {
+                        msgEl.textContent = error.message;
+                    }
+                    msgEl.className = 'auth-message error';
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
+                    if (typeof turnstile !== 'undefined') turnstile.reset('#loginCaptchaContainer');
+                    loginCaptchaToken = null;
+                    return;
+                }
+                
+                msgEl.textContent = 'Inicio de sesión exitoso. Redirigiendo...';
+                msgEl.className = 'auth-message success';
+                setTimeout(function() { window.location.href = 'https://yxstore.linkpc.net/index.html'; }, 1000);
+                
+            } catch (err) {
+                msgEl.textContent = 'Error: ' + err.message;
+                msgEl.className = 'auth-message error';
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
+                if (typeof turnstile !== 'undefined') turnstile.reset('#loginCaptchaContainer');
+                loginCaptchaToken = null;
+            }
+        });
+        
+        // Forgot password
+        document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var email = document.getElementById('resetEmail').value.trim();
+            var msgEl = document.getElementById('authMessage');
+            
+            if (!email) { msgEl.textContent = 'Ingresa tu correo.'; msgEl.className = 'auth-message error'; return; }
+            
+            try {
+                var { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+                var supabase = createClient(
+                    'https://qfgofnlvfxcmzexwuzou.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
+                );
+                var { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: 'https://yxstore.linkpc.net/reset-password.html' });
+                if (error) { msgEl.textContent = error.message; msgEl.className = 'auth-message error'; }
+                else { msgEl.textContent = 'Enlace enviado a tu correo.'; msgEl.className = 'auth-message success'; }
+            } catch (err) { msgEl.textContent = 'Error: ' + err.message; msgEl.className = 'auth-message error'; }
+        });
+        
+        // Discord login
+        document.getElementById('discordLogin').addEventListener('click', async function() {
+            try {
+                var { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+                var supabase = createClient(
+                    'https://qfgofnlvfxcmzexwuzou.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc'
+                );
+                await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: 'https://yxstore.linkpc.net/index.html' } });
+            } catch (err) { console.error(err); }
+        });
+    </script>
 </body>
 </html>
