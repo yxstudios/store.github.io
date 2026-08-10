@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="es" data-theme="red">
 <head>
@@ -11,6 +13,7 @@
 </head>
 <body>
 
+    <!-- THEME SWITCHER -->
     <div class="theme-switcher">
         <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
         <div class="theme-panel">
@@ -24,6 +27,7 @@
         </div>
     </div>
 
+    <!-- TOPBAR -->
     <nav class="topbar">
         <div class="topbar-container">
             <div class="topbar-brand">
@@ -50,6 +54,7 @@
         </div>
     </nav>
 
+    <!-- BANNER -->
     <div class="profile-banner-wrapper">
         <div class="profile-banner" id="profileBanner" style="background-image:url('https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner');">
             <div class="profile-banner-overlay"></div>
@@ -60,7 +65,10 @@
         </div>
     </div>
 
+    <!-- PROFILE CONTAINER -->
     <main class="profile-main-container">
+        
+        <!-- SIDEBAR -->
         <div class="profile-sidebar-card">
             <div class="avatar-section">
                 <div class="avatar-wrapper">
@@ -83,7 +91,11 @@
                 <a href="#" class="profile-menu-link" data-section="danger"><span class="material-icons" style="color:var(--danger);">dangerous</span> Zona de Peligro</a>
             </nav>
         </div>
+        
+        <!-- CONTENT -->
         <div class="profile-content-card">
+            
+            <!-- INFORMACIÓN PERSONAL -->
             <div id="personalSection" class="profile-section-block active">
                 <h3>Información Personal</h3>
                 <div class="form-grid">
@@ -92,17 +104,50 @@
                         <input type="text" id="editName" class="form-input" placeholder="Tu nombre completo">
                     </div>
                     <div class="form-field">
-                        <label>Usuario de Roblox</label>
-                        <div class="input-with-icon-wrapper">
-                            <span class="material-icons input-left-icon">sports_esports</span>
-                            <input type="text" id="editRoblox" class="form-input has-left-icon" placeholder="Username de Roblox">
-                        </div>
+                        <label>Apodo</label>
+                        <input type="text" id="editNickname" class="form-input" placeholder="Tu apodo">
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>@Usuario</label>
+                    <div class="input-with-icon-wrapper">
+                        <span class="material-icons input-left-icon">alternate_email</span>
+                        <input type="text" id="editUsername" class="form-input has-left-icon" placeholder="@tunombre" disabled>
                     </div>
                 </div>
                 <div class="form-field">
                     <label>Biografía</label>
                     <textarea id="editBio" class="form-input form-textarea" placeholder="Cuéntanos sobre ti..." rows="3"></textarea>
                 </div>
+                <div class="form-field">
+                    <label>Usuario de Roblox</label>
+                    <div class="input-with-icon-wrapper">
+                        <span class="material-icons input-left-icon">sports_esports</span>
+                        <input type="text" id="editRoblox" class="form-input has-left-icon" placeholder="Username de Roblox">
+                    </div>
+                </div>
+                
+                <!-- Discord Info -->
+                <div id="discordInfo" style="display:none;margin-bottom:18px;">
+                    <div class="security-box">
+                        <div class="security-box-header">
+                            <i class="fab fa-discord" style="font-size:1.8em;color:#5865F2;"></i>
+                            <div>
+                                <h4>Discord Vinculado</h4>
+                                <p>Tu cuenta está vinculada a Discord</p>
+                            </div>
+                        </div>
+                        <div class="current-email-info">
+                            <span class="material-icons">person</span>
+                            <span>Usuario: <strong id="discordLinkedUser">---</strong></span>
+                        </div>
+                        <div class="current-email-info">
+                            <span class="material-icons">calendar_today</span>
+                            <span>Vinculado: <strong id="discordLinkedDate">---</strong></span>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="form-field">
                     <label>Discord</label>
                     <div class="input-with-icon-wrapper">
@@ -111,13 +156,16 @@
                         <button id="connectDiscord" class="btn-discord-connect"><i class="fab fa-discord"></i> Vincular</button>
                     </div>
                 </div>
+                
                 <button class="btn-primary" id="savePersonal"><span class="material-icons">save</span> Guardar Cambios</button>
             </div>
+            
+            <!-- SEGURIDAD -->
             <div id="securitySection" class="profile-section-block">
                 <h3>Seguridad</h3>
                 <div class="security-box">
                     <div class="security-box-header"><span class="material-icons">lock</span><div><h4>Contraseña</h4><p>Actualiza tu contraseña periódicamente</p></div></div>
-                    <div class="form-field"><label>Nueva contraseña</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock</span><input type="password" id="newPassword" class="form-input has-left-icon" placeholder="Mínimo 6 caracteres"><button class="toggle-pass-btn" data-target="newPassword"><span class="material-icons">visibility_off</span></button></div></div>
+                    <div class="form-field"><label>Nueva contraseña</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock</span><input type="password" id="newPassword" class="form-input has-left-icon" placeholder="Mínimo 3 caracteres"><button class="toggle-pass-btn" data-target="newPassword"><span class="material-icons">visibility_off</span></button></div></div>
                     <div class="form-field"><label>Confirmar contraseña</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock_reset</span><input type="password" id="confirmNewPassword" class="form-input has-left-icon" placeholder="Repite la contraseña"><button class="toggle-pass-btn" data-target="confirmNewPassword"><span class="material-icons">visibility_off</span></button></div></div>
                     <button class="btn-primary" id="changePasswordBtn"><span class="material-icons">lock_reset</span> Actualizar Contraseña</button>
                 </div>
@@ -128,6 +176,8 @@
                     <button class="btn-primary" id="changeEmailBtn"><span class="material-icons">send</span> Solicitar Cambio</button>
                 </div>
             </div>
+            
+            <!-- COMPRAS -->
             <div id="purchasesSection" class="profile-section-block">
                 <h3>Historial de Compras</h3>
                 <div class="purchases-filters">
@@ -136,28 +186,70 @@
                 </div>
                 <div class="table-scroll"><table class="purchases-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Productos</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody id="purchasesTableBody"><tr><td colspan="6" class="table-empty-message">No tienes compras realizadas</td></tr></tbody></table></div>
             </div>
+            
+            <!-- FACTURACIÓN -->
             <div id="invoicesSection" class="profile-section-block">
                 <h3>Facturación</h3>
                 <div id="invoicesList"><p class="text-muted">No hay facturas disponibles</p></div>
             </div>
+            
+            <!-- CONFIGURACIÓN -->
             <div id="settingsSection" class="profile-section-block">
                 <h3>Configuración</h3>
                 <div class="settings-grid">
-                    <div class="setting-card"><span class="material-icons setting-icon">language</span><h4>Idioma</h4><select id="languageSelect" class="form-input"><option value="es">Español</option><option value="en">English</option></select></div>
-                    <div class="setting-card"><span class="material-icons setting-icon">attach_money</span><h4>Moneda</h4><select id="currencySelect" class="form-input"><option value="USD">USD - Dólar</option><option value="EUR">EUR - Euro</option></select></div>
-                    <div class="setting-card"><span class="material-icons setting-icon">palette</span><h4>Tema</h4><div class="theme-dots"><button class="theme-dot active" data-accent="red" style="background:#ff2d2d;"></button><button class="theme-dot" data-accent="dark-gray" style="background:#888;"></button><button class="theme-dot" data-accent="blue" style="background:#2196f3;"></button><button class="theme-dot" data-accent="purple" style="background:#9c27b0;"></button></div></div>
+                    <div class="setting-card">
+                        <span class="material-icons setting-icon">translate</span>
+                        <h4>Idioma</h4>
+                        <select id="languageSelect" class="form-input">
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                            <option value="pt">Português</option>
+                            <option value="fr">Français</option>
+                        </select>
+                    </div>
+                    <div class="setting-card">
+                        <span class="material-icons setting-icon">payments</span>
+                        <h4>Moneda</h4>
+                        <select id="currencySelect" class="form-input">
+                            <option value="USD">$ USD - Dólar</option>
+                            <option value="EUR">€ EUR - Euro</option>
+                            <option value="PEN">S/ PEN - Sol</option>
+                            <option value="MXN">MX$ MXN - Peso MX</option>
+                            <option value="COP">CO$ COP - Peso CO</option>
+                            <option value="CLP">CL$ CLP - Peso CL</option>
+                            <option value="ARS">AR$ ARS - Peso AR</option>
+                            <option value="BRL">R$ BRL - Real</option>
+                            <option value="GBP">£ GBP - Libra</option>
+                            <option value="JPY">¥ JPY - Yen</option>
+                            <option value="CAD">CA$ CAD - Canadiense</option>
+                            <option value="AUD">AU$ AUD - Australiano</option>
+                        </select>
+                    </div>
+                    <div class="setting-card">
+                        <span class="material-icons setting-icon">palette</span>
+                        <h4>Tema</h4>
+                        <div class="theme-dots">
+                            <button class="theme-dot active" data-accent="red" style="background:#ff2d2d;"></button>
+                            <button class="theme-dot" data-accent="dark-gray" style="background:#888;"></button>
+                            <button class="theme-dot" data-accent="blue" style="background:#2196f3;"></button>
+                            <button class="theme-dot" data-accent="purple" style="background:#9c27b0;"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
+            
+            <!-- ZONA DE PELIGRO -->
             <div id="dangerSection" class="profile-section-block">
                 <h3 style="color:var(--danger);">Zona de Peligro</h3>
                 <div class="danger-box">
-                    <div class="danger-box-info"><span class="material-icons danger-icon">warning</span><div><h4>Eliminar Cuenta</h4><p>Esta acción es irreversible.</p></div></div>
+                    <div class="danger-box-info"><span class="material-icons danger-icon">warning</span><div><h4>Eliminar Cuenta</h4><p>Esta acción es irreversible. Todos tus datos serán eliminados.</p></div></div>
                     <button class="btn-danger" id="deleteAccountBtn"><span class="material-icons">delete_forever</span> Eliminar mi cuenta</button>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- MODAL ELIMINAR -->
     <div id="deleteModal" class="modal-overlay-profile" style="display:none;">
         <div class="modal-card-profile">
             <span class="material-icons modal-warn-icon">warning</span>
@@ -171,77 +263,5 @@
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
     <script type="module" src="js/profile.js"></script>
-
-        <style>
-        .profile-banner-wrapper { position: relative; }
-        .profile-banner { width: 100%; height: 260px; background-size: cover; background-position: center; position: relative; border-bottom: 1px solid var(--border-color); }
-        .profile-banner-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 30%, var(--bg-primary) 100%); }
-        .profile-banner-edit-btn { position: absolute; bottom: 20px; right: 30px; background: rgba(0,0,0,0.7); color: white; padding: 10px 18px; border-radius: 50px; cursor: pointer; font-size: 0.85em; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.2); }
-        .profile-main-container { max-width: 1050px; margin: -50px auto 40px; padding: 0 20px; display: grid; grid-template-columns: 280px 1fr; gap: 25px; position: relative; z-index: 1; }
-        .profile-sidebar-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; overflow: hidden; height: fit-content; position: sticky; top: 85px; }
-        .avatar-section { text-align: center; padding: 28px 20px 20px; border-bottom: 1px solid var(--border-color); }
-        .avatar-wrapper { position: relative; display: inline-block; margin-bottom: 12px; }
-        .profile-avatar-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; }
-        .avatar-edit-button { position: absolute; bottom: 3px; right: 3px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gradient); color: white; border: 2px solid var(--bg-card); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85em; }
-        .avatar-section h2 { font-size: 1.1em; margin: 5px 0 3px; }
-        .avatar-section p { color: var(--text-muted); font-size: 0.8em; margin-bottom: 8px; }
-        .profile-menu { display: flex; flex-direction: column; padding: 10px; }
-        .profile-menu-link { display: flex; align-items: center; gap: 10px; padding: 11px 14px; color: var(--text-secondary); border-radius: 10px; font-size: 0.88em; text-decoration: none; }
-        .profile-menu-link:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-        .profile-menu-link.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
-        .profile-content-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 28px; }
-        .profile-section-block { display: none; }
-        .profile-section-block.active { display: block; }
-        .profile-section-block h3 { margin-bottom: 22px; font-size: 1.3em; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
-        .form-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
-        .form-field label { font-size: 0.82em; color: var(--text-secondary); font-weight: 500; }
-        .form-input { padding: 11px 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-family: 'Poppins', sans-serif; font-size: 0.88em; width: 100%; }
-        .form-input:focus { outline: none; border-color: var(--accent); }
-        .form-input.has-left-icon { padding-left: 40px; }
-        .form-textarea { resize: vertical; min-height: 80px; }
-        .input-with-icon-wrapper { position: relative; display: flex; align-items: center; }
-        .input-left-icon { position: absolute; left: 11px; color: var(--accent); font-size: 1.1em; z-index: 1; }
-        .toggle-pass-btn { position: absolute; right: 8px; background: none; border: none; color: var(--text-muted); cursor: pointer; }
-        .btn-discord-connect { background: #5865F2; color: white; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.8em; display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-left: 8px; }
-        .security-box { background: var(--bg-tertiary); padding: 22px; border-radius: 14px; margin-bottom: 18px; }
-        .security-box-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
-        .security-box-header .material-icons { font-size: 1.8em; color: var(--accent); }
-        .security-box-header h4 { margin-bottom: 2px; }
-        .security-box-header p { color: var(--text-muted); font-size: 0.8em; margin: 0; }
-        .current-email-info { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: var(--accent-light); border-radius: 10px; margin-bottom: 14px; font-size: 0.82em; color: var(--text-secondary); }
-        .purchases-filters { display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
-        .table-scroll { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); }
-        .purchases-table { width: 100%; border-collapse: collapse; }
-        .purchases-table th { text-align: left; padding: 12px 14px; background: var(--bg-tertiary); color: var(--text-secondary); font-size: 0.78em; font-weight: 600; border-bottom: 1px solid var(--border-color); }
-        .purchases-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); font-size: 0.82em; }
-        .table-empty-message { text-align: center; padding: 40px !important; color: var(--text-muted); }
-        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 0.72em; font-weight: 500; }
-        .status-completed { background: rgba(0,200,83,0.15); color: var(--success); }
-        .invoice-card { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: var(--bg-tertiary); border-radius: 12px; margin-bottom: 8px; }
-        .invoice-info { display: flex; align-items: center; gap: 10px; }
-        .invoice-info .material-icons { color: var(--accent); font-size: 1.8em; }
-        .invoice-info strong { display: block; margin-bottom: 2px; }
-        .invoice-info p { color: var(--text-muted); font-size: 0.78em; margin: 0; }
-        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
-        .setting-card { background: var(--bg-tertiary); padding: 22px; border-radius: 14px; text-align: center; }
-        .setting-icon { font-size: 2.2em; color: var(--accent); margin-bottom: 8px; }
-        .setting-card h4 { margin-bottom: 10px; }
-        .theme-dots { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
-        .theme-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
-        .theme-dot.active { border-color: white; }
-        .danger-box { background: var(--bg-tertiary); border: 1px solid rgba(255,23,68,0.3); padding: 22px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 18px; }
-        .danger-box-info { display: flex; align-items: flex-start; gap: 12px; }
-        .danger-icon { font-size: 2.2em; color: var(--danger); }
-        .danger-box-info h4 { color: var(--danger); margin-bottom: 3px; }
-        .danger-box-info p { color: var(--text-muted); font-size: 0.82em; margin: 0; }
-        .modal-overlay-profile { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10000; }
-        .modal-card-profile { background: var(--bg-secondary); padding: 30px; border-radius: 18px; max-width: 420px; width: 90%; border: 1px solid var(--border-color); text-align: center; }
-        .modal-warn-icon { font-size: 3em; color: var(--danger); margin-bottom: 8px; }
-        .modal-card-profile h3 { color: var(--danger); margin-bottom: 8px; }
-        .modal-card-profile p { color: var(--text-secondary); font-size: 0.85em; margin-bottom: 14px; }
-        .modal-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
-        @media (max-width: 768px) { .profile-main-container { grid-template-columns: 1fr; } .profile-sidebar-card { position: static; } .form-grid { grid-template-columns: 1fr; } }
-    </style>
 </body>
 </html>
