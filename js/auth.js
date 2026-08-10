@@ -35,6 +35,9 @@ function validatePassword(password) {
     return null;
 }
 
+// ============================================
+// INICIAR SESIÓN CON EMAIL/USUARIO
+// ============================================
 async function signInWithEmail(login, password) {
     try {
         showLoading(true);
@@ -51,7 +54,7 @@ async function signInWithEmail(login, password) {
         var { data, error } = await supabase.auth.signInWithPassword({ email: email, password: password });
         if (error) {
             if (error.message.includes('Email not confirmed')) {
-                showMessage('Email no verificado. Revisa tu bandeja de entrada y confirma tu correo.', 'error');
+                showMessage('Email no verificado. Revisa tu bandeja de entrada.', 'error');
             } else if (error.message.includes('Invalid login')) {
                 showMessage('Usuario o contraseña incorrectos.', 'error');
             } else {
@@ -64,6 +67,9 @@ async function signInWithEmail(login, password) {
     } catch (error) { showMessage('Error: ' + error.message, 'error'); showLoading(false); }
 }
 
+// ============================================
+// REGISTRO
+// ============================================
 async function signUpWithEmail(name, nickname, username, email, password) {
     try {
         showLoading(true);
@@ -79,17 +85,11 @@ async function signUpWithEmail(name, nickname, username, email, password) {
             email: email, password: password,
             options: { data: { full_name: name, nickname: nickname, username: username }, captchaToken: captchaToken }
         });
-        
         if (error) { if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-container'); window.captchaToken = null; throw error; }
         
         if (data.user) {
             await supabase.from('profiles').upsert({ id: data.user.id, full_name: name, nickname: nickname, username: username, updated_at: new Date().toISOString() });
-            
-            // Verificar si necesita confirmación de email
-            if (data.user.identities && data.user.identities.length === 0) {
-                showMessage('Este correo ya está registrado. Inicia sesión.', 'error');
-            } else if (data.session === null) {
-                // Email confirmation required
+            if (data.session === null) {
                 showMessage('Registro exitoso. Revisa tu correo para verificar tu cuenta.', 'success');
             } else {
                 showMessage('Cuenta creada exitosamente.', 'success');
@@ -100,7 +100,7 @@ async function signUpWithEmail(name, nickname, username, email, password) {
 }
 
 // ============================================
-// LOGIN CON DISCORD (solo login, no link)
+// LOGIN CON DISCORD (inicio de sesión normal)
 // ============================================
 async function signInWithDiscord() {
     try {
@@ -117,30 +117,54 @@ async function signInWithDiscord() {
 // ============================================
 async function linkDiscord() {
     try {
-        var { error } = await supabase.auth.linkIdentity({
-            provider: 'discord'
-        });
+        console.log('Intentando vincular Discord...');
+        var { data, error } = await supabase.auth.linkIdentity({ provider: 'discord' });
+        
         if (error) {
-            console.error('Error al vincular Discord:', error);
-            // Si falla linkIdentity, intentar con signInWithOAuth con options
+            console.log('linkIdentity falló, usando método alternativo...');
+            // Método alternativo: abrir popup de Discord
             var { error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: 'discord',
                 options: { 
-                    redirectTo: BASE_URL + '/profile.html',
-                    skipBrowserRedirect: false
+                    redirectTo: BASE_URL + '/profile.html'
                 }
             });
-            if (oauthError) { showMessage('Error: ' + oauthError.message, 'error'); }
+            if (oauthError) { 
+                showMessage('Error al vincular: ' + oauthError.message, 'error'); 
+            }
+        } else {
+            console.log('Discord vinculado exitosamente');
+            // Guardar datos del nuevo identity
+            var { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                var identities = session.user.identities || [];
+                var discordIdentity = identities.find(function(i) { return i.provider === 'discord'; });
+                if (discordIdentity) {
+                    var idData = discordIdentity.identity_data || {};
+                    await supabase.from('profiles').upsert({
+                        id: session.user.id,
+                        discord_id: idData.provider_id || discordIdentity.id || '',
+                        discord_username: idData.full_name || idData.name || '',
+                        discord_avatar: idData.avatar_url || idData.picture || '',
+                        discord_linked_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    });
+                }
+            }
+            showMessage('Discord vinculado', 'Recarga la página para ver los cambios', 'success');
         }
-    } catch (error) { showMessage('Error: ' + error.message, 'error'); }
+    } catch (error) { 
+        console.error('Error:', error);
+        showMessage('Error: ' + error.message, 'error'); 
+    }
 }
 
 // ============================================
-// GUARDAR DATOS DE OAUTH
+// GUARDAR DATOS DE OAUTH AL INICIAR SESIÓN
 // ============================================
 supabase.auth.onAuthStateChange(async function(event, session) {
     console.log('Auth state changed:', event);
-    if (event === 'SIGNED_IN' && session) {
+    if ((event === 'SIGNED_IN' || event === 'LINKED_IDENTITY') && session) {
         var user = session.user;
         var identities = user.identities || [];
         
