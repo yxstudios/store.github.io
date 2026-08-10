@@ -15,7 +15,13 @@ async function init() {
     if (!session) { window.location.href = BASE_URL + '/login.html'; return; }
     currentUser = session.user;
 
+    // Refrescar sesión para datos frescos
     await supabase.auth.refreshSession();
+    
+    // Pequeña pausa para que oauth-sync.js termine de guardar
+    // (Spotify hace llamadas extra a su API antes del upsert, así que
+    // esta espera es una salvaguarda; el refresco real y confiable
+    // llega vía el evento 'yx-oauth-synced' más abajo).
     await new Promise(function(resolve) { setTimeout(resolve, 500); });
 
     console.log('Usuario:', currentUser.email);
@@ -27,51 +33,19 @@ async function init() {
     updateCartBadge();
 }
 
+// Si oauth-sync.js termina de guardar Spotify/Discord DESPUÉS de que ya
+// cargamos el perfil (p. ej. justo al volver del redirect de Spotify),
+// este evento nos avisa para recargar el perfil sin que el usuario tenga
+// que refrescar la página manualmente.
+window.addEventListener('yx-oauth-synced', function(e) {
+    console.log('yx-oauth-synced recibido:', e.detail);
+    if (!currentUser) return;
+    loadProfile();
+});
+
 async function loadProfile() {
     var { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!profile) { await supabase.from('profiles').insert({ id: currentUser.id }); profile = {}; }
-
-    // Verificar sesión activa para guardar datos de OAuth
-    if (!profile.spotify_id || !profile.discord_id) {
-        var { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            var metadata = session.user.user_metadata || {};
-            var appMetadata = session.user.app_metadata || {};
-            var provider = appMetadata.provider || '';
-            var iss = metadata.iss || '';
-
-            if ((provider === 'spotify' || iss.includes('spotify')) && !profile.spotify_id) {
-                console.log('Guardando Spotify desde loadProfile...');
-                await supabase.from('profiles').upsert({
-                    id: currentUser.id,
-                    spotify_id: metadata.provider_id || currentUser.id,
-                    spotify_name: metadata.full_name || metadata.name || 'Usuario Spotify',
-                    spotify_avatar: metadata.avatar_url || metadata.picture || '',
-                    spotify_email: metadata.email || session.user.email || '',
-                    spotify_linked_at: new Date().toISOString(),
-                    avatar_url: metadata.avatar_url || metadata.picture || '',
-                    updated_at: new Date().toISOString()
-                });
-            }
-
-            if ((provider === 'discord' || iss.includes('discord')) && !profile.discord_id) {
-                console.log('Guardando Discord desde loadProfile...');
-                await supabase.from('profiles').upsert({
-                    id: currentUser.id,
-                    full_name: metadata.full_name || metadata.name || '',
-                    discord_id: metadata.provider_id || '',
-                    discord_username: metadata.full_name || metadata.name || '',
-                    discord_avatar: metadata.avatar_url || metadata.picture || '',
-                    discord_linked_at: new Date().toISOString(),
-                    avatar_url: metadata.avatar_url || metadata.picture || '',
-                    updated_at: new Date().toISOString()
-                });
-            }
-
-            var { data: updatedProfile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-            profile = updatedProfile || profile;
-        }
-    }
 
     console.log('Perfil cargado:', profile);
 
@@ -149,6 +123,7 @@ function loadSpotifyInfo(profile) {
     var connectBtn = document.getElementById('connectSpotifyBtn');
     if (connectBtn) connectBtn.innerHTML = '<i class="fab fa-spotify"></i> Revincular';
 
+    // Toggle email blur
     var toggleBtn = document.getElementById('toggleSpotifyEmail');
     if (toggleBtn) {
         toggleBtn.addEventListener('click', function() {
@@ -254,7 +229,6 @@ function setupEvents() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
 
-    // Spotify - Sin scopes extra para evitar errores
     document.getElementById('connectSpotifyBtn')?.addEventListener('click', async function() {
         try {
             var { error } = await supabase.auth.signInWithOAuth({
