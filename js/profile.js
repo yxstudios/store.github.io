@@ -135,12 +135,66 @@ function setupEvents() {
         dot.addEventListener('click', function() { document.documentElement.setAttribute('data-theme', this.dataset.accent); localStorage.setItem('yx-theme', this.dataset.accent); document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); }); this.classList.add('active'); });
     });
 
-    document.getElementById('deleteAccountBtn')?.addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'flex'; });
-    document.getElementById('cancelDelete')?.addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'none'; setValue('deleteConfirmInput', ''); });
-    document.getElementById('deleteConfirmInput')?.addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
-    document.getElementById('confirmDelete')?.addEventListener('click', async function() { await supabase.from('profiles').delete().eq('id', currentUser.id); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
+    // Abrir modal de eliminar
+    document.getElementById('deleteAccountBtn')?.addEventListener('click', function() { 
+        document.getElementById('deleteModal').style.display = 'flex'; 
+    });
+    
+    // Cancelar eliminación
+    document.getElementById('cancelDelete')?.addEventListener('click', function() { 
+        document.getElementById('deleteModal').style.display = 'none'; 
+        setValue('deleteConfirmInput', ''); 
+    });
+    
+    // Habilitar botón cuando escribe ELIMINAR
+    document.getElementById('deleteConfirmInput')?.addEventListener('input', function() { 
+        document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; 
+    });
+    
+    // ELIMINAR CUENTA REAL
+    document.getElementById('confirmDelete')?.addEventListener('click', async function() {
+        try {
+            showNotification('Eliminando...', 'Borrando todos tus datos', 'info');
+            
+            // Eliminar perfil
+            await supabase.from('profiles').delete().eq('id', currentUser.id);
+            
+            // Eliminar órdenes
+            await supabase.from('orders').delete().eq('user_id', currentUser.id);
+            
+            // Eliminar reseñas
+            await supabase.from('reviews').delete().eq('user_id', currentUser.id);
+            
+            // Eliminar favoritos
+            await supabase.from('favorites').delete().eq('user_id', currentUser.id);
+            
+            // Eliminar carrito
+            await supabase.from('cart_items').delete().eq('user_id', currentUser.id);
+            
+            // Cerrar sesión
+            await supabase.auth.signOut();
+            
+            // Limpiar localStorage
+            localStorage.clear();
+            
+            // Redirigir
+            window.location.href = BASE_URL + '/index.html';
+            
+        } catch (e) {
+            console.error('Error al eliminar:', e);
+            // Si falla, al menos cerrar sesión e ir al inicio
+            await supabase.auth.signOut();
+            localStorage.clear();
+            window.location.href = BASE_URL + '/index.html';
+        }
+    });
 
-    document.getElementById('logoutBtn')?.addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
+    // Logout
+    document.getElementById('logoutBtn')?.addEventListener('click', async function(e) { 
+        e.preventDefault(); 
+        await supabase.auth.signOut(); 
+        window.location.href = BASE_URL + '/index.html'; 
+    });
 }
 
 function showNotification(title, message, type) {
