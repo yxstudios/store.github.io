@@ -29,13 +29,18 @@ async function loadProfile() {
 
     document.getElementById('profileName').textContent = profile.nickname || profile.full_name || 'Usuario';
     document.getElementById('profileEmailDisplay').textContent = currentUser.email;
-    var topName = document.getElementById('userNameDisplay'); if (topName) topName.textContent = profile.nickname || profile.full_name || currentUser.email.split('@')[0];
-    var tooltipEmail = document.getElementById('tooltipEmail'); if (tooltipEmail) tooltipEmail.textContent = currentUser.email;
+    var topName = document.getElementById('userNameDisplay');
+    if (topName) topName.textContent = profile.nickname || profile.full_name || currentUser.email.split('@')[0];
+    var tooltipEmail = document.getElementById('tooltipEmail');
+    if (tooltipEmail) tooltipEmail.textContent = currentUser.email;
 
     var avatarUrl = profile.avatar_url || currentUser.user_metadata?.avatar_url || 'https://via.placeholder.com/140';
     document.getElementById('profileAvatar').src = avatarUrl;
-    var topAvatar = document.getElementById('userAvatarTop'); if (topAvatar) topAvatar.src = avatarUrl;
-    if (profile.banner_url) document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
+    var topAvatar = document.getElementById('userAvatarTop');
+    if (topAvatar) topAvatar.src = avatarUrl;
+    if (profile.banner_url) {
+        document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
+    }
 
     setValue('editName', profile.full_name || '');
     setValue('editNickname', profile.nickname || '');
@@ -54,14 +59,23 @@ async function loadProfile() {
 
 async function loadPurchases() {
     var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-    var tbody = document.getElementById('purchasesTableBody'); if (!tbody) return; if (!orders || !orders.length) return;
-    tbody.innerHTML = orders.map(function(o) { var items = o.items ? o.items.map(function(i) { return i.name; }).join(', ') : 'Productos'; return '<tr><td><strong>#' + o.id + '</strong></td><td>' + new Date(o.created_at).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">Completado</span></td></tr>'; }).join('');
+    var tbody = document.getElementById('purchasesTableBody');
+    if (!tbody) return;
+    if (!orders || !orders.length) return;
+    tbody.innerHTML = orders.map(function(o) {
+        var items = o.items ? o.items.map(function(i) { return i.name; }).join(', ') : 'Productos';
+        return '<tr><td><strong>#' + o.id + '</strong></td><td>' + new Date(o.created_at).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">Completado</span></td></tr>';
+    }).join('');
 }
 
 async function loadInvoices() {
     var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-    var list = document.getElementById('invoicesList'); if (!list) return; if (!orders || !orders.length) return;
-    list.innerHTML = orders.map(function(o) { return '<div class="invoice-card"><div class="invoice-info"><span class="material-icons">receipt</span><div><strong>Factura #' + o.id + '</strong><p>' + new Date(o.created_at).toLocaleDateString() + ' - $' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</p></div></div></div>'; }).join('');
+    var list = document.getElementById('invoicesList');
+    if (!list) return;
+    if (!orders || !orders.length) return;
+    list.innerHTML = orders.map(function(o) {
+        return '<div class="invoice-card"><div class="invoice-info"><span class="material-icons">receipt</span><div><strong>Factura #' + o.id + '</strong><p>' + new Date(o.created_at).toLocaleDateString() + ' - $' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</p></div></div></div>';
+    }).join('');
 }
 
 function setupNavigation() {
@@ -79,38 +93,62 @@ function setupNavigation() {
 
 function setupEvents() {
     document.getElementById('avatarUpload')?.addEventListener('change', function(e) {
-        var file = e.target.files[0]; if (!file) return;
+        var file = e.target.files[0];
+        if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) { tempAvatar = ev.target.result; document.getElementById('profileAvatar').src = tempAvatar; var ta = document.getElementById('userAvatarTop'); if (ta) ta.src = tempAvatar; };
+        reader.onload = function(ev) {
+            tempAvatar = ev.target.result;
+            document.getElementById('profileAvatar').src = tempAvatar;
+            var ta = document.getElementById('userAvatarTop');
+            if (ta) ta.src = tempAvatar;
+        };
         reader.readAsDataURL(file);
     });
 
     document.getElementById('bannerUpload')?.addEventListener('change', function(e) {
-        var file = e.target.files[0]; if (!file) return;
+        var file = e.target.files[0];
+        if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) { tempBanner = ev.target.result; document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')'; };
+        reader.onload = function(ev) {
+            tempBanner = ev.target.result;
+            document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')';
+        };
         reader.readAsDataURL(file);
     });
 
     document.getElementById('savePersonal')?.addEventListener('click', async function() {
-        var data = { id: currentUser.id, full_name: getValue('editName'), nickname: getValue('editNickname'), bio: getValue('editBio'), updated_at: new Date().toISOString() };
-        if (tempAvatar) data.avatar_url = tempAvatar; if (tempBanner) data.banner_url = tempBanner;
+        var data = {
+            id: currentUser.id,
+            full_name: getValue('editName'),
+            nickname: getValue('editNickname'),
+            bio: getValue('editBio'),
+            updated_at: new Date().toISOString()
+        };
+        if (tempAvatar) data.avatar_url = tempAvatar;
+        if (tempBanner) data.banner_url = tempBanner;
         var { error } = await supabase.from('profiles').upsert(data);
         if (error) { showNotification('Error', error.message, 'error'); return; }
-        tempAvatar = null; tempBanner = null;
+        tempAvatar = null;
+        tempBanner = null;
         document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
-        var tn = document.getElementById('userNameDisplay'); if (tn) tn.textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
+        var tn = document.getElementById('userNameDisplay');
+        if (tn) tn.textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
         showNotification('Perfil actualizado', 'Guardado correctamente', 'success');
     });
 
     document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
-        var p1 = getValue('newPassword'); var p2 = getValue('confirmNewPassword');
+        var p1 = getValue('newPassword');
+        var p2 = getValue('confirmNewPassword');
         if (!p1 || !p2) { showNotification('Error', 'Completa los campos', 'error'); return; }
         if (p1 !== p2) { showNotification('Error', 'No coinciden', 'error'); return; }
         if (p1.length < 3) { showNotification('Error', 'Mínimo 3 caracteres', 'error'); return; }
         var { error } = await supabase.auth.updateUser({ password: p1 });
         if (error) { showNotification('Error', error.message, 'error'); }
-        else { showNotification('Contraseña actualizada', 'Correo de confirmación enviado', 'success'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
+        else {
+            showNotification('Contraseña actualizada', 'Correo de confirmación enviado', 'success');
+            setValue('newPassword', '');
+            setValue('confirmNewPassword', '');
+        }
     });
 
     document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
@@ -125,102 +163,66 @@ function setupEvents() {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
             if (target) {
-                target.type = target.type === 'password' ? 'text' : 'password';
-                this.querySelector('.material-icons').textContent = target.type === 'password' ? 'visibility_off' : 'visibility';
+                if (target.type === 'password') {
+                    target.type = 'text';
+                    this.querySelector('.material-icons').textContent = 'visibility';
+                } else {
+                    target.type = 'password';
+                    this.querySelector('.material-icons').textContent = 'visibility_off';
+                }
             }
         });
     });
 
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
-        dot.addEventListener('click', function() { document.documentElement.setAttribute('data-theme', this.dataset.accent); localStorage.setItem('yx-theme', this.dataset.accent); document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); }); this.classList.add('active'); });
+        dot.addEventListener('click', function() {
+            document.documentElement.setAttribute('data-theme', this.dataset.accent);
+            localStorage.setItem('yx-theme', this.dataset.accent);
+            document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); });
+            this.classList.add('active');
+        });
     });
 
-    // Abrir modal de eliminar
-    document.getElementById('deleteAccountBtn')?.addEventListener('click', function() { 
-        document.getElementById('deleteModal').style.display = 'flex'; 
+    document.getElementById('deleteAccountBtn')?.addEventListener('click', function() {
+        document.getElementById('deleteModal').style.display = 'flex';
     });
-    
-    // Cancelar eliminación
-    document.getElementById('cancelDelete')?.addEventListener('click', function() { 
-        document.getElementById('deleteModal').style.display = 'none'; 
-        setValue('deleteConfirmInput', ''); 
+
+    document.getElementById('cancelDelete')?.addEventListener('click', function() {
+        document.getElementById('deleteModal').style.display = 'none';
+        setValue('deleteConfirmInput', '');
     });
-    
-    // Habilitar botón cuando escribe ELIMINAR
-    document.getElementById('deleteConfirmInput')?.addEventListener('input', function() { 
-        document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; 
+
+    document.getElementById('deleteConfirmInput')?.addEventListener('input', function() {
+        document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR';
     });
-    
-// ELIMINAR CUENTA REAL (BORRA TODO)
-document.getElementById('confirmDelete')?.addEventListener('click', async function() {
-    try {
-        showNotification('Eliminando...', 'Borrando todos tus datos', 'info');
-        
-        // 1. Eliminar perfil
-        await supabase.from('profiles').delete().eq('id', currentUser.id);
-        
-        // 2. Eliminar órdenes
-        await supabase.from('orders').delete().eq('user_id', currentUser.id);
-        
-        // 3. Eliminar reseñas
-        await supabase.from('reviews').delete().eq('user_id', currentUser.id);
-        
-        // 4. Eliminar favoritos
-        await supabase.from('favorites').delete().eq('user_id', currentUser.id);
-        
-        // 5. Eliminar carrito
-        await supabase.from('cart_items').delete().eq('user_id', currentUser.id);
-        
-        // 6. Cerrar sesión primero
-        await supabase.auth.signOut();
-        
-        // 7. Esperar un momento
-        await new Promise(function(resolve) { setTimeout(resolve, 1000); });
-        
-        // 8. Iniciar sesión de nuevo para obtener token fresco
-        var email = currentUser.email;
-        var password = prompt('Para confirmar la eliminación, ingresa tu contraseña:');
-        
-        if (!password) {
-            window.location.href = BASE_URL + '/index.html';
-            return;
-        }
-        
-        var { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-        
-        if (signInError) {
-            console.error('Error al re-autenticar:', signInError);
+
+    document.getElementById('confirmDelete')?.addEventListener('click', async function() {
+        try {
+            await supabase.from('profiles').delete().eq('id', currentUser.id);
+            await supabase.from('orders').delete().eq('user_id', currentUser.id);
+            await supabase.from('reviews').delete().eq('user_id', currentUser.id);
+            await supabase.from('favorites').delete().eq('user_id', currentUser.id);
+            await supabase.from('cart_items').delete().eq('user_id', currentUser.id);
+            await supabase.auth.signOut();
             localStorage.clear();
             window.location.href = BASE_URL + '/index.html';
-            return;
+        } catch (e) {
+            await supabase.auth.signOut();
+            localStorage.clear();
+            window.location.href = BASE_URL + '/index.html';
         }
-        
-        // 9. Ahora eliminar el usuario de auth.users usando RPC
-        var { error: deleteError } = await supabase.rpc('delete_user');
-        
-        if (deleteError) {
-            console.error('Error al eliminar usuario:', deleteError);
-        } else {
-            console.log('Usuario eliminado de auth.users');
-        }
-        
-        // 10. Limpiar todo y redirigir
-        localStorage.clear();
-        window.location.href = BASE_URL + '/index.html';
-        
-    } catch (e) {
-        console.error('Error al eliminar:', e);
+    });
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async function(e) {
+        e.preventDefault();
         await supabase.auth.signOut();
-        localStorage.clear();
         window.location.href = BASE_URL + '/index.html';
-    }
-});
+    });
+}
 
 function showNotification(title, message, type) {
-    var existing = document.querySelector('.notify-toast'); if (existing) existing.remove();
+    var existing = document.querySelector('.notify-toast');
+    if (existing) existing.remove();
     var icons = { success: 'check_circle', error: 'error', info: 'info' };
     var toast = document.createElement('div');
     toast.className = 'notify-toast notify-' + type;
@@ -234,6 +236,11 @@ function getValue(id) { var el = document.getElementById(id); return el ? el.val
 function setValue(id, value) { var el = document.getElementById(id); if (el) el.value = value; }
 function setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
 function showEl(id) { var el = document.getElementById(id); if (el) el.style.display = 'block'; }
-function updateCartBadge() { var cart = JSON.parse(localStorage.getItem('yxCart') || '[]'); var count = cart.reduce(function(s, i) { return s + (i.quantity || 1); }, 0); var badge = document.getElementById('cartCount'); if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; } }
+function updateCartBadge() {
+    var cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
+    var count = cart.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
+    var badge = document.getElementById('cartCount');
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+}
 
 init();
