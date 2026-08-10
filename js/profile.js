@@ -51,8 +51,8 @@ async function loadProfile() {
     
     // Discord info
     if (profile.discord_username) {
-        document.getElementById('discordStatusText').textContent = 'Vinculado';
-        document.getElementById('discordLinkedInfo').style.display = 'flex';
+        document.getElementById('discordStatusText').textContent = 'Vinculado como ' + profile.discord_username;
+        document.getElementById('discordLinkedInfo').style.display = 'block';
         document.getElementById('discordLinkedUser').textContent = profile.discord_username;
         if (profile.discord_avatar) {
             document.getElementById('discordAvatarImg').src = profile.discord_avatar;
@@ -60,22 +60,22 @@ async function loadProfile() {
         if (profile.discord_linked_at) {
             document.getElementById('discordLinkedDate').textContent = 'Vinculado el ' + new Date(profile.discord_linked_at).toLocaleDateString();
         }
-        document.getElementById('connectDiscord').innerHTML = '<i class="fab fa-discord"></i> Revincular Discord';
+        document.getElementById('connectDiscordBtn').innerHTML = '<i class="fab fa-discord"></i> Revincular';
     }
     
     // Roblox info
     if (profile.roblox) {
-        document.getElementById('robloxStatusText').textContent = 'Vinculado';
-        document.getElementById('robloxLinkedInfo').style.display = 'flex';
+        document.getElementById('robloxStatusText').textContent = 'Vinculado como ' + profile.roblox;
+        document.getElementById('robloxLinkedInfo').style.display = 'block';
         document.getElementById('robloxLinkedUser').textContent = profile.roblox;
-        document.getElementById('editRoblox').value = profile.roblox;
+        document.getElementById('editRobloxConn').value = profile.roblox;
         if (profile.roblox_id) {
-            fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + profile.roblox_id + '&size=48x48&format=Png')
+            fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + profile.roblox_id + '&size=48x48&format=Png&isCircular=true')
                 .then(function(r) { return r.json(); })
                 .then(function(d) { if (d.data && d.data[0]) document.getElementById('robloxAvatarImg').src = d.data[0].imageUrl; })
                 .catch(function() {});
         }
-        document.getElementById('connectRoblox').innerHTML = '<span class="material-icons">sync</span> Revincular Roblox';
+        document.getElementById('connectRobloxBtn').innerHTML = '<span class="material-icons">sync</span> Revincular';
     }
     
     // Badge
@@ -168,7 +168,7 @@ function setupEvents() {
         tempAvatar = null; tempBanner = null;
         document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
         document.getElementById('userNameDisplay').textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
-        showNotification('Perfil actualizado', 'Guardado correctamente', 'success');
+        showNotification(t('notif_profile_updated'), t('notif_profile_updated_desc'), 'success');
     });
 
     // Cambiar contraseña
@@ -180,7 +180,7 @@ function setupEvents() {
         if (p1.length < 3) { showNotification('Error', 'Mínimo 3 caracteres', 'error'); return; }
         var { error } = await supabase.auth.updateUser({ password: p1 });
         if (error) { showNotification('Error', error.message, 'error'); }
-        else { showNotification('Contraseña actualizada', '', 'success'); document.getElementById('newPassword').value = ''; document.getElementById('confirmNewPassword').value = ''; }
+        else { showNotification(t('notif_password_changed'), '', 'success'); document.getElementById('newPassword').value = ''; document.getElementById('confirmNewPassword').value = ''; }
     });
 
     // Cambiar email
@@ -202,36 +202,43 @@ function setupEvents() {
     });
 
     // Vincular Discord
-    document.getElementById('connectDiscord').addEventListener('click', async function() {
+    document.getElementById('connectDiscordBtn').addEventListener('click', async function() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
 
     // Vincular Roblox
-    document.getElementById('connectRoblox').addEventListener('click', async function() {
-        var robloxUser = document.getElementById('editRoblox').value.trim();
+    document.getElementById('connectRobloxBtn').addEventListener('click', async function() {
+        var robloxUser = document.getElementById('editRobloxConn').value.trim();
         if (!robloxUser) { showNotification('Error', 'Ingresa tu username de Roblox', 'error'); return; }
         
         try {
-            var response = await fetch('https://users.roblox.com/v1/users/search?keyword=' + encodeURIComponent(robloxUser) + '&limit=1');
+            var response = await fetch('https://users.roblox.com/v1/usernames/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usernames: [robloxUser] })
+            });
             var data = await response.json();
+            
             if (data.data && data.data.length > 0) {
-                var robloxId = data.data[0].userId;
+                var robloxId = data.data[0].id;
                 var displayName = data.data[0].name;
                 
-                await supabase.from('profiles').upsert({ id: currentUser.id, roblox: displayName, roblox_id: robloxId, updated_at: new Date().toISOString() });
+                await supabase.from('profiles').upsert({
+                    id: currentUser.id, roblox: displayName, roblox_id: robloxId, updated_at: new Date().toISOString()
+                });
                 
-                document.getElementById('robloxStatusText').textContent = 'Vinculado';
-                document.getElementById('robloxLinkedInfo').style.display = 'flex';
+                document.getElementById('robloxStatusText').textContent = 'Vinculado como ' + displayName;
+                document.getElementById('robloxLinkedInfo').style.display = 'block';
                 document.getElementById('robloxLinkedUser').textContent = displayName;
-                document.getElementById('editRoblox').value = displayName;
+                document.getElementById('editRobloxConn').value = displayName;
                 
-                var avatarResponse = await fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + robloxId + '&size=48x48&format=Png');
-                var avatarData = await avatarResponse.json();
+                var avatarRes = await fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + robloxId + '&size=48x48&format=Png&isCircular=true');
+                var avatarData = await avatarRes.json();
                 if (avatarData.data && avatarData.data[0]) {
                     document.getElementById('robloxAvatarImg').src = avatarData.data[0].imageUrl;
                 }
                 
-                document.getElementById('connectRoblox').innerHTML = '<span class="material-icons">sync</span> Revincular Roblox';
+                document.getElementById('connectRobloxBtn').innerHTML = '<span class="material-icons">sync</span> Revincular';
                 showNotification('Roblox vinculado', 'Cuenta vinculada correctamente', 'success');
             } else {
                 showNotification('Error', 'Usuario de Roblox no encontrado', 'error');
