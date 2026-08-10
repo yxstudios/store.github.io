@@ -1012,3 +1012,26 @@ input, textarea, select { font-family: 'Poppins', sans-serif; }
 .toggle-pass-btn:hover {
     color: var(--accent);
 }
+
+/* Roblox Stats */
+.roblox-stat-card {
+    background: var(--bg-card);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.roblox-stat-card .material-icons {
+    font-size: 1.2em;
+}
+.roblox-stat-card strong {
+    font-size: 1.1em;
+    color: var(--text-primary);
+}
+.roblox-stat-card small {
+    font-size: 0.7em;
+    color: var(--text-muted);
+}
