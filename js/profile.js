@@ -112,53 +112,106 @@ function setupNavigation() {
 }
 
 function setupEvents() {
+    // Avatar
     document.getElementById('avatarUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
         reader.onload = function(ev) { tempAvatar = ev.target.result; document.getElementById('profileAvatar').src = tempAvatar; var ta = document.getElementById('userAvatarTop'); if (ta) ta.src = tempAvatar; };
         reader.readAsDataURL(file);
     });
+
+    // Banner
     document.getElementById('bannerUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
         reader.onload = function(ev) { tempBanner = ev.target.result; document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')'; };
         reader.readAsDataURL(file);
     });
+
+    // Guardar perfil
     document.getElementById('savePersonal')?.addEventListener('click', async function() {
         var data = { id: currentUser.id, full_name: getValue('editName'), nickname: getValue('editNickname'), bio: getValue('editBio'), updated_at: new Date().toISOString() };
         if (tempAvatar) data.avatar_url = tempAvatar; if (tempBanner) data.banner_url = tempBanner;
         var { error } = await supabase.from('profiles').upsert(data);
-        if (error) { alert('Error: ' + error.message); return; }
+        if (error) { showNotification('Error', error.message, 'error'); return; }
         tempAvatar = null; tempBanner = null;
         document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
         var tn = document.getElementById('userNameDisplay'); if (tn) tn.textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
-        alert('Perfil actualizado');
+        showNotification('Perfil actualizado', 'Tus datos han sido guardados correctamente', 'success');
     });
+
+    // Cambiar contraseña CON NOTIFICACIÓN
     document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
-        var p1 = getValue('newPassword'), p2 = getValue('confirmNewPassword');
-        if (!p1 || !p2) { alert('Completa los campos'); return; } if (p1 !== p2) { alert('No coinciden'); return; } if (p1.length < 3) { alert('Mínimo 3 caracteres'); return; }
+        var p1 = getValue('newPassword');
+        var p2 = getValue('confirmNewPassword');
+        if (!p1 || !p2) { showNotification('Error', 'Completa todos los campos', 'error'); return; }
+        if (p1 !== p2) { showNotification('Error', 'Las contraseñas no coinciden', 'error'); return; }
+        if (p1.length < 3) { showNotification('Error', 'Mínimo 3 caracteres', 'error'); return; }
         var { error } = await supabase.auth.updateUser({ password: p1 });
-        if (error) { alert('Error: ' + error.message); } else { alert('Contraseña actualizada'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
+        if (error) { showNotification('Error', error.message, 'error'); }
+        else {
+            showNotification('Contraseña actualizada', 'Se ha enviado un correo de confirmación', 'success');
+            setValue('newPassword', ''); setValue('confirmNewPassword', '');
+        }
     });
+
+    // Cambiar email CON NOTIFICACIÓN
     document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
-        var email = getValue('newEmail'); if (!email) { alert('Ingresa un correo'); return; }
+        var email = getValue('newEmail');
+        if (!email) { showNotification('Error', 'Ingresa un correo electrónico', 'error'); return; }
         var { error } = await supabase.auth.updateUser({ email: email });
-        if (error) { alert('Error: ' + error.message); } else { alert('Solicitud enviada'); }
+        if (error) { showNotification('Error', error.message, 'error'); }
+        else { showNotification('Solicitud enviada', 'Revisa tu nuevo correo para confirmar el cambio', 'success'); }
     });
+
+    // Toggle password con blur
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() { var t = document.getElementById(this.dataset.target); if (t) { t.type = t.type === 'password' ? 'text' : 'password'; this.querySelector('.material-icons').textContent = t.type === 'password' ? 'visibility_off' : 'visibility'; } });
+        btn.addEventListener('click', function() {
+            var target = document.getElementById(this.dataset.target);
+            if (target) {
+                if (target.type === 'password') {
+                    target.type = 'text';
+                    this.querySelector('.material-icons').textContent = 'visibility';
+                } else {
+                    target.type = 'password';
+                    this.querySelector('.material-icons').textContent = 'visibility_off';
+                }
+            }
+        });
     });
+
+    // Discord
     document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
+
+    // Tema
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
         dot.addEventListener('click', function() { document.documentElement.setAttribute('data-theme', this.dataset.accent); localStorage.setItem('yx-theme', this.dataset.accent); document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); }); this.classList.add('active'); });
     });
+
+    // Eliminar cuenta
     document.getElementById('deleteAccountBtn')?.addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'flex'; });
     document.getElementById('cancelDelete')?.addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'none'; setValue('deleteConfirmInput', ''); });
     document.getElementById('deleteConfirmInput')?.addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
     document.getElementById('confirmDelete')?.addEventListener('click', async function() { await supabase.from('profiles').delete().eq('id', currentUser.id); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
+
+    // Logout
     document.getElementById('logoutBtn')?.addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
+}
+
+// ============================================
+// NOTIFICACIÓN MODERNA
+// ============================================
+function showNotification(title, message, type) {
+    var existing = document.querySelector('.notify-toast'); if (existing) existing.remove();
+    var icons = { success: 'check_circle', error: 'error', info: 'info' };
+    var toast = document.createElement('div');
+    toast.className = 'notify-toast notify-' + type;
+    toast.innerHTML = '<div class="notify-icon"><span class="material-icons">' + (icons[type] || 'info') + '</span></div><div class="notify-content"><div class="notify-title">' + title + '</div><div class="notify-message">' + message + '</div></div><button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button><div class="notify-progress"></div>';
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.classList.add('show'); }, 10);
+    setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400); }, 4000);
 }
 
 function getValue(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
