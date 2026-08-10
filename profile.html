@@ -1,5 +1,3 @@
----
----
 <!DOCTYPE html>
 <html lang="es" data-theme="red">
 <head>
@@ -73,9 +71,7 @@
             <div class="avatar-section">
                 <div class="avatar-wrapper">
                     <img id="profileAvatar" src="https://via.placeholder.com/140" class="profile-avatar-img" alt="Avatar">
-                    <label for="avatarUpload" class="avatar-edit-button">
-                        <span class="material-icons">edit</span>
-                    </label>
+                    <label for="avatarUpload" class="avatar-edit-button"><span class="material-icons">edit</span></label>
                     <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
                 </div>
                 <h2 id="profileName">Cargando...</h2>
@@ -84,6 +80,7 @@
             </div>
             <nav class="profile-menu">
                 <a href="#" class="profile-menu-link active" data-section="personal"><span class="material-icons">person</span> Información Personal</a>
+                <a href="#" class="profile-menu-link" data-section="connections"><span class="material-icons">link</span> Conexiones</a>
                 <a href="#" class="profile-menu-link" data-section="security"><span class="material-icons">security</span> Seguridad</a>
                 <a href="#" class="profile-menu-link" data-section="purchases"><span class="material-icons">shopping_bag</span> Historial de Compras</a>
                 <a href="#" class="profile-menu-link" data-section="invoices"><span class="material-icons">receipt_long</span> Facturación</a>
@@ -99,65 +96,66 @@
             <div id="personalSection" class="profile-section-block active">
                 <h3>Información Personal</h3>
                 <div class="form-grid">
-                    <div class="form-field">
-                        <label>Nombre completo</label>
-                        <input type="text" id="editName" class="form-input" placeholder="Tu nombre completo">
-                    </div>
-                    <div class="form-field">
-                        <label>Apodo</label>
-                        <input type="text" id="editNickname" class="form-input" placeholder="Tu apodo">
-                    </div>
+                    <div class="form-field"><label>Nombre completo</label><input type="text" id="editName" class="form-input" placeholder="Tu nombre completo"></div>
+                    <div class="form-field"><label>Apodo</label><input type="text" id="editNickname" class="form-input" placeholder="Tu apodo"></div>
                 </div>
                 <div class="form-field">
                     <label>@Usuario</label>
-                    <div class="input-with-icon-wrapper">
-                        <span class="material-icons input-left-icon">alternate_email</span>
-                        <input type="text" id="editUsername" class="form-input has-left-icon" placeholder="@tunombre" disabled>
+                    <div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="text" id="editUsername" class="form-input has-left-icon" placeholder="@tunombre" disabled></div>
+                </div>
+                <div class="form-field"><label>Biografía</label><textarea id="editBio" class="form-input form-textarea" placeholder="Cuéntanos sobre ti..." rows="3"></textarea></div>
+                <button class="btn-primary" id="savePersonal"><span class="material-icons">save</span> Guardar Cambios</button>
+            </div>
+            
+            <!-- CONEXIONES -->
+            <div id="connectionsSection" class="profile-section-block">
+                <h3>Conexiones</h3>
+                
+                <!-- Discord -->
+                <div class="connection-card" id="discordConnectionCard">
+                    <div class="connection-header">
+                        <i class="fab fa-discord" style="font-size:2em;color:#5865F2;"></i>
+                        <div>
+                            <h4>Discord</h4>
+                            <p id="discordStatusText">No vinculado</p>
+                        </div>
                     </div>
+                    <div id="discordLinkedInfo" style="display:none;">
+                        <div class="connection-details">
+                            <img id="discordAvatarImg" src="" style="width:40px;height:40px;border-radius:50%;margin-right:10px;">
+                            <div>
+                                <strong id="discordLinkedUser">---</strong>
+                                <p id="discordLinkedDate" style="font-size:0.75em;color:var(--text-muted);">---</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="connectDiscord" class="btn-outline btn-sm"><i class="fab fa-discord"></i> Vincular Discord</button>
                 </div>
-                <div class="form-field">
-                    <label>Biografía</label>
-                    <textarea id="editBio" class="form-input form-textarea" placeholder="Cuéntanos sobre ti..." rows="3"></textarea>
-                </div>
-                <div class="form-field">
-                    <label>Usuario de Roblox</label>
-                    <div class="input-with-icon-wrapper">
+                
+                <!-- Roblox -->
+                <div class="connection-card" id="robloxConnectionCard">
+                    <div class="connection-header">
+                        <span class="material-icons" style="font-size:2em;color:#ff2d2d;">sports_esports</span>
+                        <div>
+                            <h4>Roblox</h4>
+                            <p id="robloxStatusText">No vinculado</p>
+                        </div>
+                    </div>
+                    <div id="robloxLinkedInfo" style="display:none;">
+                        <div class="connection-details">
+                            <img id="robloxAvatarImg" src="" style="width:40px;height:40px;border-radius:50%;margin-right:10px;">
+                            <div>
+                                <strong id="robloxLinkedUser">---</strong>
+                                <p style="font-size:0.75em;color:var(--text-muted);">Cuenta vinculada</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-with-icon-wrapper" style="margin-bottom:10px;">
                         <span class="material-icons input-left-icon">sports_esports</span>
                         <input type="text" id="editRoblox" class="form-input has-left-icon" placeholder="Username de Roblox">
                     </div>
+                    <button id="connectRoblox" class="btn-outline btn-sm"><span class="material-icons">link</span> Vincular Roblox</button>
                 </div>
-                
-                <!-- Discord Info -->
-                <div id="discordInfo" style="display:none;margin-bottom:18px;">
-                    <div class="security-box">
-                        <div class="security-box-header">
-                            <i class="fab fa-discord" style="font-size:1.8em;color:#5865F2;"></i>
-                            <div>
-                                <h4>Discord Vinculado</h4>
-                                <p>Tu cuenta está vinculada a Discord</p>
-                            </div>
-                        </div>
-                        <div class="current-email-info">
-                            <span class="material-icons">person</span>
-                            <span>Usuario: <strong id="discordLinkedUser">---</strong></span>
-                        </div>
-                        <div class="current-email-info">
-                            <span class="material-icons">calendar_today</span>
-                            <span>Vinculado: <strong id="discordLinkedDate">---</strong></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-field">
-                    <label>Discord</label>
-                    <div class="input-with-icon-wrapper">
-                        <span class="material-icons input-left-icon">discord</span>
-                        <input type="text" id="editDiscord" class="form-input has-left-icon" placeholder="Usuario#0000">
-                        <button id="connectDiscord" class="btn-discord-connect"><i class="fab fa-discord"></i> Vincular</button>
-                    </div>
-                </div>
-                
-                <button class="btn-primary" id="savePersonal"><span class="material-icons">save</span> Guardar Cambios</button>
             </div>
             
             <!-- SEGURIDAD -->
@@ -166,13 +164,13 @@
                 <div class="security-box">
                     <div class="security-box-header"><span class="material-icons">lock</span><div><h4>Contraseña</h4><p>Actualiza tu contraseña periódicamente</p></div></div>
                     <div class="form-field"><label>Nueva contraseña</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock</span><input type="password" id="newPassword" class="form-input has-left-icon" placeholder="Mínimo 3 caracteres"><button class="toggle-pass-btn" data-target="newPassword"><span class="material-icons">visibility_off</span></button></div></div>
-                    <div class="form-field"><label>Confirmar contraseña</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock_reset</span><input type="password" id="confirmNewPassword" class="form-input has-left-icon" placeholder="Repite la contraseña"><button class="toggle-pass-btn" data-target="confirmNewPassword"><span class="material-icons">visibility_off</span></button></div></div>
+                    <div class="form-field"><label>Confirmar</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock_reset</span><input type="password" id="confirmNewPassword" class="form-input has-left-icon" placeholder="Repite la contraseña"><button class="toggle-pass-btn" data-target="confirmNewPassword"><span class="material-icons">visibility_off</span></button></div></div>
                     <button class="btn-primary" id="changePasswordBtn"><span class="material-icons">lock_reset</span> Actualizar Contraseña</button>
                 </div>
                 <div class="security-box">
                     <div class="security-box-header"><span class="material-icons">email</span><div><h4>Correo Electrónico</h4><p>Cambia tu dirección de correo</p></div></div>
                     <div class="current-email-info"><span class="material-icons">info</span><span>Correo actual: <strong id="tooltipEmail">cargando...</strong></span></div>
-                    <div class="form-field"><label>Nuevo correo electrónico</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="email" id="newEmail" class="form-input has-left-icon" placeholder="nuevo@correo.com"></div></div>
+                    <div class="form-field"><label>Nuevo correo</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="email" id="newEmail" class="form-input has-left-icon" placeholder="nuevo@correo.com"></div></div>
                     <button class="btn-primary" id="changeEmailBtn"><span class="material-icons">send</span> Solicitar Cambio</button>
                 </div>
             </div>
@@ -184,7 +182,7 @@
                     <div class="input-with-icon-wrapper" style="flex:1;max-width:300px;"><span class="material-icons input-left-icon">search</span><input type="text" id="searchPurchases" class="form-input has-left-icon" placeholder="Buscar compra..."></div>
                     <select id="filterStatus" class="form-input" style="max-width:180px;"><option value="all">Todos</option><option value="completed">Completado</option></select>
                 </div>
-                <div class="table-scroll"><table class="purchases-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Productos</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody id="purchasesTableBody"><tr><td colspan="6" class="table-empty-message">No tienes compras realizadas</td></tr></tbody></table></div>
+                <div class="table-scroll"><table class="purchases-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Productos</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody id="purchasesTableBody"><tr><td colspan="6" class="table-empty-message">No tienes compras</td></tr></tbody></table></div>
             </div>
             
             <!-- FACTURACIÓN -->
@@ -196,44 +194,69 @@
             <!-- CONFIGURACIÓN -->
             <div id="settingsSection" class="profile-section-block">
                 <h3>Configuración</h3>
-                <div class="settings-grid">
-                    <div class="setting-card">
-                        <span class="material-icons setting-icon">translate</span>
-                        <h4>Idioma</h4>
-                        <select id="languageSelect" class="form-input">
-                            <option value="es">Español</option>
-                            <option value="en">English</option>
-                            <option value="pt">Português</option>
-                            <option value="fr">Français</option>
-                        </select>
+                
+                <div class="settings-card-pro">
+                    <div class="settings-card-header">
+                        <span class="material-icons">translate</span>
+                        <div><h4>Idioma</h4><p>Selecciona tu idioma preferido</p></div>
                     </div>
-                    <div class="setting-card">
-                        <span class="material-icons setting-icon">payments</span>
-                        <h4>Moneda</h4>
-                        <select id="currencySelect" class="form-input">
-                            <option value="USD">$ USD - Dólar</option>
-                            <option value="EUR">€ EUR - Euro</option>
-                            <option value="PEN">S/ PEN - Sol</option>
-                            <option value="MXN">MX$ MXN - Peso MX</option>
-                            <option value="COP">CO$ COP - Peso CO</option>
-                            <option value="CLP">CL$ CLP - Peso CL</option>
-                            <option value="ARS">AR$ ARS - Peso AR</option>
-                            <option value="BRL">R$ BRL - Real</option>
-                            <option value="GBP">£ GBP - Libra</option>
-                            <option value="JPY">¥ JPY - Yen</option>
-                            <option value="CAD">CA$ CAD - Canadiense</option>
-                            <option value="AUD">AU$ AUD - Australiano</option>
-                        </select>
-                    </div>
-                    <div class="setting-card">
-                        <span class="material-icons setting-icon">palette</span>
-                        <h4>Tema</h4>
-                        <div class="theme-dots">
-                            <button class="theme-dot active" data-accent="red" style="background:#ff2d2d;"></button>
-                            <button class="theme-dot" data-accent="dark-gray" style="background:#888;"></button>
-                            <button class="theme-dot" data-accent="blue" style="background:#2196f3;"></button>
-                            <button class="theme-dot" data-accent="purple" style="background:#9c27b0;"></button>
+                    <div class="dropdown-wrapper" id="profileLangDropdown">
+                        <button class="dropdown-btn settings-dropdown-btn" onclick="toggleDropdown('profileLangDropdown')">
+                            <span id="profileCurrentLang">ES</span>
+                            <span class="material-icons dropdown-arrow">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item active" data-lang="es" onclick="selectProfileLang('es')"><span class="flag-icon flag-es"></span> Español</button>
+                            <button class="dropdown-item" data-lang="en" onclick="selectProfileLang('en')"><span class="flag-icon flag-us"></span> English</button>
+                            <button class="dropdown-item" data-lang="pt" onclick="selectProfileLang('pt')"><span class="flag-icon flag-br"></span> Português</button>
+                            <button class="dropdown-item" data-lang="fr" onclick="selectProfileLang('fr')"><span class="flag-icon flag-fr"></span> Français</button>
+                            <button class="dropdown-item" data-lang="de" onclick="selectProfileLang('de')"><span class="flag-icon flag-de"></span> Deutsch</button>
+                            <button class="dropdown-item" data-lang="it" onclick="selectProfileLang('it')"><span class="flag-icon flag-it"></span> Italiano</button>
+                            <button class="dropdown-item" data-lang="ja" onclick="selectProfileLang('ja')"><span class="flag-icon flag-jp"></span> 日本語</button>
+                            <button class="dropdown-item" data-lang="ko" onclick="selectProfileLang('ko')"><span class="flag-icon flag-kr"></span> 한국어</button>
+                            <button class="dropdown-item" data-lang="ru" onclick="selectProfileLang('ru')"><span class="flag-icon flag-ru"></span> Русский</button>
+                            <button class="dropdown-item" data-lang="zh" onclick="selectProfileLang('zh')"><span class="flag-icon flag-cn"></span> 中文</button>
                         </div>
+                    </div>
+                </div>
+                
+                <div class="settings-card-pro">
+                    <div class="settings-card-header">
+                        <span class="material-icons">payments</span>
+                        <div><h4>Moneda</h4><p>Selecciona tu moneda preferida</p></div>
+                    </div>
+                    <div class="dropdown-wrapper" id="profileCurrencyDropdown">
+                        <button class="dropdown-btn settings-dropdown-btn" onclick="toggleDropdown('profileCurrencyDropdown')">
+                            <span id="profileCurrentCurrency">USD</span>
+                            <span class="material-icons dropdown-arrow">expand_more</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <button class="dropdown-item active" data-currency="USD" onclick="selectProfileCurrency('USD')"><span class="dropdown-symbol">$</span> USD - Dólar</button>
+                            <button class="dropdown-item" data-currency="EUR" onclick="selectProfileCurrency('EUR')"><span class="dropdown-symbol">€</span> EUR - Euro</button>
+                            <button class="dropdown-item" data-currency="PEN" onclick="selectProfileCurrency('PEN')"><span class="dropdown-symbol">S/</span> PEN - Sol</button>
+                            <button class="dropdown-item" data-currency="MXN" onclick="selectProfileCurrency('MXN')"><span class="dropdown-symbol">MX$</span> MXN - Peso MX</button>
+                            <button class="dropdown-item" data-currency="COP" onclick="selectProfileCurrency('COP')"><span class="dropdown-symbol">CO$</span> COP - Peso CO</button>
+                            <button class="dropdown-item" data-currency="CLP" onclick="selectProfileCurrency('CLP')"><span class="dropdown-symbol">CL$</span> CLP - Peso CL</button>
+                            <button class="dropdown-item" data-currency="ARS" onclick="selectProfileCurrency('ARS')"><span class="dropdown-symbol">AR$</span> ARS - Peso AR</button>
+                            <button class="dropdown-item" data-currency="BRL" onclick="selectProfileCurrency('BRL')"><span class="dropdown-symbol">R$</span> BRL - Real</button>
+                            <button class="dropdown-item" data-currency="GBP" onclick="selectProfileCurrency('GBP')"><span class="dropdown-symbol">£</span> GBP - Libra</button>
+                            <button class="dropdown-item" data-currency="JPY" onclick="selectProfileCurrency('JPY')"><span class="dropdown-symbol">¥</span> JPY - Yen</button>
+                            <button class="dropdown-item" data-currency="CAD" onclick="selectProfileCurrency('CAD')"><span class="dropdown-symbol">CA$</span> CAD - Canadiense</button>
+                            <button class="dropdown-item" data-currency="AUD" onclick="selectProfileCurrency('AUD')"><span class="dropdown-symbol">AU$</span> AUD - Australiano</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-card-pro">
+                    <div class="settings-card-header">
+                        <span class="material-icons">palette</span>
+                        <div><h4>Tema</h4><p>Personaliza el color de acento</p></div>
+                    </div>
+                    <div class="theme-dots" style="justify-content:flex-start;padding:10px 0;">
+                        <button class="theme-dot active" data-accent="red" style="background:#ff2d2d;"></button>
+                        <button class="theme-dot" data-accent="dark-gray" style="background:#888;"></button>
+                        <button class="theme-dot" data-accent="blue" style="background:#2196f3;"></button>
+                        <button class="theme-dot" data-accent="purple" style="background:#9c27b0;"></button>
                     </div>
                 </div>
             </div>
@@ -242,7 +265,7 @@
             <div id="dangerSection" class="profile-section-block">
                 <h3 style="color:var(--danger);">Zona de Peligro</h3>
                 <div class="danger-box">
-                    <div class="danger-box-info"><span class="material-icons danger-icon">warning</span><div><h4>Eliminar Cuenta</h4><p>Esta acción es irreversible. Todos tus datos serán eliminados.</p></div></div>
+                    <div class="danger-box-info"><span class="material-icons danger-icon">warning</span><div><h4>Eliminar Cuenta</h4><p>Esta acción es irreversible.</p></div></div>
                     <button class="btn-danger" id="deleteAccountBtn"><span class="material-icons">delete_forever</span> Eliminar mi cuenta</button>
                 </div>
             </div>
@@ -262,6 +285,41 @@
 
     <script src="js/config.js"></script>
     <script src="js/theme.js"></script>
+    <script>
+        // Dropdowns del profile
+        function toggleDropdown(id) {
+            var dropdown = document.getElementById(id);
+            var isOpen = dropdown.classList.contains('open');
+            document.querySelectorAll('.dropdown-wrapper').forEach(function(d) { d.classList.remove('open'); });
+            if (!isOpen) dropdown.classList.add('open');
+        }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown-wrapper')) {
+                document.querySelectorAll('.dropdown-wrapper').forEach(function(d) { d.classList.remove('open'); });
+            }
+        });
+        function selectProfileLang(lang) {
+            localStorage.setItem('yxLang', lang);
+            document.getElementById('profileCurrentLang').textContent = lang.toUpperCase();
+            document.querySelectorAll('#profileLangDropdown .dropdown-item').forEach(function(item) { item.classList.toggle('active', item.dataset.lang === lang); });
+            document.getElementById('profileLangDropdown').classList.remove('open');
+            if (typeof applyTranslations === 'function') applyTranslations();
+        }
+        function selectProfileCurrency(currency) {
+            localStorage.setItem('yxCurrency', currency);
+            document.getElementById('profileCurrentCurrency').textContent = currency;
+            document.querySelectorAll('#profileCurrencyDropdown .dropdown-item').forEach(function(item) { item.classList.toggle('active', item.dataset.currency === currency); });
+            document.getElementById('profileCurrencyDropdown').classList.remove('open');
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var lang = localStorage.getItem('yxLang') || 'es';
+            var currency = localStorage.getItem('yxCurrency') || 'USD';
+            document.getElementById('profileCurrentLang').textContent = lang.toUpperCase();
+            document.getElementById('profileCurrentCurrency').textContent = currency;
+            document.querySelectorAll('#profileLangDropdown .dropdown-item').forEach(function(item) { item.classList.toggle('active', item.dataset.lang === lang); });
+            document.querySelectorAll('#profileCurrencyDropdown .dropdown-item').forEach(function(item) { item.classList.toggle('active', item.dataset.currency === currency); });
+        });
+    </script>
     <script type="module" src="js/profile.js"></script>
 </body>
 </html>
