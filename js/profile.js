@@ -57,9 +57,9 @@ async function loadProfile() {
         document.getElementById('connectDiscordBtn').innerHTML = '<i class="fab fa-discord"></i> Revincular';
     }
     
-    // Roblox
-    if (profile.roblox_id) {
-        await loadRobloxInfo(profile.roblox_id, profile.roblox);
+    // Spotify
+    if (profile.spotify_id) {
+        await loadSpotifyInfo(profile);
     }
     
     var { count } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
@@ -72,44 +72,23 @@ async function loadProfile() {
     }
 }
 
-async function loadRobloxInfo(robloxId, username) {
-    setText('robloxStatusText', 'Vinculado como ' + (username || robloxId));
-    showEl('robloxLinkedInfo');
-    setText('robloxLinkedUser', username || 'Usuario #' + robloxId);
-    document.getElementById('connectRobloxBtn').innerHTML = '<span class="material-icons">sync</span> Revincular';
+async function loadSpotifyInfo(profile) {
+    setText('spotifyStatusText', 'Vinculado como ' + (profile.spotify_name || 'Usuario Spotify'));
+    showEl('spotifyLinkedInfo');
+    setText('spotifyLinkedUser', profile.spotify_name || 'Usuario de Spotify');
+    setText('spotifyEmail', profile.spotify_email || '');
+    if (profile.spotify_avatar) document.getElementById('spotifyAvatarImg').src = profile.spotify_avatar;
+    setText('spotifyPlan', profile.spotify_plan || 'Free');
+    setText('spotifyFollowers', (profile.spotify_followers || 0).toLocaleString());
+    setText('spotifyPlaylists', (profile.spotify_playlists || 0).toLocaleString());
+    setText('spotifyArtists', (profile.spotify_artists || 0).toLocaleString());
     
-    var { data: profile } = await supabase.from('profiles').select('roblox_avatar').eq('id', currentUser.id).single();
-    if (profile && profile.roblox_avatar) {
-        document.getElementById('robloxAvatarImg').src = profile.roblox_avatar;
+    if (profile.spotify_url) {
+        var link = document.getElementById('spotifyProfileLink');
+        if (link) { link.href = profile.spotify_url; link.style.display = 'inline-flex'; }
     }
     
-    if (robloxId) {
-        try {
-            var userRes = await fetch('https://users.roblox.com/v1/users/' + robloxId);
-            if (userRes.ok) {
-                var userData = await userRes.json();
-                if (userData.name) {
-                    setText('robloxLinkedUser', userData.name + ' (@' + userData.name + ')');
-                    setText('robloxStatusText', 'Vinculado como ' + userData.name);
-                    setText('robloxDisplayName', userData.displayName || '');
-                    if (userData.created) {
-                        var d = new Date(userData.created);
-                        setText('robloxCreated', d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }));
-                    }
-                }
-            }
-        } catch (e) {}
-        
-        try { var fr = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/friends/count'); if (fr.ok) { var fd = await fr.json(); setText('robloxFriends', fd.count.toLocaleString()); } } catch (e) {}
-        try { var forRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/followers/count'); if (forRes.ok) { var forData = await forRes.json(); setText('robloxFollowers', forData.count.toLocaleString()); } } catch (e) {}
-        try { var fngRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/followings/count'); if (fngRes.ok) { var fngData = await fngRes.json(); setText('robloxFollowing', fngData.count.toLocaleString()); } } catch (e) {}
-        
-        var profileLink = document.getElementById('robloxProfileLink');
-        if (profileLink) {
-            profileLink.href = 'https://www.roblox.com/users/' + robloxId + '/profile';
-            profileLink.style.display = 'inline-flex';
-        }
-    }
+    document.getElementById('connectSpotifyBtn').innerHTML = '<i class="fab fa-spotify"></i> Revincular';
 }
 
 async function loadPurchases() {
@@ -203,15 +182,18 @@ function setupEvents() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
 
-    // Roblox OAuth
-    document.getElementById('connectRobloxBtn')?.addEventListener('click', async function() {
+    // Spotify OAuth
+    document.getElementById('connectSpotifyBtn')?.addEventListener('click', async function() {
         try {
             var { error } = await supabase.auth.signInWithOAuth({
-                provider: 'roblox',
-                options: { redirectTo: BASE_URL + '/profile.html' }
+                provider: 'spotify',
+                options: {
+                    redirectTo: BASE_URL + '/profile.html',
+                    scopes: 'user-read-email user-read-private user-follow-read playlist-read-private'
+                }
             });
-            if (error) { alert('Error al conectar con Roblox: ' + error.message); }
-        } catch (e) { alert('Error al conectar con Roblox'); }
+            if (error) { alert('Error al conectar con Spotify: ' + error.message); }
+        } catch (e) { alert('Error al conectar con Spotify'); }
     });
 
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
