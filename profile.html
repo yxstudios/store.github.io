@@ -176,39 +176,70 @@
                     </div>
                 </div>
                 
-                <!-- Roblox Card -->
-                <div class="connection-card" id="robloxConnectionCard">
-                    <div class="connection-card-inner">
-                        <div class="connection-icon-wrapper roblox-bg">
-                            <span class="material-icons">sports_esports</span>
-                        </div>
-                        <div class="connection-info">
-                            <h4>Roblox</h4>
-                            <p id="robloxStatusText" data-i18n="not_linked">No vinculado</p>
-                        </div>
-                        <div class="connection-action">
-                            <div class="input-with-icon-wrapper" style="margin-right:10px;">
-                                <span class="material-icons input-left-icon">sports_esports</span>
-                                <input type="text" id="editRobloxConn" class="form-input has-left-icon" data-i18n="roblox_placeholder" placeholder="Username" style="width:160px;">
-                            </div>
-                            <button id="connectRobloxBtn" class="btn-connect">
-                                <span class="material-icons">link</span> <span data-i18n="link">Vincular</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="robloxLinkedInfo" class="connection-linked-info" style="display:none;">
-                        <div class="linked-divider"></div>
-                        <div class="linked-details">
-                            <img id="robloxAvatarImg" src="" class="linked-avatar" alt="Roblox Avatar">
-                            <div class="linked-text">
-                                <strong id="robloxLinkedUser">---</strong>
-                                <span data-i18n="account_linked">Cuenta vinculada</span>
-                            </div>
-                            <span class="linked-badge" data-i18n="connected">Conectado</span>
-                        </div>
-                    </div>
-                </div>
+<!-- Roblox Card -->
+<div class="connection-card" id="robloxConnectionCard">
+    <div class="connection-card-inner">
+        <div class="connection-icon-wrapper roblox-bg">
+            <span class="material-icons">sports_esports</span>
+        </div>
+        <div class="connection-info">
+            <h4>Roblox</h4>
+            <p id="robloxStatusText">No vinculado</p>
+        </div>
+        <div class="connection-action">
+            <div class="input-with-icon-wrapper" style="margin-right:10px;">
+                <span class="material-icons input-left-icon">sports_esports</span>
+                <input type="text" id="editRobloxConn" class="form-input has-left-icon" placeholder="Username o ID" style="width:160px;">
             </div>
+            <button id="connectRobloxBtn" class="btn-connect">
+                <span class="material-icons">link</span> Vincular
+            </button>
+        </div>
+    </div>
+    <div id="robloxLinkedInfo" class="connection-linked-info" style="display:none;">
+        <div class="linked-divider"></div>
+        <div class="linked-details">
+            <img id="robloxAvatarImg" src="" class="linked-avatar" alt="Roblox Avatar">
+            <div class="linked-text">
+                <strong id="robloxLinkedUser">---</strong>
+                <span id="robloxDisplayName" style="font-size:0.8em;color:var(--text-secondary);"></span>
+            </div>
+            <span class="linked-badge">Conectado</span>
+        </div>
+        
+        <!-- Stats de Roblox -->
+        <div class="roblox-stats" style="margin-top:15px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div class="roblox-stat-card">
+                <span class="material-icons" style="color:var(--accent);">people</span>
+                <strong id="robloxFriends">0</strong>
+                <small>Amigos</small>
+            </div>
+            <div class="roblox-stat-card">
+                <span class="material-icons" style="color:var(--accent);">person_add</span>
+                <strong id="robloxFollowers">0</strong>
+                <small>Seguidores</small>
+            </div>
+            <div class="roblox-stat-card">
+                <span class="material-icons" style="color:var(--accent);">trending_up</span>
+                <strong id="robloxFollowing">0</strong>
+                <small>Siguiendo</small>
+            </div>
+        </div>
+        
+        <!-- Fecha de creación -->
+        <div style="margin-top:10px;padding:8px 12px;background:var(--bg-card);border-radius:8px;font-size:0.8em;color:var(--text-secondary);">
+            <span class="material-icons" style="font-size:1em;vertical-align:middle;">calendar_today</span>
+            <span>Cuenta creada: <strong id="robloxCreated">---</strong></span>
+        </div>
+        
+        <!-- Link al perfil -->
+        <div style="margin-top:10px;">
+            <a id="robloxProfileLink" href="#" target="_blank" class="btn-connect" style="display:none;text-decoration:none;">
+                <span class="material-icons">open_in_new</span> Ver perfil en Roblox
+            </a>
+        </div>
+    </div>
+</div>
             
             <!-- SEGURIDAD -->
             <div id="securitySection" class="profile-section-block">
