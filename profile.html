@@ -178,67 +178,66 @@
                     </div>
                 </div>
                 
-                <!-- Roblox Card -->
-                <div class="connection-card" id="robloxConnectionCard">
-                    <div class="connection-card-inner">
-                        <div class="connection-icon-wrapper roblox-bg">
-                            <span class="material-icons">sports_esports</span>
-                        </div>
-                        <div class="connection-info">
-                            <h4>Roblox</h4>
-                            <p id="robloxStatusText" data-i18n="not_linked">No vinculado</p>
-                        </div>
-                        <div class="connection-action">
-                            <button id="connectRobloxBtn" class="btn-connect">
-                                <span class="material-icons">sports_esports</span> <span data-i18n="link">Vincular con Roblox</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="robloxLinkedInfo" class="connection-linked-info" style="display:none;">
-                        <div class="linked-divider"></div>
-                        <div class="linked-details">
-                            <img id="robloxAvatarImg" src="" class="linked-avatar" alt="Roblox Avatar">
-                            <div class="linked-text">
-                                <strong id="robloxLinkedUser">---</strong>
-                                <span id="robloxDisplayName" style="font-size:0.8em;color:var(--text-secondary);"></span>
-                            </div>
-                            <span class="linked-badge" data-i18n="connected">Conectado</span>
-                        </div>
-                        
-                        <!-- Stats de Roblox -->
-                        <div class="roblox-stats" style="margin-top:15px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-                            <div class="roblox-stat-card">
-                                <span class="material-icons" style="color:var(--accent);">people</span>
-                                <strong id="robloxFriends">0</strong>
-                                <small>Amigos</small>
-                            </div>
-                            <div class="roblox-stat-card">
-                                <span class="material-icons" style="color:var(--accent);">person_add</span>
-                                <strong id="robloxFollowers">0</strong>
-                                <small>Seguidores</small>
-                            </div>
-                            <div class="roblox-stat-card">
-                                <span class="material-icons" style="color:var(--accent);">trending_up</span>
-                                <strong id="robloxFollowing">0</strong>
-                                <small>Siguiendo</small>
-                            </div>
-                        </div>
-                        
-                        <!-- Fecha de creación -->
-                        <div style="margin-top:10px;padding:10px 14px;background:var(--bg-card);border-radius:10px;font-size:0.8em;color:var(--text-secondary);display:flex;align-items:center;gap:8px;">
-                            <span class="material-icons" style="font-size:1.1em;color:var(--accent);">calendar_today</span>
-                            <span>Cuenta creada: <strong id="robloxCreated" style="color:var(--text-primary);">---</strong></span>
-                        </div>
-                        
-                        <!-- Link al perfil -->
-                        <div style="margin-top:12px;">
-                            <a id="robloxProfileLink" href="#" target="_blank" class="btn-connect" style="display:none;text-decoration:none;width:100%;justify-content:center;">
-                                <span class="material-icons">open_in_new</span> Ver perfil en Roblox
-                            </a>
-                        </div>
-                    </div>
-                </div>
+               <!-- Spotify Card -->
+<div class="connection-card" id="spotifyConnectionCard">
+    <div class="connection-card-inner">
+        <div class="connection-icon-wrapper spotify-bg">
+            <i class="fab fa-spotify"></i>
+        </div>
+        <div class="connection-info">
+            <h4>Spotify</h4>
+            <p id="spotifyStatusText" data-i18n="not_linked">No vinculado</p>
+        </div>
+        <div class="connection-action">
+            <button id="connectSpotifyBtn" class="btn-connect">
+                <i class="fab fa-spotify"></i> <span data-i18n="link">Vincular con Spotify</span>
+            </button>
+        </div>
+    </div>
+    <div id="spotifyLinkedInfo" class="connection-linked-info" style="display:none;">
+        <div class="linked-divider"></div>
+        <div class="linked-details">
+            <img id="spotifyAvatarImg" src="" class="linked-avatar" alt="Spotify Avatar">
+            <div class="linked-text">
+                <strong id="spotifyLinkedUser">---</strong>
+                <span id="spotifyEmail" style="font-size:0.8em;color:var(--text-secondary);">---</span>
             </div>
+            <span class="linked-badge" data-i18n="connected">Conectado</span>
+        </div>
+        
+        <!-- Stats de Spotify -->
+        <div class="roblox-stats" style="margin-top:15px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div class="roblox-stat-card">
+                <span class="material-icons" style="color:#1DB954;">queue_music</span>
+                <strong id="spotifyPlaylists">0</strong>
+                <small>Playlists</small>
+            </div>
+            <div class="roblox-stat-card">
+                <span class="material-icons" style="color:#1DB954;">people</span>
+                <strong id="spotifyFollowers">0</strong>
+                <small>Seguidores</small>
+            </div>
+            <div class="roblox-stat-card">
+                <span class="material-icons" style="color:#1DB954;">mic</span>
+                <strong id="spotifyArtists">0</strong>
+                <small>Artistas</small>
+            </div>
+        </div>
+        
+        <!-- Plan -->
+        <div style="margin-top:10px;padding:10px 14px;background:var(--bg-card);border-radius:10px;font-size:0.8em;color:var(--text-secondary);display:flex;align-items:center;gap:8px;">
+            <span class="material-icons" style="font-size:1.1em;color:#1DB954;">workspace_premium</span>
+            <span>Plan: <strong id="spotifyPlan" style="color:var(--text-primary);">---</strong></span>
+        </div>
+        
+        <!-- Link al perfil -->
+        <div style="margin-top:12px;">
+            <a id="spotifyProfileLink" href="#" target="_blank" class="btn-connect" style="display:none;text-decoration:none;width:100%;justify-content:center;background:#1DB954;border-color:#1DB954;color:#000;">
+                <i class="fab fa-spotify"></i> Ver perfil en Spotify
+            </a>
+        </div>
+    </div>
+</div>
             
             <!-- SEGURIDAD -->
             <div id="securitySection" class="profile-section-block">
