@@ -26,6 +26,7 @@ async function loadProfile() {
     var { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!profile) { await supabase.from('profiles').insert({ id: currentUser.id }); profile = {}; }
 
+    // Nombre y apodo
     document.getElementById('profileName').textContent = profile.nickname || profile.full_name || 'Usuario';
     document.getElementById('profileEmailDisplay').textContent = currentUser.email;
     document.getElementById('userNameDisplay').textContent = profile.nickname || profile.full_name || currentUser.email.split('@')[0];
@@ -37,8 +38,11 @@ async function loadProfile() {
     document.getElementById('userAvatarTop').src = avatarUrl;
     
     // Banner
-    if (profile.banner_url) document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
+    if (profile.banner_url) {
+        document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
+    }
     
+    // Campos
     document.getElementById('editName').value = profile.full_name || '';
     document.getElementById('editNickname').value = profile.nickname || '';
     document.getElementById('editUsername').value = profile.username || '';
@@ -47,16 +51,32 @@ async function loadProfile() {
     
     // Discord info
     if (profile.discord_username) {
-        document.getElementById('editDiscord').value = profile.discord_username;
-        document.getElementById('discordInfo').style.display = 'block';
+        document.getElementById('discordStatusText').textContent = 'Vinculado';
+        document.getElementById('discordLinkedInfo').style.display = 'flex';
         document.getElementById('discordLinkedUser').textContent = profile.discord_username;
-        if (profile.discord_linked_at) {
-            document.getElementById('discordLinkedDate').textContent = new Date(profile.discord_linked_at).toLocaleDateString();
+        if (profile.discord_avatar) {
+            document.getElementById('discordAvatarImg').src = profile.discord_avatar;
         }
+        if (profile.discord_linked_at) {
+            document.getElementById('discordLinkedDate').textContent = 'Vinculado el ' + new Date(profile.discord_linked_at).toLocaleDateString();
+        }
+        document.getElementById('connectDiscord').innerHTML = '<i class="fab fa-discord"></i> Revincular Discord';
     }
     
-    document.getElementById('languageSelect').value = localStorage.getItem('yxLang') || 'es';
-    document.getElementById('currencySelect').value = localStorage.getItem('yxCurrency') || 'USD';
+    // Roblox info
+    if (profile.roblox) {
+        document.getElementById('robloxStatusText').textContent = 'Vinculado';
+        document.getElementById('robloxLinkedInfo').style.display = 'flex';
+        document.getElementById('robloxLinkedUser').textContent = profile.roblox;
+        document.getElementById('editRoblox').value = profile.roblox;
+        if (profile.roblox_id) {
+            fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + profile.roblox_id + '&size=48x48&format=Png')
+                .then(function(r) { return r.json(); })
+                .then(function(d) { if (d.data && d.data[0]) document.getElementById('robloxAvatarImg').src = d.data[0].imageUrl; })
+                .catch(function() {});
+        }
+        document.getElementById('connectRoblox').innerHTML = '<span class="material-icons">sync</span> Revincular Roblox';
+    }
     
     // Badge
     var { count } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
@@ -107,34 +127,54 @@ function setupNavigation() {
 }
 
 function setupEvents() {
+    // Avatar
     document.getElementById('avatarUpload').addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) { tempAvatar = ev.target.result; document.getElementById('profileAvatar').src = tempAvatar; document.getElementById('userAvatarTop').src = tempAvatar; };
+        reader.onload = function(ev) {
+            tempAvatar = ev.target.result;
+            document.getElementById('profileAvatar').src = tempAvatar;
+            document.getElementById('userAvatarTop').src = tempAvatar;
+        };
         reader.readAsDataURL(file);
     });
 
+    // Banner
     document.getElementById('bannerUpload').addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) { tempBanner = ev.target.result; document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')'; };
+        reader.onload = function(ev) {
+            tempBanner = ev.target.result;
+            document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')';
+        };
         reader.readAsDataURL(file);
     });
 
+    // Guardar perfil
     document.getElementById('savePersonal').addEventListener('click', async function() {
-        var data = { id: currentUser.id, full_name: document.getElementById('editName').value.trim(), nickname: document.getElementById('editNickname').value.trim(), username: document.getElementById('editUsername').value.trim(), bio: document.getElementById('editBio').value.trim(), roblox: document.getElementById('editRoblox').value.trim(), updated_at: new Date().toISOString() };
+        var data = {
+            id: currentUser.id,
+            full_name: document.getElementById('editName').value.trim(),
+            nickname: document.getElementById('editNickname').value.trim(),
+            bio: document.getElementById('editBio').value.trim(),
+            updated_at: new Date().toISOString()
+        };
         if (tempAvatar) data.avatar_url = tempAvatar;
         if (tempBanner) data.banner_url = tempBanner;
+        
         var { error } = await supabase.from('profiles').upsert(data);
         if (error) { showNotification('Error', error.message, 'error'); return; }
+        
         tempAvatar = null; tempBanner = null;
         document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
         document.getElementById('userNameDisplay').textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
         showNotification('Perfil actualizado', 'Guardado correctamente', 'success');
     });
 
+    // Cambiar contraseña
     document.getElementById('changePasswordBtn').addEventListener('click', async function() {
-        var p1 = document.getElementById('newPassword').value, p2 = document.getElementById('confirmNewPassword').value;
+        var p1 = document.getElementById('newPassword').value;
+        var p2 = document.getElementById('confirmNewPassword').value;
         if (!p1 || !p2) { showNotification('Error', 'Completa los campos', 'error'); return; }
         if (p1 !== p2) { showNotification('Error', 'No coinciden', 'error'); return; }
         if (p1.length < 3) { showNotification('Error', 'Mínimo 3 caracteres', 'error'); return; }
@@ -143,6 +183,7 @@ function setupEvents() {
         else { showNotification('Contraseña actualizada', '', 'success'); document.getElementById('newPassword').value = ''; document.getElementById('confirmNewPassword').value = ''; }
     });
 
+    // Cambiar email
     document.getElementById('changeEmailBtn').addEventListener('click', async function() {
         var email = document.getElementById('newEmail').value.trim();
         if (!email) { showNotification('Error', 'Ingresa un correo', 'error'); return; }
@@ -151,6 +192,7 @@ function setupEvents() {
         else { showNotification('Solicitud enviada', 'Revisa tu correo', 'success'); }
     });
 
+    // Toggle password
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
@@ -159,13 +201,47 @@ function setupEvents() {
         });
     });
 
+    // Vincular Discord
     document.getElementById('connectDiscord').addEventListener('click', async function() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
 
-    document.getElementById('languageSelect').addEventListener('change', function() { localStorage.setItem('yxLang', this.value); });
-    document.getElementById('currencySelect').addEventListener('change', function() { localStorage.setItem('yxCurrency', this.value); });
+    // Vincular Roblox
+    document.getElementById('connectRoblox').addEventListener('click', async function() {
+        var robloxUser = document.getElementById('editRoblox').value.trim();
+        if (!robloxUser) { showNotification('Error', 'Ingresa tu username de Roblox', 'error'); return; }
+        
+        try {
+            var response = await fetch('https://users.roblox.com/v1/users/search?keyword=' + encodeURIComponent(robloxUser) + '&limit=1');
+            var data = await response.json();
+            if (data.data && data.data.length > 0) {
+                var robloxId = data.data[0].userId;
+                var displayName = data.data[0].name;
+                
+                await supabase.from('profiles').upsert({ id: currentUser.id, roblox: displayName, roblox_id: robloxId, updated_at: new Date().toISOString() });
+                
+                document.getElementById('robloxStatusText').textContent = 'Vinculado';
+                document.getElementById('robloxLinkedInfo').style.display = 'flex';
+                document.getElementById('robloxLinkedUser').textContent = displayName;
+                document.getElementById('editRoblox').value = displayName;
+                
+                var avatarResponse = await fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + robloxId + '&size=48x48&format=Png');
+                var avatarData = await avatarResponse.json();
+                if (avatarData.data && avatarData.data[0]) {
+                    document.getElementById('robloxAvatarImg').src = avatarData.data[0].imageUrl;
+                }
+                
+                document.getElementById('connectRoblox').innerHTML = '<span class="material-icons">sync</span> Revincular Roblox';
+                showNotification('Roblox vinculado', 'Cuenta vinculada correctamente', 'success');
+            } else {
+                showNotification('Error', 'Usuario de Roblox no encontrado', 'error');
+            }
+        } catch (e) {
+            showNotification('Error', 'No se pudo conectar con Roblox', 'error');
+        }
+    });
 
+    // Tema
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
         dot.addEventListener('click', function() {
             document.documentElement.setAttribute('data-theme', this.dataset.accent);
@@ -175,15 +251,23 @@ function setupEvents() {
         });
     });
 
+    // Eliminar cuenta
     document.getElementById('deleteAccountBtn').addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'flex'; });
     document.getElementById('cancelDelete').addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'none'; document.getElementById('deleteConfirmInput').value = ''; });
     document.getElementById('deleteConfirmInput').addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
     document.getElementById('confirmDelete').addEventListener('click', async function() {
         await supabase.from('profiles').delete().eq('id', currentUser.id);
-        await supabase.auth.signOut(); localStorage.clear(); window.location.href = BASE_URL + '/index.html';
+        await supabase.auth.signOut();
+        localStorage.clear();
+        window.location.href = BASE_URL + '/index.html';
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async function(e) {
+        e.preventDefault();
+        await supabase.auth.signOut();
+        window.location.href = BASE_URL + '/index.html';
+    });
 }
 
 function updateCartBadge() {
