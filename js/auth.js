@@ -113,25 +113,6 @@ supabase.auth.onAuthStateChange(async function(event, session) {
                 });
                 console.log('Discord guardado');
             }
-            
-            if (provider === 'spotify') {
-                console.log('Guardando Spotify...');
-                var spotifyName = idData.full_name || idData.name || 'Usuario Spotify';
-                var spotifyEmail = idData.email || user.email || '';
-                var spotifyAvatar = idData.avatar_url || idData.picture || '';
-                
-                await supabase.from('profiles').upsert({
-                    id: user.id,
-                    spotify_id: idData.provider_id || identity.id || user.id,
-                    spotify_name: spotifyName,
-                    spotify_avatar: spotifyAvatar,
-                    spotify_email: spotifyEmail,
-                    spotify_linked_at: new Date().toISOString(),
-                    avatar_url: spotifyAvatar || idData.avatar_url,
-                    updated_at: new Date().toISOString()
-                });
-                console.log('Spotify guardado:', spotifyName);
-            }
         });
     }
 });
