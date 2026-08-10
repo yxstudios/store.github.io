@@ -140,22 +140,18 @@ function setupEvents() {
         showNotification('Perfil actualizado', 'Tus datos han sido guardados correctamente', 'success');
     });
 
-    // Cambiar contraseña CON NOTIFICACIÓN
+    // Cambiar contraseña
     document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
-        var p1 = getValue('newPassword');
-        var p2 = getValue('confirmNewPassword');
+        var p1 = getValue('newPassword'); var p2 = getValue('confirmNewPassword');
         if (!p1 || !p2) { showNotification('Error', 'Completa todos los campos', 'error'); return; }
         if (p1 !== p2) { showNotification('Error', 'Las contraseñas no coinciden', 'error'); return; }
         if (p1.length < 3) { showNotification('Error', 'Mínimo 3 caracteres', 'error'); return; }
         var { error } = await supabase.auth.updateUser({ password: p1 });
         if (error) { showNotification('Error', error.message, 'error'); }
-        else {
-            showNotification('Contraseña actualizada', 'Se ha enviado un correo de confirmación', 'success');
-            setValue('newPassword', ''); setValue('confirmNewPassword', '');
-        }
+        else { showNotification('Contraseña actualizada', 'Se ha enviado un correo de confirmación', 'success'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
     });
 
-    // Cambiar email CON NOTIFICACIÓN
+    // Cambiar email
     document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
         var email = getValue('newEmail');
         if (!email) { showNotification('Error', 'Ingresa un correo electrónico', 'error'); return; }
@@ -164,43 +160,39 @@ function setupEvents() {
         else { showNotification('Solicitud enviada', 'Revisa tu nuevo correo para confirmar el cambio', 'success'); }
     });
 
-    // Toggle password con blur
+    // Toggle password
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
             if (target) {
-                if (target.type === 'password') {
-                    target.type = 'text';
-                    this.querySelector('.material-icons').textContent = 'visibility';
-                } else {
-                    target.type = 'password';
-                    this.querySelector('.material-icons').textContent = 'visibility_off';
-                }
+                if (target.type === 'password') { target.type = 'text'; this.querySelector('.material-icons').textContent = 'visibility'; }
+                else { target.type = 'password'; this.querySelector('.material-icons').textContent = 'visibility_off'; }
             }
         });
     });
 
-    // Discord
-// Vincular Discord (sin cambiar de cuenta)
-document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
-    try {
-        // Usar linkIdentity para vincular sin cerrar sesión
-        var { error } = await supabase.auth.linkIdentity({ provider: 'discord' });
-        if (error) {
-            // Si linkIdentity no funciona, usar signInWithOAuth
-            await supabase.auth.signInWithOAuth({
-                provider: 'discord',
-                options: { redirectTo: BASE_URL + '/profile.html' }
-            });
-        } else {
-            showNotification('Discord vinculado', 'Tu cuenta de Discord ha sido vinculada correctamente', 'success');
-            // Recargar perfil
-            setTimeout(function() { location.reload(); }, 1500);
+    // Vincular Discord (como adorno, sin cambiar cuenta)
+    document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
+        try {
+            console.log('Vincular Discord...');
+            var { data, error } = await supabase.auth.linkIdentity({ provider: 'discord' });
+            
+            if (error) {
+                console.log('linkIdentity falló, usando OAuth...');
+                var { error: oauthError } = await supabase.auth.signInWithOAuth({
+                    provider: 'discord',
+                    options: { redirectTo: BASE_URL + '/profile.html' }
+                });
+                if (oauthError) { showNotification('Error', oauthError.message, 'error'); }
+            } else {
+                showNotification('Discord vinculado', 'Tu cuenta de Discord ha sido vinculada. Recargando...', 'success');
+                setTimeout(function() { location.reload(); }, 1500);
+            }
+        } catch (e) {
+            console.error('Error:', e);
+            showNotification('Error', 'No se pudo vincular Discord', 'error');
         }
-    } catch (e) {
-        console.error('Error:', e);
-    }
-});
+    });
 
     // Tema
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
@@ -217,9 +209,7 @@ document.getElementById('connectDiscordBtn')?.addEventListener('click', async fu
     document.getElementById('logoutBtn')?.addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
 }
 
-// ============================================
-// NOTIFICACIÓN MODERNA
-// ============================================
+// Notificación
 function showNotification(title, message, type) {
     var existing = document.querySelector('.notify-toast'); if (existing) existing.remove();
     var icons = { success: 'check_circle', error: 'error', info: 'info' };
