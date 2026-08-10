@@ -10,6 +10,9 @@ var currentUser = null;
 var tempAvatar = null;
 var tempBanner = null;
 
+// ============================================
+// INICIAR
+// ============================================
 async function init() {
     console.log('Profile init...');
     var { data: { session } } = await supabase.auth.getSession();
@@ -26,6 +29,9 @@ async function init() {
     console.log('Profile listo');
 }
 
+// ============================================
+// CARGAR PERFIL
+// ============================================
 async function loadProfile() {
     var { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!profile) { await supabase.from('profiles').insert({ id: currentUser.id }); profile = {}; }
@@ -65,7 +71,7 @@ async function loadProfile() {
         document.getElementById('connectDiscordBtn').innerHTML = '<i class="fab fa-discord"></i> Revincular';
     }
     
-    // Roblox - Cargar info completa
+    // Roblox
     if (profile.roblox_id) {
         await loadRobloxInfo(profile.roblox_id, profile.roblox);
     }
@@ -82,71 +88,67 @@ async function loadProfile() {
 }
 
 // ============================================
-// CARGAR INFORMACIÓN COMPLETA DE ROBLOX
+// CARGAR INFO COMPLETA DE ROBLOX
 // ============================================
 async function loadRobloxInfo(robloxId, username) {
     console.log('Cargando info de Roblox ID:', robloxId);
     
-    // Mostrar sección de vinculado
     setText('robloxStatusText', 'Vinculado como ' + (username || robloxId));
     showEl('robloxLinkedInfo');
-    setText('robloxLinkedUser', username || robloxId);
+    setText('robloxLinkedUser', username || 'Usuario #' + robloxId);
     setValue('editRobloxConn', username || '');
     document.getElementById('connectRobloxBtn').innerHTML = '<span class="material-icons">sync</span> Revincular';
     
     // Avatar
     try {
-        var avatarRes = await fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + robloxId + '&size=150x150&format=Png&isCircular=true');
-        var avatarData = await avatarRes.json();
-        if (avatarData.data && avatarData.data[0]) {
-            document.getElementById('robloxAvatarImg').src = avatarData.data[0].imageUrl;
-        }
-    } catch (e) { console.log('Error avatar Roblox:', e); }
-    
-    // Información del perfil
-    try {
-        var profileRes = await fetch('https://users.roblox.com/v1/users/' + robloxId);
-        var profileData = await profileRes.json();
-        
-        if (profileData.name) {
-            setText('robloxLinkedUser', profileData.name + ' (@' + profileData.name + ')');
-            setText('robloxDisplayName', profileData.displayName || profileData.name);
-            setText('robloxDescription', profileData.description || 'Sin descripción');
-            
-            // Fecha de creación
-            if (profileData.created) {
-                var createdDate = new Date(profileData.created);
-                setText('robloxCreated', createdDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }));
+        var avatarUrl = 'https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + robloxId + '&size=150x150&format=Png&isCircular=true';
+        var avatarRes = await fetch(avatarUrl);
+        if (avatarRes.ok) {
+            var avatarData = await avatarRes.json();
+            if (avatarData.data && avatarData.data[0] && avatarData.data[0].imageUrl) {
+                document.getElementById('robloxAvatarImg').src = avatarData.data[0].imageUrl;
             }
         }
-    } catch (e) { console.log('Error perfil Roblox:', e); }
+    } catch (e) { console.log('Error avatar:', e); }
     
-    // Contar amigos/seguidores
+    // Perfil
     try {
-        var friendsRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/friends/count');
-        var friendsData = await friendsRes.json();
-        if (friendsData.count !== undefined) {
-            setText('robloxFriends', friendsData.count.toLocaleString());
+        var profileRes = await fetch('https://users.roblox.com/v1/users/' + robloxId);
+        if (profileRes.ok) {
+            var profileData = await profileRes.json();
+            if (profileData.name) {
+                setText('robloxLinkedUser', profileData.name);
+                if (profileData.displayName && profileData.displayName !== profileData.name) {
+                    setText('robloxDisplayName', '@' + profileData.name);
+                }
+                if (profileData.created) {
+                    var d = new Date(profileData.created);
+                    setText('robloxCreated', d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }));
+                }
+            }
         }
-    } catch (e) { console.log('Error friends:', e); }
+    } catch (e) { console.log('Error perfil:', e); }
     
-    try {
-        var followersRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/followers/count');
-        var followersData = await followersRes.json();
-        if (followersData.count !== undefined) {
-            setText('robloxFollowers', followersData.count.toLocaleString());
-        }
-    } catch (e) { console.log('Error followers:', e); }
+    // Stats
+    var statsToLoad = [
+        { url: 'https://friends.roblox.com/v1/users/' + robloxId + '/friends/count', id: 'robloxFriends' },
+        { url: 'https://friends.roblox.com/v1/users/' + robloxId + '/followers/count', id: 'robloxFollowers' },
+        { url: 'https://friends.roblox.com/v1/users/' + robloxId + '/followings/count', id: 'robloxFollowing' }
+    ];
     
-    try {
-        var followingRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/followings/count');
-        var followingData = await followingRes.json();
-        if (followingData.count !== undefined) {
-            setText('robloxFollowing', followingData.count.toLocaleString());
-        }
-    } catch (e) { console.log('Error following:', e); }
+    for (var i = 0; i < statsToLoad.length; i++) {
+        try {
+            var res = await fetch(statsToLoad[i].url);
+            if (res.ok) {
+                var data = await res.json();
+                if (data.count !== undefined) {
+                    setText(statsToLoad[i].id, data.count.toLocaleString());
+                }
+            }
+        } catch (e) { console.log('Error stats:', e); }
+    }
     
-    // Link al perfil
+    // Link
     var profileLink = document.getElementById('robloxProfileLink');
     if (profileLink) {
         profileLink.href = 'https://www.roblox.com/users/' + robloxId + '/profile';
@@ -154,6 +156,9 @@ async function loadRobloxInfo(robloxId, username) {
     }
 }
 
+// ============================================
+// COMPRAS Y FACTURAS
+// ============================================
 async function loadPurchases() {
     var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     var tbody = document.getElementById('purchasesTableBody');
@@ -175,6 +180,9 @@ async function loadInvoices() {
     }).join('');
 }
 
+// ============================================
+// NAVEGACIÓN
+// ============================================
 function setupNavigation() {
     var links = document.querySelectorAll('.profile-menu-link');
     var sections = document.querySelectorAll('.profile-section-block');
@@ -191,33 +199,55 @@ function setupNavigation() {
     });
 }
 
+// ============================================
+// EVENTOS
+// ============================================
 function setupEvents() {
+    // Avatar upload
     document.getElementById('avatarUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) { tempAvatar = ev.target.result; document.getElementById('profileAvatar').src = tempAvatar; var ta = document.getElementById('userAvatarTop'); if (ta) ta.src = tempAvatar; };
+        reader.onload = function(ev) {
+            tempAvatar = ev.target.result;
+            document.getElementById('profileAvatar').src = tempAvatar;
+            var ta = document.getElementById('userAvatarTop'); if (ta) ta.src = tempAvatar;
+        };
         reader.readAsDataURL(file);
     });
 
+    // Banner upload
     document.getElementById('bannerUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
-        reader.onload = function(ev) { tempBanner = ev.target.result; document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')'; };
+        reader.onload = function(ev) {
+            tempBanner = ev.target.result;
+            document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')';
+        };
         reader.readAsDataURL(file);
     });
 
+    // Guardar perfil
     document.getElementById('savePersonal')?.addEventListener('click', async function() {
-        var data = { id: currentUser.id, full_name: getValue('editName'), nickname: getValue('editNickname'), bio: getValue('editBio'), updated_at: new Date().toISOString() };
+        var data = {
+            id: currentUser.id,
+            full_name: getValue('editName'),
+            nickname: getValue('editNickname'),
+            bio: getValue('editBio'),
+            updated_at: new Date().toISOString()
+        };
         if (tempAvatar) data.avatar_url = tempAvatar;
         if (tempBanner) data.banner_url = tempBanner;
+        
         var { error } = await supabase.from('profiles').upsert(data);
         if (error) { alert('Error: ' + error.message); return; }
+        
         tempAvatar = null; tempBanner = null;
         document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
         var tn = document.getElementById('userNameDisplay'); if (tn) tn.textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
         alert('Perfil actualizado correctamente');
     });
 
+    // Cambiar contraseña
     document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
         var p1 = getValue('newPassword'), p2 = getValue('confirmNewPassword');
         if (!p1 || !p2) { alert('Completa los campos'); return; }
@@ -227,6 +257,7 @@ function setupEvents() {
         if (error) { alert('Error: ' + error.message); } else { alert('Contraseña actualizada'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
     });
 
+    // Cambiar email
     document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
         var email = getValue('newEmail');
         if (!email) { alert('Ingresa un correo'); return; }
@@ -234,53 +265,79 @@ function setupEvents() {
         if (error) { alert('Error: ' + error.message); } else { alert('Solicitud enviada. Revisa tu correo.'); }
     });
 
+    // Toggle password
+    document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var target = document.getElementById(this.dataset.target);
+            if (target) {
+                if (target.type === 'password') { target.type = 'text'; this.querySelector('.material-icons').textContent = 'visibility'; }
+                else { target.type = 'password'; this.querySelector('.material-icons').textContent = 'visibility_off'; }
+            }
+        });
+    });
+
+    // Discord
     document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
 
-    // Vincular Roblox por ID
+    // Roblox
     document.getElementById('connectRobloxBtn')?.addEventListener('click', async function() {
         var input = getValue('editRobloxConn');
         if (!input) { alert('Ingresa tu username o ID de Roblox'); return; }
         
+        var robloxId = null;
+        var displayName = null;
+        
         try {
-            var robloxId, displayName;
-            
-            // Si es un número, es un ID
             if (/^\d+$/.test(input)) {
-                robloxId = input;
+                robloxId = parseInt(input);
                 var userRes = await fetch('https://users.roblox.com/v1/users/' + robloxId);
+                if (!userRes.ok) throw new Error('Usuario no encontrado');
                 var userData = await userRes.json();
-                if (userData.name) displayName = userData.name;
+                if (userData.name) { displayName = userData.name; }
                 else { alert('ID de Roblox no encontrado'); return; }
             } else {
-                // Buscar por username
                 var searchRes = await fetch('https://users.roblox.com/v1/usernames/users', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({ usernames: [input] })
                 });
+                if (!searchRes.ok) throw new Error('Error en búsqueda');
                 var searchData = await searchRes.json();
-                if (searchData.data && searchData.data.length > 0) {
+                if (searchData.data && searchData.data.length > 0 && searchData.data[0].name) {
                     robloxId = searchData.data[0].id;
                     displayName = searchData.data[0].name;
-                } else { alert('Usuario de Roblox no encontrado'); return; }
+                } else { alert('Usuario no encontrado'); return; }
             }
             
-            // Guardar en Supabase
-            await supabase.from('profiles').upsert({
+            console.log('Roblox vinculado - ID:', robloxId, 'Nombre:', displayName);
+            
+            var { error } = await supabase.from('profiles').upsert({
                 id: currentUser.id, roblox: displayName, roblox_id: robloxId, updated_at: new Date().toISOString()
             });
+            if (error) { alert('Error al guardar'); return; }
             
-            // Cargar info completa
             await loadRobloxInfo(robloxId, displayName);
-            alert('Roblox vinculado correctamente!');
+            alert('¡Roblox vinculado correctamente!');
             
         } catch (e) {
             console.error('Error:', e);
-            alert('Error al conectar con Roblox');
+            alert('Error al conectar con Roblox: ' + e.message);
         }
     });
 
+    // Theme dots
+    document.querySelectorAll('.theme-dot').forEach(function(dot) {
+        dot.addEventListener('click', function() {
+            document.documentElement.setAttribute('data-theme', this.dataset.accent);
+            localStorage.setItem('yx-theme', this.dataset.accent);
+            document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); });
+            this.classList.add('active');
+        });
+    });
+
+    // Eliminar cuenta
     document.getElementById('deleteAccountBtn')?.addEventListener('click', function() {
         var modal = document.getElementById('deleteModal'); if (modal) modal.style.display = 'flex';
     });
@@ -296,29 +353,9 @@ function setupEvents() {
         window.location.href = BASE_URL + '/index.html';
     });
 
+    // Logout
     document.getElementById('logoutBtn')?.addEventListener('click', async function(e) {
         e.preventDefault(); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html';
-    });
-    
-    // Toggle password
-    document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var target = document.getElementById(this.dataset.target);
-            if (target) {
-                if (target.type === 'password') { target.type = 'text'; this.querySelector('.material-icons').textContent = 'visibility'; }
-                else { target.type = 'password'; this.querySelector('.material-icons').textContent = 'visibility_off'; }
-            }
-        });
-    });
-    
-    // Theme dots
-    document.querySelectorAll('.theme-dot').forEach(function(dot) {
-        dot.addEventListener('click', function() {
-            document.documentElement.setAttribute('data-theme', this.dataset.accent);
-            localStorage.setItem('yx-theme', this.dataset.accent);
-            document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); });
-            this.classList.add('active');
-        });
     });
 }
 
@@ -336,4 +373,7 @@ function updateCartBadge() {
     if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
 }
 
+// ============================================
+// INICIAR
+// ============================================
 init();
