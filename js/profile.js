@@ -11,19 +11,15 @@ var tempAvatar = null;
 var tempBanner = null;
 
 async function init() {
-    console.log('Profile init...');
     var { data: { session } } = await supabase.auth.getSession();
     if (!session) { window.location.href = BASE_URL + '/login.html'; return; }
     currentUser = session.user;
-    console.log('Usuario:', currentUser.email);
-    
     await loadProfile();
     loadPurchases();
     loadInvoices();
     setupNavigation();
     setupEvents();
     updateCartBadge();
-    console.log('Profile listo');
 }
 
 async function loadProfile() {
@@ -63,7 +59,7 @@ async function loadProfile() {
     
     // Roblox
     if (profile.roblox_id) {
-        loadRobloxInfo(profile.roblox_id);
+        await loadRobloxInfo(profile.roblox_id, profile.roblox);
     }
     
     var { count } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
@@ -76,54 +72,43 @@ async function loadProfile() {
     }
 }
 
-async function loadRobloxInfo(robloxId) {
-    setText('robloxStatusText', 'Vinculado (ID: ' + robloxId + ')');
+async function loadRobloxInfo(robloxId, username) {
+    setText('robloxStatusText', 'Vinculado como ' + (username || robloxId));
     showEl('robloxLinkedInfo');
-    setText('robloxLinkedUser', 'Usuario #' + robloxId);
-    setValue('editRobloxConn', robloxId.toString());
+    setText('robloxLinkedUser', username || 'Usuario #' + robloxId);
     document.getElementById('connectRobloxBtn').innerHTML = '<span class="material-icons">sync</span> Revincular';
     
-    // Avatar de Roblox
-    try {
-        var avatarRes = await fetch('https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=' + robloxId + '&size=150x150&format=Png&isCircular=true');
-        if (avatarRes.ok) {
-            var avatarData = await avatarRes.json();
-            if (avatarData.data && avatarData.data[0] && avatarData.data[0].imageUrl) {
-                document.getElementById('robloxAvatarImg').src = avatarData.data[0].imageUrl;
-            }
-        }
-    } catch (e) { console.log('Error avatar Roblox:', e); }
+    var { data: profile } = await supabase.from('profiles').select('roblox_avatar').eq('id', currentUser.id).single();
+    if (profile && profile.roblox_avatar) {
+        document.getElementById('robloxAvatarImg').src = profile.roblox_avatar;
+    }
     
-    // Intentar obtener username
-    try {
-        var userRes = await fetch('https://users.roblox.com/v1/users/' + robloxId);
-        if (userRes.ok) {
-            var userData = await userRes.json();
-            if (userData.name) {
-                setText('robloxLinkedUser', userData.name + ' (@' + userData.name + ')');
-                setText('robloxStatusText', 'Vinculado como ' + userData.name);
-                setText('robloxDisplayName', userData.displayName || '');
-                if (userData.created) {
-                    var d = new Date(userData.created);
-                    setText('robloxCreated', d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }));
-                }
-                if (userData.description) {
-                    setText('robloxDescription', userData.description);
+    if (robloxId) {
+        try {
+            var userRes = await fetch('https://users.roblox.com/v1/users/' + robloxId);
+            if (userRes.ok) {
+                var userData = await userRes.json();
+                if (userData.name) {
+                    setText('robloxLinkedUser', userData.name + ' (@' + userData.name + ')');
+                    setText('robloxStatusText', 'Vinculado como ' + userData.name);
+                    setText('robloxDisplayName', userData.displayName || '');
+                    if (userData.created) {
+                        var d = new Date(userData.created);
+                        setText('robloxCreated', d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }));
+                    }
                 }
             }
+        } catch (e) {}
+        
+        try { var fr = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/friends/count'); if (fr.ok) { var fd = await fr.json(); setText('robloxFriends', fd.count.toLocaleString()); } } catch (e) {}
+        try { var forRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/followers/count'); if (forRes.ok) { var forData = await forRes.json(); setText('robloxFollowers', forData.count.toLocaleString()); } } catch (e) {}
+        try { var fngRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/followings/count'); if (fngRes.ok) { var fngData = await fngRes.json(); setText('robloxFollowing', fngData.count.toLocaleString()); } } catch (e) {}
+        
+        var profileLink = document.getElementById('robloxProfileLink');
+        if (profileLink) {
+            profileLink.href = 'https://www.roblox.com/users/' + robloxId + '/profile';
+            profileLink.style.display = 'inline-flex';
         }
-    } catch (e) { console.log('Error username Roblox:', e); }
-    
-    // Intentar stats
-    try { var fr = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/friends/count'); if (fr.ok) { var fd = await fr.json(); if (fd.count !== undefined) setText('robloxFriends', fd.count.toLocaleString()); } } catch (e) {}
-    try { var forRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/followers/count'); if (forRes.ok) { var forData = await forRes.json(); if (forData.count !== undefined) setText('robloxFollowers', forData.count.toLocaleString()); } } catch (e) {}
-    try { var fngRes = await fetch('https://friends.roblox.com/v1/users/' + robloxId + '/followings/count'); if (fngRes.ok) { var fngData = await fngRes.json(); if (fngData.count !== undefined) setText('robloxFollowing', fngData.count.toLocaleString()); } } catch (e) {}
-    
-    // Link al perfil
-    var profileLink = document.getElementById('robloxProfileLink');
-    if (profileLink) {
-        profileLink.href = 'https://www.roblox.com/users/' + robloxId + '/profile';
-        profileLink.style.display = 'inline-flex';
     }
 }
 
@@ -218,21 +203,15 @@ function setupEvents() {
         await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
     });
 
-    // VINCULAR ROBLOX (SOLO ID)
+    // Roblox OAuth
     document.getElementById('connectRobloxBtn')?.addEventListener('click', async function() {
-        var input = getValue('editRobloxConn');
-        if (!input) { alert('Ingresa tu ID de Roblox. Lo encuentras en la URL de tu perfil:\nroblox.com/users/TU-ID/profile'); return; }
-        if (!/^\d+$/.test(input)) { alert('Solo se acepta el ID numérico.\nEjemplo: 156 (es el ID de Roblox)\nEncuéntralo en: roblox.com/users/TU-ID/profile'); return; }
-        
-        var robloxId = parseInt(input);
-        
-        var { error } = await supabase.from('profiles').upsert({
-            id: currentUser.id, roblox: 'Usuario #' + robloxId, roblox_id: robloxId, updated_at: new Date().toISOString()
-        });
-        if (error) { alert('Error al guardar'); return; }
-        
-        await loadRobloxInfo(robloxId);
-        alert('¡Roblox vinculado correctamente!');
+        try {
+            var { error } = await supabase.auth.signInWithOAuth({
+                provider: 'roblox',
+                options: { redirectTo: BASE_URL + '/profile.html' }
+            });
+            if (error) { alert('Error al conectar con Roblox: ' + error.message); }
+        } catch (e) { alert('Error al conectar con Roblox'); }
     });
 
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
