@@ -14,9 +14,7 @@ async function init() {
     var { data: { session } } = await supabase.auth.getSession();
     if (!session) { window.location.href = BASE_URL + '/login.html'; return; }
     currentUser = session.user;
-    await supabase.auth.refreshSession();
     await new Promise(function(resolve) { setTimeout(resolve, 500); });
-    console.log('Usuario:', currentUser.email);
     await loadProfile();
     loadPurchases();
     loadInvoices();
@@ -43,16 +41,6 @@ async function loadProfile() {
     setValue('editNickname', profile.nickname || '');
     setValue('editUsername', profile.username || '');
     setValue('editBio', profile.bio || '');
-
-    // Discord - Solo mostrar, no cambiar nada del perfil
-    if (profile.discord_username) {
-        setText('discordStatusText', 'Vinculado');
-        showEl('discordLinkedInfo');
-        setText('discordLinkedUser', profile.discord_username);
-        if (profile.discord_avatar) document.getElementById('discordAvatarImg').src = profile.discord_avatar;
-        if (profile.discord_linked_at) setText('discordLinkedDate', 'Vinculado el ' + new Date(profile.discord_linked_at).toLocaleDateString());
-        document.getElementById('connectDiscordBtn').innerHTML = '<i class="fab fa-discord"></i> Revincular';
-    }
 
     var { count } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
     var badge = document.getElementById('profileBadge');
@@ -112,72 +100,46 @@ function setupEvents() {
         tempAvatar = null; tempBanner = null;
         document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
         var tn = document.getElementById('userNameDisplay'); if (tn) tn.textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
-        showNotification('Perfil actualizado', 'Tus datos han sido guardados correctamente', 'success');
+        showNotification('Perfil actualizado', 'Guardado correctamente', 'success');
     });
 
     document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
         var p1 = getValue('newPassword'); var p2 = getValue('confirmNewPassword');
-        if (!p1 || !p2) { showNotification('Error', 'Completa todos los campos', 'error'); return; }
-        if (p1 !== p2) { showNotification('Error', 'Las contraseñas no coinciden', 'error'); return; }
+        if (!p1 || !p2) { showNotification('Error', 'Completa los campos', 'error'); return; }
+        if (p1 !== p2) { showNotification('Error', 'No coinciden', 'error'); return; }
         if (p1.length < 3) { showNotification('Error', 'Mínimo 3 caracteres', 'error'); return; }
         var { error } = await supabase.auth.updateUser({ password: p1 });
         if (error) { showNotification('Error', error.message, 'error'); }
-        else { showNotification('Contraseña actualizada', 'Se ha enviado un correo de confirmación', 'success'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
+        else { showNotification('Contraseña actualizada', 'Correo de confirmación enviado', 'success'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
     });
 
     document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
         var email = getValue('newEmail');
-        if (!email) { showNotification('Error', 'Ingresa un correo electrónico', 'error'); return; }
+        if (!email) { showNotification('Error', 'Ingresa un correo', 'error'); return; }
         var { error } = await supabase.auth.updateUser({ email: email });
         if (error) { showNotification('Error', error.message, 'error'); }
-        else { showNotification('Solicitud enviada', 'Revisa tu nuevo correo para confirmar el cambio', 'success'); }
+        else { showNotification('Solicitud enviada', 'Revisa tu correo para confirmar', 'success'); }
     });
 
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
             if (target) {
-                if (target.type === 'password') { target.type = 'text'; this.querySelector('.material-icons').textContent = 'visibility'; }
-                else { target.type = 'password'; this.querySelector('.material-icons').textContent = 'visibility_off'; }
+                target.type = target.type === 'password' ? 'text' : 'password';
+                this.querySelector('.material-icons').textContent = target.type === 'password' ? 'visibility_off' : 'visibility';
             }
         });
     });
 
-    // ============================================
-    // VINCULAR DISCORD - SOLO GUARDA NOMBRE, NO CAMBIA NADA
-    // ============================================
-    document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
-        var discordUser = prompt('Ingresa tu nombre de usuario de Discord (ej: usuario):');
-        if (!discordUser || discordUser.trim() === '') return;
-        
-        // Solo guarda discord_username y discord_linked_at, sin tocar avatar, nombre, ni nada
-        var { error } = await supabase.from('profiles').upsert({
-            id: currentUser.id,
-            discord_username: discordUser.trim(),
-            discord_linked_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        });
-        
-        if (error) {
-            showNotification('Error', error.message, 'error');
-        } else {
-            showNotification('Discord vinculado', 'Recargando...', 'success');
-            setTimeout(function() { location.reload(); }, 1000);
-        }
-    });
-
-    // Tema
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
         dot.addEventListener('click', function() { document.documentElement.setAttribute('data-theme', this.dataset.accent); localStorage.setItem('yx-theme', this.dataset.accent); document.querySelectorAll('.theme-dot').forEach(function(d) { d.classList.remove('active'); }); this.classList.add('active'); });
     });
 
-    // Eliminar cuenta
     document.getElementById('deleteAccountBtn')?.addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'flex'; });
     document.getElementById('cancelDelete')?.addEventListener('click', function() { document.getElementById('deleteModal').style.display = 'none'; setValue('deleteConfirmInput', ''); });
     document.getElementById('deleteConfirmInput')?.addEventListener('input', function() { document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; });
     document.getElementById('confirmDelete')?.addEventListener('click', async function() { await supabase.from('profiles').delete().eq('id', currentUser.id); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
 
-    // Logout
     document.getElementById('logoutBtn')?.addEventListener('click', async function(e) { e.preventDefault(); await supabase.auth.signOut(); window.location.href = BASE_URL + '/index.html'; });
 }
 
