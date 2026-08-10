@@ -27,32 +27,42 @@
 
     <div class="auth-container">
         <div class="auth-card">
-            <a href="index.html" class="back-home"><span class="material-icons">arrow_back</span> <span data-i18n="back_home">Volver al inicio</span></a>
+            <a href="index.html" class="back-home"><span class="material-icons">arrow_back</span> Volver al inicio</a>
             <div class="auth-header">
                 <div class="logo"><span class="material-icons logo-icon">sports_esports</span><h1>YX Studios</h1></div>
-                <p data-i18n="register_title">Crea tu cuenta y comienza a comprar</p>
+                <p>Crea tu cuenta y comienza a comprar</p>
             </div>
+            
             <form id="registerForm" class="auth-form">
                 <div class="form-group">
-                    <label><span class="material-icons">person</span> <span data-i18n="name_label">Nombre completo</span></label>
-                    <div class="input-wrapper"><span class="material-icons input-icon">person</span><input type="text" id="registerName" data-i18n="name_placeholder" placeholder="Tu nombre completo" required></div>
+                    <label><span class="material-icons">person</span> Nombre completo</label>
+                    <div class="input-wrapper"><span class="material-icons input-icon">person</span><input type="text" id="registerName" placeholder="Tu nombre completo" required></div>
                 </div>
                 <div class="form-group">
-                    <label><span class="material-icons">email</span> <span data-i18n="email_label">Correo electrónico</span></label>
-                    <div class="input-wrapper"><span class="material-icons input-icon">email</span><input type="email" id="registerEmail" data-i18n="email_placeholder" placeholder="ejemplo@correo.com" required></div>
+                    <label><span class="material-icons">badge</span> Apodo</label>
+                    <div class="input-wrapper"><span class="material-icons input-icon">badge</span><input type="text" id="registerNickname" placeholder="Tu apodo (3-20 caracteres)" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9]+"></div>
+                    <small style="color:var(--text-muted);font-size:0.7em;">Solo letras y números, sin emojis ni símbolos</small>
                 </div>
                 <div class="form-group">
-                    <label><span class="material-icons">lock</span> <span data-i18n="password_label">Contraseña</span></label>
-                    <div class="input-wrapper"><span class="material-icons input-icon">lock</span><input type="password" id="registerPassword" data-i18n="password_placeholder" placeholder="Mínimo 6 caracteres" required minlength="6"><span class="material-icons toggle-password" data-target="registerPassword">visibility_off</span></div>
+                    <label><span class="material-icons">alternate_email</span> @Usuario</label>
+                    <div class="input-wrapper"><span class="material-icons input-icon">alternate_email</span><input type="text" id="registerUsername" placeholder="@tunombre" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9]+"></div>
+                    <small style="color:var(--text-muted);font-size:0.7em;">Solo letras y números, sin @ ni símbolos</small>
                 </div>
-                <div class="password-strength"><div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div><span class="strength-text" id="strengthText" data-i18n="password_strength">Fortaleza de la contraseña</span></div>
+                <div class="form-group">
+                    <label><span class="material-icons">email</span> Correo electrónico</label>
+                    <div class="input-wrapper"><span class="material-icons input-icon">email</span><input type="email" id="registerEmail" placeholder="ejemplo@correo.com" required></div>
+                </div>
+                <div class="form-group">
+                    <label><span class="material-icons">lock</span> Contraseña</label>
+                    <div class="input-wrapper"><span class="material-icons input-icon">lock</span><input type="password" id="registerPassword" placeholder="3-20 caracteres" required minlength="3" maxlength="20"><span class="material-icons toggle-password" data-target="registerPassword">visibility_off</span></div>
+                </div>
                 <div id="turnstile-container" style="margin-bottom:20px;display:flex;justify-content:center;min-height:65px;"></div>
-                <div class="terms-checkbox"><label><input type="checkbox" id="termsCheck" required> <span data-i18n="accept_terms">Acepto los <a href="#">Términos y Condiciones</a></span></label></div>
-                <button type="submit" class="btn-primary"><span class="material-icons">person_add</span> <span data-i18n="register_btn">Crear Cuenta</span></button>
-                <div class="divider"><span data-i18n="or_continue">o regístrate con</span></div>
-                <button type="button" id="discordRegister" class="btn-discord"><i class="fab fa-discord"></i> <span data-i18n="discord_btn">Continuar con Discord</span></button>
+                <div class="terms-checkbox"><label><input type="checkbox" id="termsCheck" required> Acepto los <a href="#">Términos y Condiciones</a></label></div>
+                <button type="submit" class="btn-primary"><span class="material-icons">person_add</span> Crear Cuenta</button>
+                <div class="divider"><span>o regístrate con</span></div>
+                <button type="button" id="discordRegister" class="btn-discord"><i class="fab fa-discord"></i> Continuar con Discord</button>
             </form>
-            <div class="auth-footer"><p><span data-i18n="have_account">¿Ya tienes una cuenta?</span> <a href="login.html" data-i18n="login_here">Inicia sesión aquí</a></p></div>
+            <div class="auth-footer"><p>¿Ya tienes una cuenta? <a href="login.html">Inicia sesión aquí</a></p></div>
             <div id="authMessage" class="auth-message"></div>
         </div>
     </div>
@@ -76,25 +86,7 @@
         document.querySelectorAll('.toggle-password').forEach(function(btn) {
             btn.addEventListener('click', function() { var t = document.getElementById(this.dataset.target); if (t) { t.type = t.type === 'password' ? 'text' : 'password'; this.textContent = t.type === 'password' ? 'visibility_off' : 'visibility'; } });
         });
-        document.getElementById('registerPassword').addEventListener('input', function() {
-            var p = this.value, f = document.getElementById('strengthFill'), t = document.getElementById('strengthText');
-            if (!f || !t) return; var s = 0;
-            if (p.length >= 6) s++; if (p.length >= 8) s++; if (/[A-Z]/.test(p)) s++; if (/[0-9]/.test(p)) s++;
-            var pcts = ['0%','25%','50%','75%','100%'], colors = ['#ff1744','#ff9100','#ffd600','#76ff03','#00e676'];
-            f.style.width = pcts[s] || '0%'; f.style.background = colors[s] || colors[0];
-        });
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            var name = document.getElementById('registerName').value.trim(), email = document.getElementById('registerEmail').value.trim(), password = document.getElementById('registerPassword').value;
-            var msg = document.getElementById('authMessage');
-            if (!document.getElementById('termsCheck').checked) { msg.textContent = t('accept_terms_error') || 'Debes aceptar los términos.'; msg.className = 'auth-message error'; return; }
-            if (!captchaToken) { msg.textContent = t('captcha_error') || 'Completa la verificación de seguridad.'; msg.className = 'auth-message error'; return; }
-            var { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-            var supabase = createClient('https://qfgofnlvfxcmzexwuzou.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmZ29mbmx2ZnhjbXpleHd1em91Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNjMxNDEsImV4cCI6MjEwMTczOTE0MX0.f-DaLy6effZWpCln1z_Ib2aHBAEs0SGjcqx647PlZCc');
-            var { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: name }, captchaToken } });
-            if (error) { msg.textContent = error.message; msg.className = 'auth-message error'; if (typeof turnstile !== 'undefined') turnstile.reset('#turnstile-container'); captchaToken = null; }
-            else { msg.textContent = t('account_created') || 'Cuenta creada exitosamente.'; msg.className = 'auth-message success'; setTimeout(function() { window.location.href = 'https://yxstore.linkpc.net/index.html'; }, 1000); }
-        });
     </script>
+    <script type="module" src="js/auth.js"></script>
 </body>
 </html>
