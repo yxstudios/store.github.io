@@ -11,10 +11,12 @@ var tempAvatar = null;
 var tempBanner = null;
 
 async function init() {
-    var { data: { session } } = await supabase.auth.getSession();
-    if (!session) { window.location.href = BASE_URL + '/login.html'; return; }
-    currentUser = session.user;
-    await new Promise(function(resolve) { setTimeout(resolve, 500); });
+    var sessionData = await supabase.auth.getSession();
+    if (!sessionData.data.session) {
+        window.location.href = BASE_URL + '/login.html';
+        return;
+    }
+    currentUser = sessionData.data.session.user;
     await loadProfile();
     loadPurchases();
     loadInvoices();
@@ -24,30 +26,39 @@ async function init() {
 }
 
 async function loadProfile() {
-    var { data: profile } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
-    if (!profile) { await supabase.from('profiles').insert({ id: currentUser.id }); profile = {}; }
+    var profileData = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+    var profile = profileData.data || {};
+    if (!profile.id) {
+        await supabase.from('profiles').insert({ id: currentUser.id });
+        profile = { id: currentUser.id };
+    }
 
     document.getElementById('profileName').textContent = profile.nickname || profile.full_name || 'Usuario';
     document.getElementById('profileEmailDisplay').textContent = currentUser.email;
+    
     var topName = document.getElementById('userNameDisplay');
     if (topName) topName.textContent = profile.nickname || profile.full_name || currentUser.email.split('@')[0];
+    
     var tooltipEmail = document.getElementById('tooltipEmail');
     if (tooltipEmail) tooltipEmail.textContent = currentUser.email;
 
-    var avatarUrl = profile.avatar_url || currentUser.user_metadata?.avatar_url || 'https://via.placeholder.com/140';
+    var avatarUrl = profile.avatar_url || 'https://via.placeholder.com/140';
     document.getElementById('profileAvatar').src = avatarUrl;
+    
     var topAvatar = document.getElementById('userAvatarTop');
     if (topAvatar) topAvatar.src = avatarUrl;
+    
     if (profile.banner_url) {
         document.getElementById('profileBanner').style.backgroundImage = 'url(' + profile.banner_url + ')';
     }
 
-    setValue('editName', profile.full_name || '');
-    setValue('editNickname', profile.nickname || '');
-    setValue('editUsername', profile.username || '');
-    setValue('editBio', profile.bio || '');
+    document.getElementById('editName').value = profile.full_name || '';
+    document.getElementById('editNickname').value = profile.nickname || '';
+    document.getElementById('editUsername').value = profile.username || '';
+    document.getElementById('editBio').value = profile.bio || '';
 
-    var { count } = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+    var countData = await supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id);
+    var count = countData.count || 0;
     var badge = document.getElementById('profileBadge');
     if (badge) {
         if (count >= 10) badge.textContent = 'VIP';
@@ -58,10 +69,11 @@ async function loadProfile() {
 }
 
 async function loadPurchases() {
-    var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    var ordersData = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    var orders = ordersData.data || [];
     var tbody = document.getElementById('purchasesTableBody');
-    if (!tbody) return;
-    if (!orders || !orders.length) return;
+    if (!tbody || orders.length === 0) return;
+    
     tbody.innerHTML = orders.map(function(o) {
         var items = o.items ? o.items.map(function(i) { return i.name; }).join(', ') : 'Productos';
         return '<tr><td><strong>#' + o.id + '</strong></td><td>' + new Date(o.created_at).toLocaleDateString() + '</td><td>' + items + '</td><td>$' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</td><td><span class="status-badge status-completed">Completado</span></td></tr>';
@@ -69,95 +81,117 @@ async function loadPurchases() {
 }
 
 async function loadInvoices() {
-    var { data: orders } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    var ordersData = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    var orders = ordersData.data || [];
     var list = document.getElementById('invoicesList');
-    if (!list) return;
-    if (!orders || !orders.length) return;
+    if (!list || orders.length === 0) return;
+    
     list.innerHTML = orders.map(function(o) {
         return '<div class="invoice-card"><div class="invoice-info"><span class="material-icons">receipt</span><div><strong>Factura #' + o.id + '</strong><p>' + new Date(o.created_at).toLocaleDateString() + ' - $' + (o.total ? parseFloat(o.total).toFixed(2) : '0.00') + '</p></div></div></div>';
     }).join('');
 }
 
 function setupNavigation() {
-    document.querySelectorAll('.profile-menu-link').forEach(function(link) {
+    var links = document.querySelectorAll('.profile-menu-link');
+    var sections = document.querySelectorAll('.profile-section-block');
+    
+    links.forEach(function(link) {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            document.querySelectorAll('.profile-menu-link').forEach(function(l) { l.classList.remove('active'); });
+            links.forEach(function(l) { l.classList.remove('active'); });
             this.classList.add('active');
-            document.querySelectorAll('.profile-section-block').forEach(function(s) { s.classList.remove('active'); });
-            var section = document.getElementById(this.getAttribute('data-section') + 'Section');
+            sections.forEach(function(s) { s.classList.remove('active'); });
+            var sectionId = this.getAttribute('data-section') + 'Section';
+            var section = document.getElementById(sectionId);
             if (section) section.classList.add('active');
         });
     });
 }
 
 function setupEvents() {
-    document.getElementById('avatarUpload')?.addEventListener('change', function(e) {
-        var file = e.target.files[0];
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-            tempAvatar = ev.target.result;
-            document.getElementById('profileAvatar').src = tempAvatar;
-            var ta = document.getElementById('userAvatarTop');
-            if (ta) ta.src = tempAvatar;
-        };
-        reader.readAsDataURL(file);
-    });
+    var avatarUpload = document.getElementById('avatarUpload');
+    if (avatarUpload) {
+        avatarUpload.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                tempAvatar = ev.target.result;
+                document.getElementById('profileAvatar').src = tempAvatar;
+                var ta = document.getElementById('userAvatarTop');
+                if (ta) ta.src = tempAvatar;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
-    document.getElementById('bannerUpload')?.addEventListener('change', function(e) {
-        var file = e.target.files[0];
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-            tempBanner = ev.target.result;
-            document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')';
-        };
-        reader.readAsDataURL(file);
-    });
+    var bannerUpload = document.getElementById('bannerUpload');
+    if (bannerUpload) {
+        bannerUpload.addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                tempBanner = ev.target.result;
+                document.getElementById('profileBanner').style.backgroundImage = 'url(' + tempBanner + ')';
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
-    document.getElementById('savePersonal')?.addEventListener('click', async function() {
-        var data = {
-            id: currentUser.id,
-            full_name: getValue('editName'),
-            nickname: getValue('editNickname'),
-            bio: getValue('editBio'),
-            updated_at: new Date().toISOString()
-        };
-        if (tempAvatar) data.avatar_url = tempAvatar;
-        if (tempBanner) data.banner_url = tempBanner;
-        var { error } = await supabase.from('profiles').upsert(data);
-        if (error) { showNotification('Error', error.message, 'error'); return; }
-        tempAvatar = null;
-        tempBanner = null;
-        document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
-        var tn = document.getElementById('userNameDisplay');
-        if (tn) tn.textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
-        showNotification('Perfil actualizado', 'Guardado correctamente', 'success');
-    });
+    var saveBtn = document.getElementById('savePersonal');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', async function() {
+            var data = {
+                id: currentUser.id,
+                full_name: document.getElementById('editName').value.trim(),
+                nickname: document.getElementById('editNickname').value.trim(),
+                bio: document.getElementById('editBio').value.trim(),
+                updated_at: new Date().toISOString()
+            };
+            if (tempAvatar) data.avatar_url = tempAvatar;
+            if (tempBanner) data.banner_url = tempBanner;
+            
+            var result = await supabase.from('profiles').upsert(data);
+            if (result.error) { alert('Error: ' + result.error.message); return; }
+            
+            tempAvatar = null;
+            tempBanner = null;
+            document.getElementById('profileName').textContent = data.nickname || data.full_name || 'Usuario';
+            var tn = document.getElementById('userNameDisplay');
+            if (tn) tn.textContent = data.nickname || data.full_name || currentUser.email.split('@')[0];
+            alert('Perfil actualizado');
+        });
+    }
 
-    document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
-        var p1 = getValue('newPassword');
-        var p2 = getValue('confirmNewPassword');
-        if (!p1 || !p2) { showNotification('Error', 'Completa los campos', 'error'); return; }
-        if (p1 !== p2) { showNotification('Error', 'No coinciden', 'error'); return; }
-        if (p1.length < 3) { showNotification('Error', 'Mínimo 3 caracteres', 'error'); return; }
-        var { error } = await supabase.auth.updateUser({ password: p1 });
-        if (error) { showNotification('Error', error.message, 'error'); }
-        else {
-            showNotification('Contraseña actualizada', 'Correo de confirmación enviado', 'success');
-            setValue('newPassword', '');
-            setValue('confirmNewPassword', '');
-        }
-    });
+    var passBtn = document.getElementById('changePasswordBtn');
+    if (passBtn) {
+        passBtn.addEventListener('click', async function() {
+            var p1 = document.getElementById('newPassword').value.trim();
+            var p2 = document.getElementById('confirmNewPassword').value.trim();
+            if (!p1 || !p2) { alert('Completa los campos'); return; }
+            if (p1 !== p2) { alert('No coinciden'); return; }
+            if (p1.length < 3) { alert('Minimo 3 caracteres'); return; }
+            var result = await supabase.auth.updateUser({ password: p1 });
+            if (result.error) { alert('Error: ' + result.error.message); }
+            else {
+                alert('Contrasena actualizada');
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+            }
+        });
+    }
 
-    document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
-        var email = getValue('newEmail');
-        if (!email) { showNotification('Error', 'Ingresa un correo', 'error'); return; }
-        var { error } = await supabase.auth.updateUser({ email: email });
-        if (error) { showNotification('Error', error.message, 'error'); }
-        else { showNotification('Solicitud enviada', 'Revisa tu correo para confirmar', 'success'); }
-    });
+    var emailBtn = document.getElementById('changeEmailBtn');
+    if (emailBtn) {
+        emailBtn.addEventListener('click', async function() {
+            var email = document.getElementById('newEmail').value.trim();
+            if (!email) { alert('Ingresa un correo'); return; }
+            var result = await supabase.auth.updateUser({ email: email });
+            if (result.error) { alert('Error: ' + result.error.message); }
+            else { alert('Solicitud enviada. Revisa tu correo.'); }
+        });
+    }
 
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -183,64 +217,57 @@ function setupEvents() {
         });
     });
 
-    document.getElementById('deleteAccountBtn')?.addEventListener('click', function() {
-        document.getElementById('deleteModal').style.display = 'flex';
-    });
+    var deleteBtn = document.getElementById('deleteAccountBtn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function() {
+            document.getElementById('deleteModal').style.display = 'flex';
+        });
+    }
 
-    document.getElementById('cancelDelete')?.addEventListener('click', function() {
-        document.getElementById('deleteModal').style.display = 'none';
-        setValue('deleteConfirmInput', '');
-    });
+    var cancelBtn = document.getElementById('cancelDelete');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            document.getElementById('deleteModal').style.display = 'none';
+            document.getElementById('deleteConfirmInput').value = '';
+        });
+    }
 
-    document.getElementById('deleteConfirmInput')?.addEventListener('input', function() {
-        document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR';
-    });
+    var confirmInput = document.getElementById('deleteConfirmInput');
+    if (confirmInput) {
+        confirmInput.addEventListener('input', function() {
+            document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR';
+        });
+    }
 
-    document.getElementById('confirmDelete')?.addEventListener('click', async function() {
-        try {
+    var confirmBtn = document.getElementById('confirmDelete');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', async function() {
             await supabase.from('profiles').delete().eq('id', currentUser.id);
             await supabase.from('orders').delete().eq('user_id', currentUser.id);
-            await supabase.from('reviews').delete().eq('user_id', currentUser.id);
-            await supabase.from('favorites').delete().eq('user_id', currentUser.id);
-            await supabase.from('cart_items').delete().eq('user_id', currentUser.id);
             await supabase.auth.signOut();
             localStorage.clear();
             window.location.href = BASE_URL + '/index.html';
-        } catch (e) {
+        });
+    }
+
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
             await supabase.auth.signOut();
-            localStorage.clear();
             window.location.href = BASE_URL + '/index.html';
-        }
-    });
-
-    document.getElementById('logoutBtn')?.addEventListener('click', async function(e) {
-        e.preventDefault();
-        await supabase.auth.signOut();
-        window.location.href = BASE_URL + '/index.html';
-    });
+        });
+    }
 }
 
-function showNotification(title, message, type) {
-    var existing = document.querySelector('.notify-toast');
-    if (existing) existing.remove();
-    var icons = { success: 'check_circle', error: 'error', info: 'info' };
-    var toast = document.createElement('div');
-    toast.className = 'notify-toast notify-' + type;
-    toast.innerHTML = '<div class="notify-icon"><span class="material-icons">' + (icons[type] || 'info') + '</span></div><div class="notify-content"><div class="notify-title">' + title + '</div><div class="notify-message">' + message + '</div></div><button class="notify-close" onclick="this.parentElement.remove()"><span class="material-icons">close</span></button><div class="notify-progress"></div>';
-    document.body.appendChild(toast);
-    setTimeout(function() { toast.classList.add('show'); }, 10);
-    setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400); }, 4000);
-}
-
-function getValue(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-function setValue(id, value) { var el = document.getElementById(id); if (el) el.value = value; }
-function setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
-function showEl(id) { var el = document.getElementById(id); if (el) el.style.display = 'block'; }
 function updateCartBadge() {
     var cart = JSON.parse(localStorage.getItem('yxCart') || '[]');
     var count = cart.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
     var badge = document.getElementById('cartCount');
-    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'flex' : 'none';
+    }
 }
 
 init();
