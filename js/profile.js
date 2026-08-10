@@ -66,7 +66,7 @@ async function loadProfile() {
     setValue('editUsername', profile.username || '');
     setValue('editBio', profile.bio || '');
 
-    // Discord
+    // Discord - Solo muestra si ya está vinculado
     if (profile.discord_username) {
         setText('discordStatusText', 'Vinculado como ' + profile.discord_username);
         showEl('discordLinkedInfo');
@@ -112,6 +112,7 @@ function setupNavigation() {
 }
 
 function setupEvents() {
+    // Avatar
     document.getElementById('avatarUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
@@ -119,6 +120,7 @@ function setupEvents() {
         reader.readAsDataURL(file);
     });
 
+    // Banner
     document.getElementById('bannerUpload')?.addEventListener('change', function(e) {
         var file = e.target.files[0]; if (!file) return;
         var reader = new FileReader();
@@ -126,6 +128,7 @@ function setupEvents() {
         reader.readAsDataURL(file);
     });
 
+    // Guardar perfil
     document.getElementById('savePersonal')?.addEventListener('click', async function() {
         var data = { id: currentUser.id, full_name: getValue('editName'), nickname: getValue('editNickname'), bio: getValue('editBio'), updated_at: new Date().toISOString() };
         if (tempAvatar) data.avatar_url = tempAvatar; if (tempBanner) data.banner_url = tempBanner;
@@ -137,6 +140,7 @@ function setupEvents() {
         showNotification('Perfil actualizado', 'Tus datos han sido guardados correctamente', 'success');
     });
 
+    // Cambiar contraseña
     document.getElementById('changePasswordBtn')?.addEventListener('click', async function() {
         var p1 = getValue('newPassword'); var p2 = getValue('confirmNewPassword');
         if (!p1 || !p2) { showNotification('Error', 'Completa todos los campos', 'error'); return; }
@@ -147,6 +151,7 @@ function setupEvents() {
         else { showNotification('Contraseña actualizada', 'Se ha enviado un correo de confirmación', 'success'); setValue('newPassword', ''); setValue('confirmNewPassword', ''); }
     });
 
+    // Cambiar email
     document.getElementById('changeEmailBtn')?.addEventListener('click', async function() {
         var email = getValue('newEmail');
         if (!email) { showNotification('Error', 'Ingresa un correo electrónico', 'error'); return; }
@@ -155,6 +160,7 @@ function setupEvents() {
         else { showNotification('Solicitud enviada', 'Revisa tu nuevo correo para confirmar el cambio', 'success'); }
     });
 
+    // Toggle password
     document.querySelectorAll('.toggle-pass-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var target = document.getElementById(this.dataset.target);
@@ -163,33 +169,6 @@ function setupEvents() {
                 else { target.type = 'password'; this.querySelector('.material-icons').textContent = 'visibility_off'; }
             }
         });
-    });
-
-    // ============================================
-    // VINCULAR DISCORD (POPUP - NO CAMBIA CUENTA)
-    // ============================================
-    document.getElementById('connectDiscordBtn')?.addEventListener('click', function() {
-        var width = 600;
-        var height = 700;
-        var left = (screen.width - width) / 2;
-        var top = (screen.height - height) / 2;
-        
-        var authUrl = 'https://qfgofnlvfxcmzexwuzou.supabase.co/auth/v1/authorize?provider=discord&redirect_to=' + encodeURIComponent(BASE_URL + '/profile.html');
-        
-        var popup = window.open(authUrl, 'DiscordLink', 'width=' + width + ',height=' + height + ',left=' + left + ',top=' + top);
-        
-        if (popup) {
-            showNotification('Autoriza Discord', 'Completa la autorización en la ventana emergente', 'info');
-            var timer = setInterval(function() {
-                if (popup.closed) {
-                    clearInterval(timer);
-                    showNotification('Verificando...', 'Comprobando vinculación de Discord', 'info');
-                    setTimeout(function() { location.reload(); }, 2000);
-                }
-            }, 500);
-        } else {
-            showNotification('Error', 'Permite las ventanas emergentes para vincular Discord', 'error');
-        }
     });
 
     // Tema
