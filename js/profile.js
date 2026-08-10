@@ -151,51 +151,73 @@ function setupEvents() {
         document.getElementById('confirmDelete').disabled = this.value !== 'ELIMINAR'; 
     });
     
-    // ELIMINAR CUENTA REAL
-    document.getElementById('confirmDelete')?.addEventListener('click', async function() {
-        try {
-            showNotification('Eliminando...', 'Borrando todos tus datos', 'info');
-            
-            // Eliminar perfil
-            await supabase.from('profiles').delete().eq('id', currentUser.id);
-            
-            // Eliminar órdenes
-            await supabase.from('orders').delete().eq('user_id', currentUser.id);
-            
-            // Eliminar reseñas
-            await supabase.from('reviews').delete().eq('user_id', currentUser.id);
-            
-            // Eliminar favoritos
-            await supabase.from('favorites').delete().eq('user_id', currentUser.id);
-            
-            // Eliminar carrito
-            await supabase.from('cart_items').delete().eq('user_id', currentUser.id);
-            
-            // Cerrar sesión
-            await supabase.auth.signOut();
-            
-            // Limpiar localStorage
-            localStorage.clear();
-            
-            // Redirigir
+// ELIMINAR CUENTA REAL (BORRA TODO)
+document.getElementById('confirmDelete')?.addEventListener('click', async function() {
+    try {
+        showNotification('Eliminando...', 'Borrando todos tus datos', 'info');
+        
+        // 1. Eliminar perfil
+        await supabase.from('profiles').delete().eq('id', currentUser.id);
+        
+        // 2. Eliminar órdenes
+        await supabase.from('orders').delete().eq('user_id', currentUser.id);
+        
+        // 3. Eliminar reseñas
+        await supabase.from('reviews').delete().eq('user_id', currentUser.id);
+        
+        // 4. Eliminar favoritos
+        await supabase.from('favorites').delete().eq('user_id', currentUser.id);
+        
+        // 5. Eliminar carrito
+        await supabase.from('cart_items').delete().eq('user_id', currentUser.id);
+        
+        // 6. Cerrar sesión primero
+        await supabase.auth.signOut();
+        
+        // 7. Esperar un momento
+        await new Promise(function(resolve) { setTimeout(resolve, 1000); });
+        
+        // 8. Iniciar sesión de nuevo para obtener token fresco
+        var email = currentUser.email;
+        var password = prompt('Para confirmar la eliminación, ingresa tu contraseña:');
+        
+        if (!password) {
             window.location.href = BASE_URL + '/index.html';
-            
-        } catch (e) {
-            console.error('Error al eliminar:', e);
-            // Si falla, al menos cerrar sesión e ir al inicio
-            await supabase.auth.signOut();
-            localStorage.clear();
-            window.location.href = BASE_URL + '/index.html';
+            return;
         }
-    });
-
-    // Logout
-    document.getElementById('logoutBtn')?.addEventListener('click', async function(e) { 
-        e.preventDefault(); 
-        await supabase.auth.signOut(); 
-        window.location.href = BASE_URL + '/index.html'; 
-    });
-}
+        
+        var { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+        
+        if (signInError) {
+            console.error('Error al re-autenticar:', signInError);
+            localStorage.clear();
+            window.location.href = BASE_URL + '/index.html';
+            return;
+        }
+        
+        // 9. Ahora eliminar el usuario de auth.users usando RPC
+        var { error: deleteError } = await supabase.rpc('delete_user');
+        
+        if (deleteError) {
+            console.error('Error al eliminar usuario:', deleteError);
+        } else {
+            console.log('Usuario eliminado de auth.users');
+        }
+        
+        // 10. Limpiar todo y redirigir
+        localStorage.clear();
+        window.location.href = BASE_URL + '/index.html';
+        
+    } catch (e) {
+        console.error('Error al eliminar:', e);
+        await supabase.auth.signOut();
+        localStorage.clear();
+        window.location.href = BASE_URL + '/index.html';
+    }
+});
 
 function showNotification(title, message, type) {
     var existing = document.querySelector('.notify-toast'); if (existing) existing.remove();
