@@ -945,3 +945,35 @@ input, textarea, select { font-family: 'Poppins', sans-serif; }
     cursor: pointer; padding: 4px; z-index: 2;
 }
 .toggle-pass-btn:hover { color: var(--accent); }
+
+/* Toggle password button */
+.toggle-pass-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    z-index: 2;
+}
+.toggle-pass-btn:hover { color: var(--accent); }
+
+/* Input with icon wrapper */
+.input-with-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.input-left-icon {
+    position: absolute;
+    left: 11px;
+    color: var(--accent);
+    font-size: 1.1em;
+    z-index: 1;
+}
+.form-input.has-left-icon {
+    padding-left: 40px;
+}
