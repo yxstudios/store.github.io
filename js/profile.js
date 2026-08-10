@@ -181,9 +181,26 @@ function setupEvents() {
     });
 
     // Discord
-    document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
-        await supabase.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: BASE_URL + '/profile.html' } });
-    });
+// Vincular Discord (sin cambiar de cuenta)
+document.getElementById('connectDiscordBtn')?.addEventListener('click', async function() {
+    try {
+        // Usar linkIdentity para vincular sin cerrar sesión
+        var { error } = await supabase.auth.linkIdentity({ provider: 'discord' });
+        if (error) {
+            // Si linkIdentity no funciona, usar signInWithOAuth
+            await supabase.auth.signInWithOAuth({
+                provider: 'discord',
+                options: { redirectTo: BASE_URL + '/profile.html' }
+            });
+        } else {
+            showNotification('Discord vinculado', 'Tu cuenta de Discord ha sido vinculada correctamente', 'success');
+            // Recargar perfil
+            setTimeout(function() { location.reload(); }, 1500);
+        }
+    } catch (e) {
+        console.error('Error:', e);
+    }
+});
 
     // Tema
     document.querySelectorAll('.theme-dot').forEach(function(dot) {
