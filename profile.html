@@ -1,5 +1,3 @@
----
----
 <!DOCTYPE html>
 <html lang="es" data-theme="red">
 <head>
@@ -13,7 +11,6 @@
 </head>
 <body>
 
-    <!-- THEME SWITCHER -->
     <div class="theme-switcher">
         <div class="theme-toggle-btn"><i class="fas fa-palette"></i></div>
         <div class="theme-panel">
@@ -27,7 +24,6 @@
         </div>
     </div>
 
-    <!-- TOPBAR -->
     <nav class="topbar">
         <div class="topbar-container">
             <div class="topbar-brand">
@@ -37,16 +33,16 @@
                 </a>
             </div>
             <div class="topbar-nav">
-                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span data-i18n="home">Home</span></a>
-                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span><span data-i18n="cart">Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
+                <a href="index.html" class="nav-link"><span class="material-icons">home</span><span>Home</span></a>
+                <a href="cart.html" class="nav-link cart-link"><span class="material-icons">shopping_cart</span><span>Carrito</span><span id="cartCount" class="cart-badge">0</span></a>
                 <div class="user-menu" style="display:flex;">
                     <div class="user-dropdown">
                         <button class="user-dropdown-btn"><img id="userAvatarTop" src="https://via.placeholder.com/32" class="user-avatar"><span id="userNameDisplay">Usuario</span><span class="material-icons">arrow_drop_down</span></button>
                         <div class="user-dropdown-content">
-                            <a href="profile.html"><span class="material-icons">person</span> <span data-i18n="profile">Mi Perfil</span></a>
-                            <a href="cart.html"><span class="material-icons">shopping_cart</span> <span data-i18n="cart">Carrito</span></a>
+                            <a href="profile.html"><span class="material-icons">person</span> Mi Perfil</a>
+                            <a href="cart.html"><span class="material-icons">shopping_cart</span> Carrito</a>
                             <div class="dropdown-divider"></div>
-                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> <span data-i18n="logout">Cerrar Sesión</span></a>
+                            <a href="#" id="logoutBtn"><span class="material-icons">logout</span> Cerrar Sesión</a>
                         </div>
                     </div>
                 </div>
@@ -54,21 +50,15 @@
         </div>
     </nav>
 
-    <!-- BANNER -->
     <div class="profile-banner-wrapper">
         <div class="profile-banner" id="profileBanner" style="background-image:url('https://via.placeholder.com/1200x300/1a1a1a/333333?text=Banner');">
             <div class="profile-banner-overlay"></div>
-            <label for="bannerUpload" class="profile-banner-edit-btn">
-                <span class="material-icons">edit</span> <span data-i18n="change_cover">Cambiar portada</span>
-            </label>
+            <label for="bannerUpload" class="profile-banner-edit-btn"><span class="material-icons">edit</span> Cambiar portada</label>
             <input type="file" id="bannerUpload" accept="image/*" style="display:none;">
         </div>
     </div>
 
-    <!-- PROFILE CONTAINER -->
     <main class="profile-main-container">
-        
-        <!-- SIDEBAR -->
         <div class="profile-sidebar-card">
             <div class="avatar-section">
                 <div class="avatar-wrapper">
@@ -81,51 +71,44 @@
                 <span class="badge" id="profileBadge">Cliente</span>
             </div>
             <nav class="profile-menu">
-                <a href="#" class="profile-menu-link active" data-section="personal"><span class="material-icons">person</span> <span data-i18n="personal_info">Información Personal</span></a>
-                <a href="#" class="profile-menu-link" data-section="connections"><span class="material-icons">link</span> <span data-i18n="connections">Conexiones</span></a>
-                <a href="#" class="profile-menu-link" data-section="security"><span class="material-icons">security</span> <span data-i18n="security_title">Seguridad</span></a>
-                <a href="#" class="profile-menu-link" data-section="purchases"><span class="material-icons">shopping_bag</span> <span data-i18n="purchase_history">Historial de Compras</span></a>
-                <a href="#" class="profile-menu-link" data-section="invoices"><span class="material-icons">receipt_long</span> <span data-i18n="invoices">Facturación</span></a>
-                <a href="#" class="profile-menu-link" data-section="settings"><span class="material-icons">settings</span> <span data-i18n="settings_title">Configuración</span></a>
-                <a href="#" class="profile-menu-link" data-section="danger"><span class="material-icons" style="color:var(--danger);">dangerous</span> <span data-i18n="danger_zone">Zona de Peligro</span></a>
+                <a href="#" class="profile-menu-link active" data-section="personal"><span class="material-icons">person</span> Información</a>
+                <a href="#" class="profile-menu-link" data-section="connections"><span class="material-icons">link</span> Conexiones</a>
+                <a href="#" class="profile-menu-link" data-section="security"><span class="material-icons">security</span> Seguridad</a>
+                <a href="#" class="profile-menu-link" data-section="purchases"><span class="material-icons">shopping_bag</span> Compras</a>
+                <a href="#" class="profile-menu-link" data-section="invoices"><span class="material-icons">receipt_long</span> Facturación</a>
+                <a href="#" class="profile-menu-link" data-section="settings"><span class="material-icons">settings</span> Configuración</a>
+                <a href="#" class="profile-menu-link" data-section="danger"><span class="material-icons" style="color:var(--danger);">dangerous</span> Peligro</a>
             </nav>
         </div>
         
-        <!-- CONTENT -->
         <div class="profile-content-card">
             
-            <!-- INFORMACIÓN PERSONAL -->
             <div id="personalSection" class="profile-section-block active">
-                <h3 data-i18n="personal_info">Información Personal</h3>
+                <h3>Información Personal</h3>
                 <div class="form-grid">
-                    <div class="form-field"><label data-i18n="full_name">Nombre completo</label><input type="text" id="editName" class="form-input" data-i18n="full_name_placeholder" placeholder="Tu nombre completo"></div>
-                    <div class="form-field"><label data-i18n="nickname">Apodo</label><input type="text" id="editNickname" class="form-input" data-i18n="nickname_placeholder" placeholder="Tu apodo"></div>
+                    <div class="form-field"><label>Nombre completo</label><input type="text" id="editName" class="form-input"></div>
+                    <div class="form-field"><label>Apodo</label><input type="text" id="editNickname" class="form-input"></div>
                 </div>
-                <div class="form-field">
-                    <label data-i18n="username_label">@Usuario</label>
-                    <div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="text" id="editUsername" class="form-input has-left-icon" disabled></div>
-                </div>
-                <div class="form-field"><label data-i18n="bio">Biografía</label><textarea id="editBio" class="form-input form-textarea" data-i18n="bio_placeholder" placeholder="Cuéntanos sobre ti..." rows="3"></textarea></div>
-                <button class="btn-primary" id="savePersonal"><span class="material-icons">save</span> <span data-i18n="save_changes">Guardar Cambios</span></button>
+                <div class="form-field"><label>@Usuario</label><input type="text" id="editUsername" class="form-input" disabled></div>
+                <div class="form-field"><label>Biografía</label><textarea id="editBio" class="form-input" rows="3"></textarea></div>
+                <button class="btn-primary" id="savePersonal"><span class="material-icons">save</span> Guardar Cambios</button>
             </div>
             
-            <!-- CONEXIONES -->
             <div id="connectionsSection" class="profile-section-block">
-                <h3 data-i18n="connections">Conexiones</h3>
-                <p style="color:var(--text-secondary);margin-bottom:20px;" data-i18n="connections_desc">Vincula tus cuentas para una mejor experiencia</p>
+                <h3>Conexiones</h3>
                 
                 <div class="connection-card">
                     <div class="connection-card-inner">
                         <div class="connection-icon-wrapper discord-bg"><i class="fab fa-discord"></i></div>
-                        <div class="connection-info"><h4>Discord</h4><p id="discordStatusText" data-i18n="not_linked">No vinculado</p></div>
-                        <div class="connection-action"><button id="connectDiscordBtn" class="btn-connect"><i class="fab fa-discord"></i> <span data-i18n="link">Vincular</span></button></div>
+                        <div class="connection-info"><h4>Discord</h4><p id="discordStatusText">No vinculado</p></div>
+                        <div class="connection-action"><button id="connectDiscordBtn" class="btn-connect"><i class="fab fa-discord"></i> Vincular</button></div>
                     </div>
                     <div id="discordLinkedInfo" class="connection-linked-info" style="display:none;">
                         <div class="linked-divider"></div>
                         <div class="linked-details">
                             <img id="discordAvatarImg" src="" class="linked-avatar">
                             <div class="linked-text"><strong id="discordLinkedUser">---</strong><span id="discordLinkedDate">---</span></div>
-                            <span class="linked-badge" data-i18n="connected">Conectado</span>
+                            <span class="linked-badge">Conectado</span>
                         </div>
                     </div>
                 </div>
@@ -133,145 +116,94 @@
                 <div class="connection-card">
                     <div class="connection-card-inner">
                         <div class="connection-icon-wrapper roblox-bg"><span class="material-icons">sports_esports</span></div>
-                        <div class="connection-info"><h4>Roblox</h4><p id="robloxStatusText" data-i18n="not_linked">No vinculado</p></div>
+                        <div class="connection-info"><h4>Roblox</h4><p id="robloxStatusText">No vinculado</p></div>
                         <div class="connection-action">
-                            <div class="input-with-icon-wrapper" style="margin-right:10px;"><span class="material-icons input-left-icon">sports_esports</span><input type="text" id="editRobloxConn" class="form-input has-left-icon" data-i18n="roblox_placeholder" placeholder="Username" style="width:160px;"></div>
-                            <button id="connectRobloxBtn" class="btn-connect"><span class="material-icons">link</span> <span data-i18n="link">Vincular</span></button>
+                            <input type="text" id="editRobloxConn" class="form-input" placeholder="Username" style="width:150px;margin-right:10px;">
+                            <button id="connectRobloxBtn" class="btn-connect"><span class="material-icons">link</span> Vincular</button>
                         </div>
                     </div>
                     <div id="robloxLinkedInfo" class="connection-linked-info" style="display:none;">
                         <div class="linked-divider"></div>
                         <div class="linked-details">
                             <img id="robloxAvatarImg" src="" class="linked-avatar">
-                            <div class="linked-text"><strong id="robloxLinkedUser">---</strong><span data-i18n="account_linked">Cuenta vinculada</span></div>
-                            <span class="linked-badge" data-i18n="connected">Conectado</span>
+                            <div class="linked-text"><strong id="robloxLinkedUser">---</strong><span>Cuenta vinculada</span></div>
+                            <span class="linked-badge">Conectado</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- SEGURIDAD -->
             <div id="securitySection" class="profile-section-block">
-                <h3 data-i18n="security_title">Seguridad</h3>
+                <h3>Seguridad</h3>
                 <div class="security-box">
-                    <div class="security-box-header"><span class="material-icons">lock</span><div><h4 data-i18n="password_label">Contraseña</h4><p data-i18n="password_desc">Actualiza tu contraseña periódicamente</p></div></div>
-                    <div class="form-field"><label data-i18n="new_password">Nueva contraseña</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock</span><input type="password" id="newPassword" class="form-input has-left-icon" data-i18n="password_placeholder" placeholder="Mínimo 3 caracteres"><button class="toggle-pass-btn" data-target="newPassword"><span class="material-icons">visibility_off</span></button></div></div>
-                    <div class="form-field"><label data-i18n="confirm_password">Confirmar</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">lock_reset</span><input type="password" id="confirmNewPassword" class="form-input has-left-icon" data-i18n="confirm_password_placeholder" placeholder="Repite la contraseña"><button class="toggle-pass-btn" data-target="confirmNewPassword"><span class="material-icons">visibility_off</span></button></div></div>
-                    <button class="btn-primary" id="changePasswordBtn"><span class="material-icons">lock_reset</span> <span data-i18n="update_password">Actualizar Contraseña</span></button>
+                    <h4>Cambiar Contraseña</h4>
+                    <div class="form-field"><label>Nueva contraseña</label><input type="password" id="newPassword" class="form-input"></div>
+                    <div class="form-field"><label>Confirmar</label><input type="password" id="confirmNewPassword" class="form-input"></div>
+                    <button class="btn-primary" id="changePasswordBtn"><span class="material-icons">lock_reset</span> Actualizar</button>
                 </div>
                 <div class="security-box">
-                    <div class="security-box-header"><span class="material-icons">email</span><div><h4 data-i18n="email_label">Correo Electrónico</h4><p data-i18n="email_desc">Cambia tu dirección de correo</p></div></div>
-                    <div class="current-email-info"><span class="material-icons">info</span><span data-i18n="current_email">Correo actual: <strong id="tooltipEmail">cargando...</strong></span></div>
-                    <div class="form-field"><label data-i18n="new_email">Nuevo correo</label><div class="input-with-icon-wrapper"><span class="material-icons input-left-icon">alternate_email</span><input type="email" id="newEmail" class="form-input has-left-icon" data-i18n="new_email_placeholder" placeholder="nuevo@correo.com"></div></div>
-                    <button class="btn-primary" id="changeEmailBtn"><span class="material-icons">send</span> <span data-i18n="request_change">Solicitar Cambio</span></button>
+                    <h4>Cambiar Correo</h4>
+                    <p style="color:var(--text-muted);font-size:0.85em;">Correo actual: <strong id="tooltipEmail">cargando...</strong></p>
+                    <div class="form-field"><label>Nuevo correo</label><input type="email" id="newEmail" class="form-input"></div>
+                    <button class="btn-primary" id="changeEmailBtn"><span class="material-icons">send</span> Solicitar Cambio</button>
                 </div>
             </div>
             
-            <!-- COMPRAS -->
             <div id="purchasesSection" class="profile-section-block">
-                <h3 data-i18n="purchase_history">Historial de Compras</h3>
-                <div class="purchases-filters">
-                    <div class="input-with-icon-wrapper" style="flex:1;max-width:300px;"><span class="material-icons input-left-icon">search</span><input type="text" id="searchPurchases" class="form-input has-left-icon" data-i18n="search_purchases" placeholder="Buscar compra..."></div>
-                    <select id="filterStatus" class="form-input" style="max-width:180px;"><option value="all" data-i18n="all">Todos</option><option value="completed" data-i18n="completed">Completado</option></select>
-                </div>
-                <div class="table-scroll"><table class="purchases-table"><thead><tr><th data-i18n="order">Pedido</th><th data-i18n="date">Fecha</th><th data-i18n="products">Productos</th><th data-i18n="total_label">Total</th><th data-i18n="status">Estado</th><th></th></tr></thead><tbody id="purchasesTableBody"><tr><td colspan="6" class="table-empty-message" data-i18n="no_purchases">No tienes compras</td></tr></tbody></table></div>
+                <h3>Historial de Compras</h3>
+                <div class="table-scroll"><table class="purchases-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Productos</th><th>Total</th><th>Estado</th></tr></thead><tbody id="purchasesTableBody"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted);">No tienes compras</td></tr></tbody></table></div>
             </div>
             
-            <!-- FACTURACIÓN -->
             <div id="invoicesSection" class="profile-section-block">
-                <h3 data-i18n="invoices">Facturación</h3>
-                <div id="invoicesList"><p class="text-muted" data-i18n="no_invoices">No hay facturas disponibles</p></div>
+                <h3>Facturación</h3>
+                <div id="invoicesList"><p style="text-align:center;padding:40px;color:var(--text-muted);">No hay facturas disponibles</p></div>
             </div>
             
-            <!-- CONFIGURACIÓN -->
             <div id="settingsSection" class="profile-section-block">
-                <h3 data-i18n="settings_title">Configuración</h3>
-                
+                <h3>Configuración</h3>
                 <div class="settings-card-pro">
-                    <div class="settings-card-header">
-                        <span class="material-icons">translate</span>
-                        <div><h4 data-i18n="language">Idioma</h4><p data-i18n="language_desc">Selecciona tu idioma preferido</p></div>
-                    </div>
+                    <h4>Idioma</h4>
                     <div class="dropdown-wrapper" id="profileLangDropdown">
-                        <button class="dropdown-btn settings-dropdown-btn" onclick="toggleDropdown('profileLangDropdown')">
-                            <span id="profileCurrentLang">ES</span>
-                            <span class="material-icons dropdown-arrow">expand_more</span>
-                        </button>
+                        <button class="dropdown-btn settings-dropdown-btn" onclick="toggleDropdown('profileLangDropdown')"><span id="profileCurrentLang">ES</span><span class="material-icons dropdown-arrow">expand_more</span></button>
                         <div class="dropdown-menu">
                             <button class="dropdown-item active" data-lang="es" onclick="selectProfileLang('es')"><span class="flag-icon flag-es"></span> Español</button>
                             <button class="dropdown-item" data-lang="en" onclick="selectProfileLang('en')"><span class="flag-icon flag-us"></span> English</button>
                             <button class="dropdown-item" data-lang="pt" onclick="selectProfileLang('pt')"><span class="flag-icon flag-br"></span> Português</button>
                             <button class="dropdown-item" data-lang="fr" onclick="selectProfileLang('fr')"><span class="flag-icon flag-fr"></span> Français</button>
-                            <button class="dropdown-item" data-lang="de" onclick="selectProfileLang('de')"><span class="flag-icon flag-de"></span> Deutsch</button>
-                            <button class="dropdown-item" data-lang="it" onclick="selectProfileLang('it')"><span class="flag-icon flag-it"></span> Italiano</button>
-                            <button class="dropdown-item" data-lang="ja" onclick="selectProfileLang('ja')"><span class="flag-icon flag-jp"></span> 日本語</button>
-                            <button class="dropdown-item" data-lang="ko" onclick="selectProfileLang('ko')"><span class="flag-icon flag-kr"></span> 한국어</button>
-                            <button class="dropdown-item" data-lang="ru" onclick="selectProfileLang('ru')"><span class="flag-icon flag-ru"></span> Русский</button>
-                            <button class="dropdown-item" data-lang="zh" onclick="selectProfileLang('zh')"><span class="flag-icon flag-cn"></span> 中文</button>
                         </div>
                     </div>
                 </div>
-                
                 <div class="settings-card-pro">
-                    <div class="settings-card-header">
-                        <span class="material-icons">payments</span>
-                        <div><h4 data-i18n="currency">Moneda</h4><p data-i18n="currency_desc">Selecciona tu moneda preferida</p></div>
-                    </div>
+                    <h4>Moneda</h4>
                     <div class="dropdown-wrapper" id="profileCurrencyDropdown">
-                        <button class="dropdown-btn settings-dropdown-btn" onclick="toggleDropdown('profileCurrencyDropdown')">
-                            <span id="profileCurrentCurrency">USD</span>
-                            <span class="material-icons dropdown-arrow">expand_more</span>
-                        </button>
+                        <button class="dropdown-btn settings-dropdown-btn" onclick="toggleDropdown('profileCurrencyDropdown')"><span id="profileCurrentCurrency">USD</span><span class="material-icons dropdown-arrow">expand_more</span></button>
                         <div class="dropdown-menu">
-                            <button class="dropdown-item active" data-currency="USD" onclick="selectProfileCurrency('USD')"><span class="dropdown-symbol">$</span> USD - Dólar</button>
-                            <button class="dropdown-item" data-currency="EUR" onclick="selectProfileCurrency('EUR')"><span class="dropdown-symbol">€</span> EUR - Euro</button>
-                            <button class="dropdown-item" data-currency="PEN" onclick="selectProfileCurrency('PEN')"><span class="dropdown-symbol">S/</span> PEN - Sol</button>
-                            <button class="dropdown-item" data-currency="MXN" onclick="selectProfileCurrency('MXN')"><span class="dropdown-symbol">MX$</span> MXN - Peso MX</button>
-                            <button class="dropdown-item" data-currency="COP" onclick="selectProfileCurrency('COP')"><span class="dropdown-symbol">CO$</span> COP - Peso CO</button>
-                            <button class="dropdown-item" data-currency="CLP" onclick="selectProfileCurrency('CLP')"><span class="dropdown-symbol">CL$</span> CLP - Peso CL</button>
-                            <button class="dropdown-item" data-currency="ARS" onclick="selectProfileCurrency('ARS')"><span class="dropdown-symbol">AR$</span> ARS - Peso AR</button>
-                            <button class="dropdown-item" data-currency="BRL" onclick="selectProfileCurrency('BRL')"><span class="dropdown-symbol">R$</span> BRL - Real</button>
-                            <button class="dropdown-item" data-currency="GBP" onclick="selectProfileCurrency('GBP')"><span class="dropdown-symbol">£</span> GBP - Libra</button>
-                            <button class="dropdown-item" data-currency="JPY" onclick="selectProfileCurrency('JPY')"><span class="dropdown-symbol">¥</span> JPY - Yen</button>
-                            <button class="dropdown-item" data-currency="CAD" onclick="selectProfileCurrency('CAD')"><span class="dropdown-symbol">CA$</span> CAD - Canadiense</button>
-                            <button class="dropdown-item" data-currency="AUD" onclick="selectProfileCurrency('AUD')"><span class="dropdown-symbol">AU$</span> AUD - Australiano</button>
+                            <button class="dropdown-item active" data-currency="USD" onclick="selectProfileCurrency('USD')">$ USD</button>
+                            <button class="dropdown-item" data-currency="EUR" onclick="selectProfileCurrency('EUR')">€ EUR</button>
+                            <button class="dropdown-item" data-currency="PEN" onclick="selectProfileCurrency('PEN')">S/ PEN</button>
+                            <button class="dropdown-item" data-currency="MXN" onclick="selectProfileCurrency('MXN')">MX$ MXN</button>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="settings-card-pro">
-                    <div class="settings-card-header">
-                        <span class="material-icons">palette</span>
-                        <div><h4 data-i18n="theme">Tema</h4><p data-i18n="theme_desc">Personaliza el color de acento</p></div>
-                    </div>
-                    <div class="theme-dots" style="justify-content:flex-start;padding:10px 0;">
-                        <button class="theme-dot active" data-accent="red" style="background:#ff2d2d;"></button>
-                        <button class="theme-dot" data-accent="dark-gray" style="background:#888;"></button>
-                        <button class="theme-dot" data-accent="blue" style="background:#2196f3;"></button>
-                        <button class="theme-dot" data-accent="purple" style="background:#9c27b0;"></button>
                     </div>
                 </div>
             </div>
             
-            <!-- ZONA DE PELIGRO -->
             <div id="dangerSection" class="profile-section-block">
-                <h3 style="color:var(--danger);" data-i18n="danger_zone">Zona de Peligro</h3>
+                <h3 style="color:var(--danger);">Zona de Peligro</h3>
                 <div class="danger-box">
-                    <div class="danger-box-info"><span class="material-icons danger-icon">warning</span><div><h4 data-i18n="delete_account">Eliminar Cuenta</h4><p data-i18n="delete_account_desc">Esta acción es irreversible.</p></div></div>
-                    <button class="btn-danger" id="deleteAccountBtn"><span class="material-icons">delete_forever</span> <span data-i18n="delete_my_account">Eliminar mi cuenta</span></button>
+                    <div><h4 style="color:var(--danger);">Eliminar Cuenta</h4><p style="color:var(--text-muted);font-size:0.85em;">Acción irreversible.</p></div>
+                    <button class="btn-danger" id="deleteAccountBtn"><span class="material-icons">delete_forever</span> Eliminar</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- MODAL ELIMINAR -->
     <div id="deleteModal" class="modal-overlay-profile" style="display:none;">
         <div class="modal-card-profile">
             <span class="material-icons modal-warn-icon">warning</span>
-            <h3 data-i18n="delete_account">Eliminar Cuenta</h3>
-            <p data-i18n="delete_confirm_text">Escribe <strong>ELIMINAR</strong> para confirmar:</p>
-            <input type="text" id="deleteConfirmInput" class="form-input" data-i18n="delete_confirm_placeholder" placeholder="Escribe ELIMINAR">
-            <div class="modal-buttons"><button class="btn-outline" id="cancelDelete" data-i18n="cancel">Cancelar</button><button class="btn-danger" id="confirmDelete" disabled data-i18n="delete_permanently">Eliminar</button></div>
+            <h3>Eliminar Cuenta</h3>
+            <p>Escribe <strong>ELIMINAR</strong> para confirmar:</p>
+            <input type="text" id="deleteConfirmInput" class="form-input" placeholder="Escribe ELIMINAR">
+            <div class="modal-buttons"><button class="btn-outline" id="cancelDelete">Cancelar</button><button class="btn-danger" id="confirmDelete" disabled>Eliminar</button></div>
         </div>
     </div>
 
@@ -279,15 +211,11 @@
     <script src="js/translations.js"></script>
     <script src="js/theme.js"></script>
     <script>
-        // Aplicar traducciones al cargar
-        applyTranslations();
-        
-        // Dropdowns
         function toggleDropdown(id) {
-            var dropdown = document.getElementById(id);
-            var isOpen = dropdown.classList.contains('open');
-            document.querySelectorAll('.dropdown-wrapper').forEach(function(d) { d.classList.remove('open'); });
-            if (!isOpen) dropdown.classList.add('open');
+            var d = document.getElementById(id);
+            var isOpen = d.classList.contains('open');
+            document.querySelectorAll('.dropdown-wrapper').forEach(function(x) { x.classList.remove('open'); });
+            if (!isOpen) d.classList.add('open');
         }
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.dropdown-wrapper')) {
@@ -299,7 +227,7 @@
             document.getElementById('profileCurrentLang').textContent = lang.toUpperCase();
             document.querySelectorAll('#profileLangDropdown .dropdown-item').forEach(function(item) { item.classList.toggle('active', item.dataset.lang === lang); });
             document.getElementById('profileLangDropdown').classList.remove('open');
-            applyTranslations();
+            if (typeof applyTranslations === 'function') applyTranslations();
         }
         function selectProfileCurrency(currency) {
             localStorage.setItem('yxCurrency', currency);
@@ -314,6 +242,7 @@
             document.getElementById('profileCurrentCurrency').textContent = currency;
             document.querySelectorAll('#profileLangDropdown .dropdown-item').forEach(function(item) { item.classList.toggle('active', item.dataset.lang === lang); });
             document.querySelectorAll('#profileCurrencyDropdown .dropdown-item').forEach(function(item) { item.classList.toggle('active', item.dataset.currency === currency); });
+            if (typeof applyTranslations === 'function') applyTranslations();
         });
     </script>
     <script type="module" src="js/profile.js"></script>
